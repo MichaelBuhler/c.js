@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/MichaelBuhler/c.js/issues"
   },
-  "homepage": "https://github.com/MichaelBuhler/c.js#readme"
+  "homepage": "https://github.com/MichaelBuhler/c.js#readme",
+  "devDependencies": {
+    "ava": "^0.24.0"
+  }
 }
