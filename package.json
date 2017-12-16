@@ -1,0 +1,20 @@
+{
+  "name": "c.js",
+  "version": "0.1.0",
+  "description": "JavaScript -> C transpiler",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node_modules/.bin/ava"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MichaelBuhler/c.js.git"
+  },
+  "author": "Michael Buhler <michael@michaelbuhler.com>",
+  "bugs": {
+    "url": "https://github.com/MichaelBuhler/c.js/issues"
+  },
+  "homepage": "https://github.com/MichaelBuhler/c.js#readme"
+}
