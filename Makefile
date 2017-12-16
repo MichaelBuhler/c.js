@@ -16,6 +16,9 @@ clean:
 	rm -fr out
 
 test: transpiler
-	node test
+	node_modules/.bin/ava
 
-.PHONY: all test clean
+test-verbose: transpiler
+	node_modules/.bin/ava --verbose
+
+.PHONY: all test test-verbose clean
