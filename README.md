@@ -4,19 +4,22 @@ JavaScript -> C transpiler.
 
 ## Build
 
-Build the `c.js` transpiler with make:
+Build the `c.js` transpiler with `make`:
 
 ```
 $ make
 ```
 
-### Requirements
+#### Requirements
 
 The build process requires `flex`, `bison`, and `gcc`.
 Your *nix distro probably has these bundled.
 
 ## Test
 
+Tests are written in JavaScript and run with with `ava`. Use `npm` to install `ava`.
+
 ```
-$ make test
+$ npm install
+$ npm test
 ```

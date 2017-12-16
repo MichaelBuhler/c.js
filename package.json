@@ -6,7 +6,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "node_modules/.bin/ava"
+    "test": "node_modules/.bin/ava  --verbose"
   },
   "repository": {
     "type": "git",

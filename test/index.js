@@ -1,6 +1,8 @@
+import test from 'ava';
+
 const child_process = require('child_process');
 
-const tests = [{
+const scenarios = [{
     name: 'Variable Definition',
     code: 'var buhler;'
 },{
@@ -11,31 +13,26 @@ const tests = [{
     code: 'function buhler() {}'
 },{
     name: 'MemberExpression',
-    code: 'buhler();'
+    code: 'buhler();',
+    failing: true
 }];
 
-const formatWidth = tests.reduce(function (currentValue, test) {
-    return Math.max(currentValue, test.name.length);
-}, -1) + 3;
+scenarios.forEach(function (scenario) {
+    (scenario.failing?test.cb.failing:test.cb)(scenario.name, function (t) {
+        t.plan(1);
 
-tests.forEach(function (test) {
-    const child = child_process.spawn('out/transpiler');
-    child.stdin.end(test.code);
-    let stdout = '';
-    child.stdout.on('data', function (data) {
-        stdout += String(data);
-    });
-    let stderr = '';
-    child.stderr.on('data', function (data) {
-        stderr += String(data);
-    });
-    child.on('close', function (code) {
-        let output = 'test \'' + test.name + '\':';
-        for (let i = formatWidth - test.name.length ; i ; i-- ) output += ' ';
-        console.log( output + ( code === 0 ? '\x1b[1;32mPass\x1b[0m' : '\x1b[1;31mFail\x1b[0m' ));
-        if ( code !== 0 ) {
-            //console.error(stdout);
-            console.error(stderr);
-        }
+        const child = child_process.spawn('out/transpiler');
+        child.stdin.end(scenario.code);
+
+        let stderr = '';
+        child.stderr.on('data', function (data) {
+            return stderr += String(data);
+        });
+
+        child.on('close', function (code) {
+            if ( code === 0 ) t.pass();
+            else t.fail('\x1b[1;31m' + stderr + '\x1b[0m');
+            t.end();
+        });
     });
 });
