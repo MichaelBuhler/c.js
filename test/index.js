@@ -1,6 +1,7 @@
-import test from 'ava';
-
 const child_process = require('child_process');
+
+import test from 'ava';
+const chalk = require('chalk');
 
 const scenarios = [{
     name: 'Variable Definition',
@@ -31,7 +32,7 @@ scenarios.forEach(function (scenario) {
 
         child.on('close', function (code) {
             if ( code === 0 ) t.pass();
-            else t.fail('\x1b[1;31m' + stderr + '\x1b[0m');
+            else t.fail(chalk.red.bold(stderr));
             t.end();
         });
     });
