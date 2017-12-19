@@ -1,54 +1,43 @@
 %{
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdbool.h>
 #include "bison.h"
 %}
 
 %option noyywrap
 
-%%
+%x COMMENT
+%x MULTILINE_COMMENT
 
-[\.\(\)\{\}\;\=\,\+\-\~\!\*\/\%\<\>\&\^\|\:] {
-    printf("lexed %s\n", yytext);
-    return *yytext;
-}
+%%
 
 [\x09\x0b\x0c\x20] {
     /* WhiteSpace */
+    puts("lexed whitespace");
 }
 
 [\x0a\x0d] {
     /* LineTerminator */
+    puts("lexed line_terminator");
 }
 
-break {
-    puts("lexed break");
-    return BREAK;
+"//" {
+    BEGIN(COMMENT);
+}
+<COMMENT>. {}
+<COMMENT>[\x0a\x0d] {
+    puts("lexed comment");
+    BEGIN(INITIAL);
 }
 
-continue {
-    puts("lexed continue");
-    return CONTINUE;
+"/*" {
+    BEGIN(MULTILINE_COMMENT);
 }
-
-delete {
-    puts("lexed delete");
-    return DELETE;
-}
-
-else {
-    puts("lexed else");
-    return ELSE;
-}
-
-false {
-    puts("lexed false");
-    return FALSE;
-}
-
-for {
-    puts("lexed for");
-    return FOR;
+<MULTILINE_COMMENT>. {}
+<MULTILINE_COMMENT>[\x0a\x0d] {}
+<MULTILINE_COMMENT>"*/" {
+    puts("lexed multiline comment");
+    BEGIN(INITIAL);
 }
 
 function {
@@ -56,73 +45,50 @@ function {
     return FUNCTION;
 }
 
-if {
-    puts("lexed if");
-    return IF;
-}
-
-in {
-    puts("lexed in");
-    return IN;
-}
-
-new {
-    puts("lexed new");
-    return NEW;
-}
-
-null {
-    puts("lexed null");
-    return NULL_LITERAL;
-}
-
-return {
-    puts("lexed return");
-    return RETURN;
-}
-
-this {
-    puts("lexed this");
-    return THIS;
-}
-
-true {
-    puts("lexed true");
-    return TRUE;
-}
-
-typeof {
-    puts("lexed typeof");
-    return TYPEOF;
-}
-
 var {
     puts("lexed var");
     return VAR;
 }
 
-void {
-    puts("lexed void");
-    return VOID;
+\, {
+    puts("lexed ,");
+    return COMMA;
 }
 
-while {
-    puts("lexed while");
-    return WHILE;
+\= {
+    puts("lexed =");
+    return EQUALS;
 }
 
-with {
-    puts("lexed with");
-    return WITH;
+\{ {
+    puts("lexed {");
+    return LEFT_BRACE;
 }
 
-[a-zA-Z0-9]+ {
-    printf("lexed symbol: %s\n", yytext);
+\( {
+    puts("lexed (");
+    return LEFT_PAREN;
+}
+
+\} {
+    puts("lexed }");
+    return RIGHT_BRACE;
+}
+
+\) {
+    puts("lexed )");
+    return RIGHT_PAREN;
+}
+
+\; {
+    puts("lexed ;");
+    return SEMICOLON;
+}
+
+[a-zA-Z_$][a-zA-Z0-9_$]* {
+    printf("lexed identifier: %s\n", yytext);
     char* str = (char*) calloc(strlen(yytext), sizeof(char));
     strcpy(str, yytext);
     yylval.string_val = str;
-    return SYMBOL;
+    return IDENTIFIER;
 }
-
-%%
-

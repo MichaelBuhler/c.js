@@ -8,7 +8,7 @@ JavaScript -> C transpiler.
 $ make
 ```
 
-#### Requirements
+### Requirements
 
 Building requires `flex`, `bison`, and `gcc`.
 
@@ -18,9 +18,10 @@ Your *nix distro probably has these bundled.
 
 ```
 $ make test
+$ make test-verbose
 ```
 
-#### Requirements
+### Requirements
 
 Tests require `ava`.
 
