@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include <stdbool.h>
+#include "../src/node.h"
 #include "bison.h"
 %}
 
@@ -89,6 +90,6 @@ var {
     printf("lexed identifier: %s\n", yytext);
     char* str = (char*) calloc(strlen(yytext), sizeof(char));
     strcpy(str, yytext);
-    yylval.string_val = str;
+    yylval.string = str;
     return IDENTIFIER;
 }

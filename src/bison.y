@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include "../src/node.h"
 
 #define YYERROR_VERBOSE
 
@@ -9,14 +10,16 @@ int yyparse();
 FILE* yyin;
 
 void yyerror(const char *s);
+
+node_t* root = NULL;
+
 %}
 
 %union {
-    int   int_val;
-    char* string_val;
+    int   num;
+    char* string;
+    node_t* node;
 }
-
-%token <string_val> IDENTIFIER
 
 %token LINE_TERMINATOR
 
@@ -31,14 +34,21 @@ void yyerror(const char *s);
 %token RIGHT_PAREN
 %token SEMICOLON
 
+%token IDENTIFIER
+
+%type <string> IDENTIFIER
+%type <node> Program SourceElements
+
+%start Program
+
 %%
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 14 Program
 
 Program:
-    /* empty program */ {puts("parsed empty Program");}
-    | SourceElements {puts("parsed Program");}
+    /* empty program */ {puts("parsed empty Program"); root = create_node(PROGRAM, NULL, NULL); }
+    | SourceElements {puts("parsed Program"); root = create_node(PROGRAM, $1, NULL); }
     ;
 
 SourceElements:
