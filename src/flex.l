@@ -90,6 +90,6 @@ var {
     printf("lexed identifier: %s\n", yytext);
     char* str = (char*) calloc(strlen(yytext), sizeof(char));
     strcpy(str, yytext);
-    yylval.string = str;
+    yylval.char_array = str;
     return IDENTIFIER;
 }

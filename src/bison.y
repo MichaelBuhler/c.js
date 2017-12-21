@@ -11,14 +11,18 @@ FILE* yyin;
 
 void yyerror(const char *s);
 
-node_t* root = NULL;
+Program_node* root = NULL;
 
 %}
 
 %union {
-    int   num;
-    char* string;
-    node_t* node;
+    int                        token_id;
+    char*                      char_array;
+    Program_node*              program_node;
+    SourceElements_node*       sourceElements_node;
+    SourceElement_node*        sourceElement_node;
+    FunctionDeclaration_node*  functionDeclaration_node;
+    Statement_node*            statement_node;
 }
 
 %token LINE_TERMINATOR
@@ -34,10 +38,13 @@ node_t* root = NULL;
 %token RIGHT_PAREN
 %token SEMICOLON
 
-%token IDENTIFIER
+%token <char_array> IDENTIFIER
 
-%type <string> IDENTIFIER
-%type <node> Program SourceElements
+%type <char_array>                Identifier
+%type <sourceElements_node>       SourceElements
+%type <sourceElement_node>        SourceElement
+%type <functionDeclaration_node>  FunctionDeclaration
+%type <statement_node>            Statement
 
 %start Program
 
@@ -47,25 +54,25 @@ node_t* root = NULL;
 // 14 Program
 
 Program:
-    /* empty program */ {puts("parsed empty Program"); root = create_node(PROGRAM, NULL, NULL); }
-    | SourceElements {puts("parsed Program"); root = create_node(PROGRAM, $1, NULL); }
+    /* empty program */ { puts("parsed empty Program"); root = createProgram(); }
+    | SourceElements { puts("parsed Program"); root = createProgram(); root->sourceElements = $1; }
     ;
 
 SourceElements:
-    SourceElement {puts("parsed SourceElements");}
-    | SourceElements SourceElement {puts("parsed SourceElements");}
+    SourceElement { puts("parsed SourceElements"); $$ = createSourceElements($1); }
+    | SourceElements SourceElement { puts("parsed SourceElements"); $1->append($1, $2); $$ = $1; }
     ;
 
 SourceElement:
-    Statement {puts("parsed SourceElement");}
-    | FunctionDeclaration {puts("parsed SourceElement");}
+    Statement { puts("parsed SourceElement"); $$ = createSourceElement(STATEMENT_SOURCE_ELEMENT_TYPE, $1); }
+    | FunctionDeclaration { puts("parsed SourceElement"); $$ = createSourceElement(FUNCTION_DECLARATION_SOURCE_ELEMENT_TYPE, $1); }
     ;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 13 Function Definition
 
 FunctionDeclaration:
-    FUNCTION Identifier LEFT_PAREN RIGHT_PAREN Block {puts("parsed FunctionDeclaration");}
+    FUNCTION Identifier LEFT_PAREN RIGHT_PAREN Block { puts("parsed FunctionDeclaration"); $$ = createFunctionDeclaration($2); }
 //    | FUNCTION Identifier '(' FormalParameterList ')' Block {puts("parsed FunctionDeclaration");}
     ;
 
@@ -78,9 +85,9 @@ FunctionDeclaration:
 // 12 Statements
 
 Statement:
-    Block {puts("parsed Statement");}
-    | VariableStatement {puts("parsed Statement");}
-    | EmptyStatement {puts("parsed Statement");}
+    Block { puts("parsed Statement"); $$ = createStatement("BlockStatement"); }
+    | VariableStatement { puts("parsed Statement"); $$ = createStatement("VariableStatement"); }
+    | EmptyStatement { puts("parsed Statement"); $$ = createStatement("EmptyStatement"); }
 //    | ExpressionStatement {puts("parsed Statement");}
 //    | IfStatement {puts("parsed Statement");}
 //    | IterationStatement {puts("parsed Statement");}
@@ -170,7 +177,7 @@ EmptyStatement:
 // 7.5 Identifier
 
 Identifier:
-    IDENTIFIER {puts("parsed Identifier");}
+    IDENTIFIER { puts("parsed Identifier"); $$ = $1; }
     ;
 
 %%
