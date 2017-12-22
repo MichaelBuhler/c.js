@@ -17,6 +17,16 @@ test.cb('Zero Argument Function Definition Block Statement List', runner(functio
     }
 }));
 
+test.cb('One Argument Function Definition Empty Block', runner(function () {
+    function buhler (michael) {
+    }
+}));
+
+test.cb('Multi Argument Function Definition Empty Block', runner(function () {
+    function buhler (michael, other, another) {
+    }
+}));
+
 test.cb('Empty Statement', runner(function () {
     ;
 }));

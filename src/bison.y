@@ -22,6 +22,7 @@ Program_node* root = NULL;
     SourceElements_node*       sourceElements_node;
     SourceElement_node*        sourceElement_node;
     FunctionDeclaration_node*  functionDeclaration_node;
+    FormalParameterList_node*  formalParameterList_node;
     Statement_node*            statement_node;
     StatementList_node*        statementList_node;
     Block_node*                block_node;
@@ -46,6 +47,7 @@ Program_node* root = NULL;
 %type <sourceElements_node>       SourceElements
 %type <sourceElement_node>        SourceElement
 %type <functionDeclaration_node>  FunctionDeclaration
+%type <formalParameterList_node>  FormalParameterList
 %type <statement_node>            Statement
 %type <statementList_node>        StatementList
 %type <block_node>                Block
@@ -76,14 +78,14 @@ SourceElement:
 // 13 Function Definition
 
 FunctionDeclaration:
-    FUNCTION Identifier LEFT_PAREN RIGHT_PAREN Block { puts("parsed FunctionDeclaration"); $$ = createFunctionDeclaration($2, $5); }
-//    | FUNCTION Identifier '(' FormalParameterList ')' Block {puts("parsed FunctionDeclaration");}
+    FUNCTION Identifier LEFT_PAREN RIGHT_PAREN Block { puts("parsed FunctionDeclaration"); $$ = createFunctionDeclaration($2, NULL, $5); }
+    | FUNCTION Identifier LEFT_PAREN FormalParameterList RIGHT_PAREN Block { puts("parsed FunctionDeclaration"); $$ = createFunctionDeclaration($2, $4, $6); }
     ;
 
-//FormalParameterList:
-//    Identifier {puts("parsed FormalParameterList");}
-//    | FormalParameterList ',' Identifier {puts("parsed FormalParameterList");}
-//    ;
+FormalParameterList:
+    Identifier {puts("parsed FormalParameterList"); $$ = createFormalParameterList($1); }
+    | FormalParameterList COMMA Identifier {puts("parsed FormalParameterList"); $1->append($1, $3); $$ = $1; }
+    ;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 12 Statements

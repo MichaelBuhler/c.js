@@ -27,13 +27,23 @@ typedef struct Block_node {
 
 Block_node* createBlock();
 
+typedef struct FormalParameterList_node {
+    int count;
+    char** parameters;
+    void (*append)(struct FormalParameterList_node*, char*);
+    char* (*toString)(struct FormalParameterList_node*);
+} FormalParameterList_node;
+
+FormalParameterList_node* createFormalParameterList(char*);
+
 typedef struct FunctionDeclaration_node {
     char* name;
+    FormalParameterList_node* formalParameterList;
     Block_node* block;
     char* (*toString)(struct FunctionDeclaration_node*);
 } FunctionDeclaration_node;
 
-FunctionDeclaration_node* createFunctionDeclaration(char*, Block_node*);
+FunctionDeclaration_node* createFunctionDeclaration(char*, FormalParameterList_node*, Block_node*);
 
 typedef union SourceElement_union {
     Statement_node* statement;
