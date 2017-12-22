@@ -63,9 +63,9 @@ FunctionDeclaration_node* createFunctionDeclaration(char* name) {
 }
 
 char* SourceElement_toString(SourceElement_node* sourceElement) {
-    if ( strcmp(sourceElement->type, STATEMENT_SOURCE_ELEMENT_TYPE) ) {
+    if ( strcmp(sourceElement->type, STATEMENT_SOURCE_ELEMENT_TYPE) == 0 ) {
         return sourceElement->sourceElement.statement->toString(sourceElement->sourceElement.statement);
-    } else if ( strcmp(sourceElement->type, FUNCTION_DECLARATION_SOURCE_ELEMENT_TYPE) ) {
+    } else if ( strcmp(sourceElement->type, FUNCTION_DECLARATION_SOURCE_ELEMENT_TYPE) == 0 ) {
         return sourceElement->sourceElement.functionDeclaration->toString(sourceElement->sourceElement.functionDeclaration);
     } else {
         fprintf(stderr, "Error: unknown SourceElement type: %s", sourceElement->type);
@@ -76,9 +76,9 @@ char* SourceElement_toString(SourceElement_node* sourceElement) {
 SourceElement_node* createSourceElement(char* type, void* untypedSourceElement) {
     SourceElement_node* sourceElement = (SourceElement_node*) calloc(1, sizeof(SourceElement_node));
     sourceElement->type = type;
-    if ( strcmp(type, STATEMENT_SOURCE_ELEMENT_TYPE) ) {
+    if ( strcmp(type, STATEMENT_SOURCE_ELEMENT_TYPE) == 0 ) {
         sourceElement->sourceElement.statement = (Statement_node*) untypedSourceElement;
-    } else if ( strcmp(type, FUNCTION_DECLARATION_SOURCE_ELEMENT_TYPE) ) {
+    } else if ( strcmp(type, FUNCTION_DECLARATION_SOURCE_ELEMENT_TYPE) == 0 ) {
         sourceElement->sourceElement.functionDeclaration = (FunctionDeclaration_node*) untypedSourceElement;
     } else {
         fprintf(stderr, "Error: unknown SourceElement type: %s", sourceElement->type);
