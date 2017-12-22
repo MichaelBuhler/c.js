@@ -11,13 +11,29 @@ typedef struct Statement_node {
 
 Statement_node* createStatement(char*);
 
+typedef struct StatementList_node {
+    int count;
+    Statement_node** statements;
+    void (*append)(struct StatementList_node*, Statement_node*);
+    char* (*toString)(struct StatementList_node*);
+} StatementList_node;
+
+StatementList_node* createStatementList(Statement_node*);
+
+typedef struct Block_node {
+    StatementList_node* statementList;
+    char* (*toString)(struct Block_node*);
+} Block_node;
+
+Block_node* createBlock();
+
 typedef struct FunctionDeclaration_node {
     char* name;
-    // TODO MichaelBuhler: pointer to Body node
+    Block_node* block;
     char* (*toString)(struct FunctionDeclaration_node*);
 } FunctionDeclaration_node;
 
-FunctionDeclaration_node* createFunctionDeclaration(char*);
+FunctionDeclaration_node* createFunctionDeclaration(char*, Block_node*);
 
 typedef union SourceElement_union {
     Statement_node* statement;

@@ -50,14 +50,65 @@ Statement_node* createStatement(char* value) {
     return statement;
 }
 
-char* FunctionDeclaration_toString(FunctionDeclaration_node* functionDeclaration) {
-    char* string = new_string("function:");
-    return concat(string, functionDeclaration->name);
+void StatementList_append(StatementList_node* statementList, Statement_node* statement) {
+    statementList->statements = (Statement_node**) realloc(statementList->statements, ( statementList->count + 1 ) * sizeof(Statement_node*));
+    statementList->statements[statementList->count] = statement;
+    statementList->count += 1;
 }
 
-FunctionDeclaration_node* createFunctionDeclaration(char* name) {
+char* StatementList_toString(StatementList_node* statementList) {
+    char* string = new_string("StatementList");
+    for ( int i = 0 ; i < statementList->count ; i++ ) {
+        string = concat(string, "\n");
+        char* tmp = statementList->statements[i]->toString(statementList->statements[i]);
+        string = concat(string, indent(tmp));
+        free(tmp);
+    }
+    return string;
+}
+
+StatementList_node* createStatementList(Statement_node* statement) {
+    StatementList_node* statementList = (StatementList_node*) calloc(1, sizeof(StatementList_node));
+    statementList->count = 0;
+    statementList->statements = NULL;
+    statementList->append = StatementList_append;
+    statementList->toString = StatementList_toString;
+    statementList->append(statementList, statement);
+    return statementList;
+}
+
+char* Block_toString(Block_node* block) {
+    char* string = new_string("Block");
+    if ( block->statementList != NULL ) {
+        string = concat(string, "\n");
+        char* tmp = block->statementList->toString(block->statementList);
+        string = concat(string, indent(tmp));
+        free(tmp);
+    }
+    return string;
+}
+
+Block_node* createBlock() {
+    Block_node* block = (Block_node*) calloc(1, sizeof(Block_node));
+    block->statementList = NULL;
+    block->toString = Block_toString;
+    return block;
+}
+
+char* FunctionDeclaration_toString(FunctionDeclaration_node* functionDeclaration) {
+    char* string = new_string("Function: ");
+    string = concat(string, functionDeclaration->name);
+    string = concat(string, " ()\n");
+    char* tmp = functionDeclaration->block->toString(functionDeclaration->block);
+    string = concat(string, indent(tmp));
+    free(tmp);
+    return string;
+}
+
+FunctionDeclaration_node* createFunctionDeclaration(char* name, Block_node* block) {
     FunctionDeclaration_node* functionDeclaration = (FunctionDeclaration_node*) calloc(1, sizeof(FunctionDeclaration_node));
     functionDeclaration->name = name;
+    functionDeclaration->block = block;
     functionDeclaration->toString = FunctionDeclaration_toString;
     return functionDeclaration;
 }

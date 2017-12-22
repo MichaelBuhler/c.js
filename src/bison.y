@@ -23,6 +23,8 @@ Program_node* root = NULL;
     SourceElement_node*        sourceElement_node;
     FunctionDeclaration_node*  functionDeclaration_node;
     Statement_node*            statement_node;
+    StatementList_node*        statementList_node;
+    Block_node*                block_node;
 }
 
 %token LINE_TERMINATOR
@@ -45,6 +47,8 @@ Program_node* root = NULL;
 %type <sourceElement_node>        SourceElement
 %type <functionDeclaration_node>  FunctionDeclaration
 %type <statement_node>            Statement
+%type <statementList_node>        StatementList
+%type <block_node>                Block
 
 %start Program
 
@@ -72,7 +76,7 @@ SourceElement:
 // 13 Function Definition
 
 FunctionDeclaration:
-    FUNCTION Identifier LEFT_PAREN RIGHT_PAREN Block { puts("parsed FunctionDeclaration"); $$ = createFunctionDeclaration($2); }
+    FUNCTION Identifier LEFT_PAREN RIGHT_PAREN Block { puts("parsed FunctionDeclaration"); $$ = createFunctionDeclaration($2, $5); }
 //    | FUNCTION Identifier '(' FormalParameterList ')' Block {puts("parsed FunctionDeclaration");}
     ;
 
@@ -98,13 +102,13 @@ Statement:
     ;
 
 Block:
-    LEFT_BRACE RIGHT_BRACE {puts("parsed Block");}
-    | LEFT_BRACE StatementList RIGHT_BRACE {puts("parsed Block");}
+    LEFT_BRACE RIGHT_BRACE { puts("parsed Block"); $$ = createBlock(); }
+    | LEFT_BRACE StatementList RIGHT_BRACE { puts("parsed Block"); $$ = createBlock(); $$->statementList = $2; }
     ;
 
 StatementList:
-    Statement {puts("parsed StatementList");}
-    | StatementList Statement {puts("parsed StatementList");}
+    Statement { puts("parsed StatementList"); $$ = createStatementList($1); }
+    | StatementList Statement { puts("parsed StatementList"); $1->append($1, $2); $$ = $1; }
     ;
 
 VariableStatement:
