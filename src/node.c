@@ -38,6 +38,7 @@ char* indent(char* src) {
 
 
 
+
 Identifier_node* createIdentifier(char* name) {
     Identifier_node* identifier = (Identifier_node*) calloc(1, sizeof(Identifier_node));
     identifier->name = name;
@@ -45,12 +46,20 @@ Identifier_node* createIdentifier(char* name) {
 }
 
 char* Statement_toString(Statement_node* statement) {
-    return new_string(statement->value);
+    switch (statement->type) {
+        case BLOCK_STATEMENT_TYPE:
+            return statement->statementUnion.block->toString(statement->statementUnion.block);
+        case VARIABLE_STATEMENT_TYPE:
+            return statement->statementUnion.variableStatement->toString(statement->statementUnion.variableStatement);
+        case EMPTY_STATEMENT_TYPE:
+            return statement->statementUnion.emptyStatement->toString(statement->statementUnion.emptyStatement);
+    }
 }
 
-Statement_node* createStatement(char* value) {
+Statement_node* createStatement(StatementType_enum type, void* untypedStatement) {
     Statement_node* statement = (Statement_node*) calloc(1, sizeof(Statement_node));
-    statement->value = value;
+    statement->type = type;
+    statement->statementUnion.any = untypedStatement;
     statement->toString = Statement_toString;
     return statement;
 }
@@ -65,9 +74,13 @@ char* StatementList_toString(StatementList_node* statementList) {
     char* string = new_string("StatementList");
     for ( int i = 0 ; i < statementList->count ; i++ ) {
         string = concat(string, "\n");
-        char* tmp = statementList->statements[i]->toString(statementList->statements[i]);
-        string = concat(string, indent(tmp));
-        free(tmp);
+        if ( statementList->statements[i] == NULL ) {
+            string = concat(string, indent("null"));
+        } else {
+            char* tmp = statementList->statements[i]->toString(statementList->statements[i]);
+            string = concat(string, indent(tmp));
+            free(tmp);
+        }
     }
     return string;
 }
@@ -129,7 +142,7 @@ FormalParameterList_node* createFormalParameterList(Identifier_node* parameter) 
 }
 
 char* FunctionDeclaration_toString(FunctionDeclaration_node* functionDeclaration) {
-    char* string = new_string("Function: ");
+    char* string = new_string("FunctionDeclaration: ");
     string = concat(string, functionDeclaration->identifier->name);
     string = concat(string, " (");
     if ( functionDeclaration->formalParameterList != NULL ) {
@@ -222,4 +235,24 @@ Program_node* createProgram() {
     program->sourceElements = NULL;
     program->toString = Program_toString;
     return program;
+}
+
+char* VariableStatement_toString(VariableStatement_node* variableStatement) {
+    return new_string("VariableStatement");
+}
+
+VariableStatement_node* createVariableStatement() {
+    VariableStatement_node* variableStatement = (VariableStatement_node*) calloc(1, sizeof(VariableStatement_node));
+    variableStatement->toString = VariableStatement_toString;
+    return variableStatement;
+}
+
+char* EmptyStatement_toString(EmptyStatement_node* emptyStatement) {
+    return new_string("EmptyStatement");
+}
+
+EmptyStatement_node* createEmptyStatement() {
+    EmptyStatement_node* emptyStatement = (EmptyStatement_node*) calloc(1, sizeof(EmptyStatement_node));
+    emptyStatement->toString = EmptyStatement_toString;
+    return emptyStatement;
 }

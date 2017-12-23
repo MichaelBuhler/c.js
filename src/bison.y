@@ -27,6 +27,8 @@ Program_node* root = NULL;
     StatementList_node*        statementList_node;
     Block_node*                block_node;
     Identifier_node*           identifier_node;
+    VariableStatement_node*    variableStatement_node;
+    EmptyStatement_node*       emptyStatement_node;
 }
 
 %token LINE_TERMINATOR
@@ -52,6 +54,8 @@ Program_node* root = NULL;
 %type <statementList_node>        StatementList
 %type <block_node>                Block
 %type <identifier_node>           Identifier
+%type <variableStatement_node>    VariableStatement
+%type <emptyStatement_node>       EmptyStatement
 
 %start Program
 
@@ -92,9 +96,9 @@ FormalParameterList:
 // 12 Statements
 
 Statement:
-    Block { puts("parsed Statement"); $$ = createStatement("BlockStatement"); }
-    | VariableStatement { puts("parsed Statement"); $$ = createStatement("VariableStatement"); }
-    | EmptyStatement { puts("parsed Statement"); $$ = createStatement("EmptyStatement"); }
+    Block { puts("parsed Statement"); $$ = createStatement(BLOCK_STATEMENT_TYPE, $1); }
+    | VariableStatement { puts("parsed Statement"); $$ = createStatement(VARIABLE_STATEMENT_TYPE, $1); }
+    | EmptyStatement { puts("parsed Statement"); $$ = createStatement(EMPTY_STATEMENT_TYPE, $1); }
 //    | ExpressionStatement {puts("parsed Statement");}
 //    | IfStatement {puts("parsed Statement");}
 //    | IterationStatement {puts("parsed Statement");}
@@ -115,7 +119,7 @@ StatementList:
     ;
 
 VariableStatement:
-    VAR VariableDeclarationList SEMICOLON {puts("parsed VariableStatement");}
+    VAR VariableDeclarationList SEMICOLON { puts("parsed VariableStatement"); $$ = createVariableStatement(); }
     ;
 
 VariableDeclarationList :
@@ -133,7 +137,7 @@ VariableDeclaration :
 //    ;
 
 EmptyStatement:
-    SEMICOLON {puts("parsed EmptyStatement");}
+    SEMICOLON { puts("parsed EmptyStatement"); $$ = createEmptyStatement(); }
     ;
 
 //ExpressionStatement:
