@@ -229,13 +229,53 @@ Program_node* createProgram() {
 }
 
 char* VariableStatement_toString(VariableStatement_node* variableStatement) {
-    return new_string("VariableStatement");
+    char* string = new_string("VariableStatement\n");
+    char* tmp = variableStatement->variableDeclarationList->toString(variableStatement->variableDeclarationList);
+    string = concat(string, indent(tmp));
+    free(tmp);
+    return string;
 }
 
-VariableStatement_node* createVariableStatement() {
+VariableStatement_node* createVariableStatement(VariableDeclarationList_node* variableDeclarationList) {
     VariableStatement_node* variableStatement = (VariableStatement_node*) calloc(1, sizeof(VariableStatement_node));
+    variableStatement->variableDeclarationList = variableDeclarationList;
     variableStatement->toString = VariableStatement_toString;
     return variableStatement;
+}
+
+char* VariableDeclaration_toString(VariableDeclaration_node* variableDeclaration) {
+    return variableDeclaration->identifier->name;
+}
+
+VariableDeclaration_node*  createVariableDeclaration(Identifier_node* identifier) {
+    VariableDeclaration_node* variableDeclaration = (VariableDeclaration_node*) calloc(1, sizeof(VariableDeclaration_node));
+    variableDeclaration->identifier = identifier;
+    return variableDeclaration;
+}
+
+void VariableDeclarationList_append(VariableDeclarationList_node* variableDeclarationList, VariableDeclaration_node* variableDeclaration) {
+    variableDeclarationList->variableDeclarations = (VariableDeclaration_node**) realloc(variableDeclarationList->variableDeclarations, ( variableDeclarationList->count + 1 ) * sizeof(VariableDeclaration_node*) );
+    variableDeclarationList->variableDeclarations[variableDeclarationList->count] = variableDeclaration;
+    variableDeclarationList->count += 1;
+}
+
+char* VariableDeclarationList_toString(VariableDeclarationList_node* variableDeclarationList) {
+    char* string = new_string("VariableDeclarationList");
+    for ( int i = 0 ; i < variableDeclarationList->count ; i++ ) {
+        string = concat(string, "\n");
+        string = concat(string, indent(variableDeclarationList->variableDeclarations[i]->identifier->name));
+    }
+    return string;
+}
+
+VariableDeclarationList_node* createVariableDeclarationList(VariableDeclaration_node* variableDeclaration) {
+    VariableDeclarationList_node* variableDeclarationList = (VariableDeclarationList_node*) calloc(1, sizeof(VariableDeclarationList_node));
+    variableDeclarationList->count = 0;
+    variableDeclarationList->variableDeclarations = NULL;
+    variableDeclarationList->append = VariableDeclarationList_append;
+    variableDeclarationList->toString = VariableDeclarationList_toString;
+    variableDeclarationList->append(variableDeclarationList, variableDeclaration);
+    return variableDeclarationList;
 }
 
 char* EmptyStatement_toString(EmptyStatement_node* emptyStatement) {

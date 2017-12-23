@@ -7,29 +7,33 @@ typedef enum  SourceElementType_enum    SourceElementType_enum;
 typedef union  Statement_union          Statement_union;
 typedef union  SourceElement_union      SourceElement_union;
 
-typedef struct Program_node             Program_node;
-typedef struct SourceElements_node      SourceElements_node;
-typedef struct SourceElement_node       SourceElement_node;
-typedef struct FunctionDeclaration_node FunctionDeclaration_node;
-typedef struct FormalParameterList_node FormalParameterList_node;
-typedef struct Statement_node           Statement_node;
-typedef struct StatementList_node       StatementList_node;
-typedef struct Block_node               Block_node;
-typedef struct Identifier_node          Identifier_node;
-typedef struct VariableStatement_node   VariableStatement_node;
-typedef struct EmptyStatement_node      EmptyStatement_node;
+typedef struct Program_node                   Program_node;
+typedef struct SourceElements_node            SourceElements_node;
+typedef struct SourceElement_node             SourceElement_node;
+typedef struct FunctionDeclaration_node       FunctionDeclaration_node;
+typedef struct FormalParameterList_node       FormalParameterList_node;
+typedef struct Statement_node                 Statement_node;
+typedef struct StatementList_node             StatementList_node;
+typedef struct Block_node                     Block_node;
+typedef struct Identifier_node                Identifier_node;
+typedef struct VariableStatement_node         VariableStatement_node;
+typedef struct VariableDeclaration_node       VariableDeclaration_node;
+typedef struct VariableDeclarationList_node   VariableDeclarationList_node;
+typedef struct EmptyStatement_node            EmptyStatement_node;
 
-Identifier_node*          createIdentifier(char*);
-StatementList_node*       createStatementList(Statement_node*);
-Block_node*               createBlock();
-Statement_node*           createStatement(StatementType_enum, void*);
-FormalParameterList_node* createFormalParameterList(Identifier_node*);
-FunctionDeclaration_node* createFunctionDeclaration(Identifier_node*, FormalParameterList_node*, Block_node*);
-SourceElement_node*       createSourceElement(SourceElementType_enum, void*);
-SourceElements_node*      createSourceElements(SourceElement_node*);
-VariableStatement_node*   createVariableStatement();
-Program_node*             createProgram();
-EmptyStatement_node*      createEmptyStatement();
+Identifier_node*              createIdentifier(char*);
+StatementList_node*           createStatementList(Statement_node*);
+Block_node*                   createBlock();
+Statement_node*               createStatement(StatementType_enum, void*);
+FormalParameterList_node*     createFormalParameterList(Identifier_node*);
+FunctionDeclaration_node*     createFunctionDeclaration(Identifier_node*, FormalParameterList_node*, Block_node*);
+SourceElement_node*           createSourceElement(SourceElementType_enum, void*);
+SourceElements_node*          createSourceElements(SourceElement_node*);
+VariableStatement_node*       createVariableStatement();
+VariableDeclaration_node*     createVariableDeclaration(Identifier_node*);
+VariableDeclarationList_node* createVariableDeclarationList(VariableDeclaration_node*);
+Program_node*                 createProgram();
+EmptyStatement_node*          createEmptyStatement();
 
 enum StatementType_enum {
     BLOCK_STATEMENT_TYPE,
@@ -110,7 +114,20 @@ struct Program_node {
 };
 
 struct VariableStatement_node {
+    VariableDeclarationList_node* variableDeclarationList;
     char* (*toString)(struct VariableStatement_node*);
+};
+
+struct VariableDeclaration_node {
+    Identifier_node* identifier;
+    char* (*toString)(struct Identifier_node*);
+};
+
+struct VariableDeclarationList_node {
+    int count;
+    VariableDeclaration_node** variableDeclarations;
+    void (*append)(struct VariableDeclarationList_node*, VariableDeclaration_node*);
+    char* (*toString)(struct VariableDeclarationList_node*);
 };
 
 struct EmptyStatement_node {

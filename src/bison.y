@@ -16,19 +16,21 @@ Program_node* root = NULL;
 %}
 
 %union {
-    int                        token_id;
-    char*                      char_array;
-    Program_node*              program_node;
-    SourceElements_node*       sourceElements_node;
-    SourceElement_node*        sourceElement_node;
-    FunctionDeclaration_node*  functionDeclaration_node;
-    FormalParameterList_node*  formalParameterList_node;
-    Statement_node*            statement_node;
-    StatementList_node*        statementList_node;
-    Block_node*                block_node;
-    Identifier_node*           identifier_node;
-    VariableStatement_node*    variableStatement_node;
-    EmptyStatement_node*       emptyStatement_node;
+    int                           token_id;
+    char*                         char_array;
+    Program_node*                 program_node;
+    SourceElements_node*          sourceElements_node;
+    SourceElement_node*           sourceElement_node;
+    FunctionDeclaration_node*     functionDeclaration_node;
+    FormalParameterList_node*     formalParameterList_node;
+    Statement_node*               statement_node;
+    StatementList_node*           statementList_node;
+    Block_node*                   block_node;
+    Identifier_node*              identifier_node;
+    VariableStatement_node*       variableStatement_node;
+    VariableDeclaration_node*     variableDeclaration_node;
+    VariableDeclarationList_node* variableDeclarationList_node;
+    EmptyStatement_node*          emptyStatement_node;
 }
 
 %token LINE_TERMINATOR
@@ -46,16 +48,18 @@ Program_node* root = NULL;
 
 %token <char_array> IDENTIFIER
 
-%type <sourceElements_node>       SourceElements
-%type <sourceElement_node>        SourceElement
-%type <functionDeclaration_node>  FunctionDeclaration
-%type <formalParameterList_node>  FormalParameterList
-%type <statement_node>            Statement
-%type <statementList_node>        StatementList
-%type <block_node>                Block
-%type <identifier_node>           Identifier
-%type <variableStatement_node>    VariableStatement
-%type <emptyStatement_node>       EmptyStatement
+%type <sourceElements_node>          SourceElements
+%type <sourceElement_node>           SourceElement
+%type <functionDeclaration_node>     FunctionDeclaration
+%type <formalParameterList_node>     FormalParameterList
+%type <statement_node>               Statement
+%type <statementList_node>           StatementList
+%type <block_node>                   Block
+%type <identifier_node>              Identifier
+%type <variableStatement_node>       VariableStatement
+%type <variableDeclaration_node>     VariableDeclaration
+%type <variableDeclarationList_node> VariableDeclarationList
+%type <emptyStatement_node>          EmptyStatement
 
 %start Program
 
@@ -119,16 +123,16 @@ StatementList:
     ;
 
 VariableStatement:
-    VAR VariableDeclarationList SEMICOLON { puts("parsed VariableStatement"); $$ = createVariableStatement(); }
+    VAR VariableDeclarationList SEMICOLON { puts("parsed VariableStatement"); $$ = createVariableStatement($2); }
     ;
 
 VariableDeclarationList :
-    VariableDeclaration {puts("parsed VariableDeclarationList");}
-    | VariableDeclarationList COMMA VariableDeclaration {puts("parsed VariableDeclarationList");}
+    VariableDeclaration { puts("parsed VariableDeclarationList"); $$ = createVariableDeclarationList($1); }
+    | VariableDeclarationList COMMA VariableDeclaration { puts("parsed VariableDeclarationList"); $1->append($1, $3); $$ = $1; }
     ;
 
 VariableDeclaration :
-    Identifier {puts("parsed VariableDeclaration");}
+    Identifier { puts("parsed VariableDeclaration"); $$ = createVariableDeclaration($1); }
 //    | Identifier Initializer {puts("parsed VariableDeclaration");}
     ;
 
