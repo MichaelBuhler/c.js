@@ -38,6 +38,11 @@ char* indent(char* src) {
 
 
 
+Identifier_node* createIdentifier(char* name) {
+    Identifier_node* identifier = (Identifier_node*) calloc(1, sizeof(Identifier_node));
+    identifier->name = name;
+    return identifier;
+}
 
 char* Statement_toString(Statement_node* statement) {
     return new_string(statement->value);
@@ -95,8 +100,8 @@ Block_node* createBlock() {
     return block;
 }
 
-void FormalParameterList_append(FormalParameterList_node* formalParameterList, char* parameter) {
-    formalParameterList->parameters = (char**) realloc(formalParameterList->parameters, ( formalParameterList->count + 1 ) * sizeof(char*) );
+void FormalParameterList_append(FormalParameterList_node* formalParameterList, Identifier_node* parameter) {
+    formalParameterList->parameters = (Identifier_node**) realloc(formalParameterList->parameters, ( formalParameterList->count + 1 ) * sizeof(Identifier_node*) );
     formalParameterList->parameters[formalParameterList->count] = parameter;
     formalParameterList->count += 1;
 }
@@ -105,15 +110,15 @@ char* FormalParameterList_toString(FormalParameterList_node* formalParameterList
     if (formalParameterList->count == 0) {
         return new_string("");
     }
-    char* string = new_string(formalParameterList->parameters[0]);
+    char* string = new_string(formalParameterList->parameters[0]->name);
     for ( int i = 1 ; i < formalParameterList->count ; i++ ) {
         string = concat(string, ", ");
-        string = concat(string, formalParameterList->parameters[i]);
+        string = concat(string, formalParameterList->parameters[i]->name);
     }
     return string;
 }
 
-FormalParameterList_node* createFormalParameterList(char* parameter) {
+FormalParameterList_node* createFormalParameterList(Identifier_node* parameter) {
     FormalParameterList_node* formalParameterList = (FormalParameterList_node*) calloc(1, sizeof(FormalParameterList_node));
     formalParameterList->count = 0;
     formalParameterList->parameters = NULL;
@@ -125,7 +130,7 @@ FormalParameterList_node* createFormalParameterList(char* parameter) {
 
 char* FunctionDeclaration_toString(FunctionDeclaration_node* functionDeclaration) {
     char* string = new_string("Function: ");
-    string = concat(string, functionDeclaration->name);
+    string = concat(string, functionDeclaration->identifier->name);
     string = concat(string, " (");
     if ( functionDeclaration->formalParameterList != NULL ) {
         char* tmp = functionDeclaration->formalParameterList->toString(functionDeclaration->formalParameterList);
@@ -139,9 +144,9 @@ char* FunctionDeclaration_toString(FunctionDeclaration_node* functionDeclaration
     return string;
 }
 
-FunctionDeclaration_node* createFunctionDeclaration(char* name, FormalParameterList_node* formalParameterList, Block_node* block) {
+FunctionDeclaration_node* createFunctionDeclaration(Identifier_node* identifier, FormalParameterList_node* formalParameterList, Block_node* block) {
     FunctionDeclaration_node* functionDeclaration = (FunctionDeclaration_node*) calloc(1, sizeof(FunctionDeclaration_node));
-    functionDeclaration->name = name;
+    functionDeclaration->identifier = identifier;
     functionDeclaration->formalParameterList = formalParameterList;
     functionDeclaration->block = block;
     functionDeclaration->toString = FunctionDeclaration_toString;

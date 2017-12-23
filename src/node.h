@@ -4,6 +4,12 @@
 #define STATEMENT_SOURCE_ELEMENT_TYPE "Statement"
 #define FUNCTION_DECLARATION_SOURCE_ELEMENT_TYPE "FunctionDeclaration"
 
+typedef struct Identifier_node {
+    char* name;
+} Identifier_node;
+
+Identifier_node* createIdentifier(char*);
+
 typedef struct Statement_node {
     char* value; // TODO
     char* (*toString)(struct Statement_node*);
@@ -29,21 +35,21 @@ Block_node* createBlock();
 
 typedef struct FormalParameterList_node {
     int count;
-    char** parameters;
-    void (*append)(struct FormalParameterList_node*, char*);
+    Identifier_node** parameters;
+    void (*append)(struct FormalParameterList_node*, Identifier_node*);
     char* (*toString)(struct FormalParameterList_node*);
 } FormalParameterList_node;
 
-FormalParameterList_node* createFormalParameterList(char*);
+FormalParameterList_node* createFormalParameterList(Identifier_node*);
 
 typedef struct FunctionDeclaration_node {
-    char* name;
+    Identifier_node* identifier;
     FormalParameterList_node* formalParameterList;
     Block_node* block;
     char* (*toString)(struct FunctionDeclaration_node*);
 } FunctionDeclaration_node;
 
-FunctionDeclaration_node* createFunctionDeclaration(char*, FormalParameterList_node*, Block_node*);
+FunctionDeclaration_node* createFunctionDeclaration(Identifier_node*, FormalParameterList_node*, Block_node*);
 
 typedef union SourceElement_union {
     Statement_node* statement;

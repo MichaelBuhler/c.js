@@ -26,6 +26,7 @@ Program_node* root = NULL;
     Statement_node*            statement_node;
     StatementList_node*        statementList_node;
     Block_node*                block_node;
+    Identifier_node*           identifier_node;
 }
 
 %token LINE_TERMINATOR
@@ -43,7 +44,6 @@ Program_node* root = NULL;
 
 %token <char_array> IDENTIFIER
 
-%type <char_array>                Identifier
 %type <sourceElements_node>       SourceElements
 %type <sourceElement_node>        SourceElement
 %type <functionDeclaration_node>  FunctionDeclaration
@@ -51,6 +51,7 @@ Program_node* root = NULL;
 %type <statement_node>            Statement
 %type <statementList_node>        StatementList
 %type <block_node>                Block
+%type <identifier_node>           Identifier
 
 %start Program
 
@@ -183,7 +184,7 @@ EmptyStatement:
 // 7.5 Identifier
 
 Identifier:
-    IDENTIFIER { puts("parsed Identifier"); $$ = $1; }
+    IDENTIFIER { puts("parsed Identifier"); $$ = createIdentifier($1); }
     ;
 
 %%
