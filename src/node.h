@@ -1,10 +1,8 @@
 #ifndef NODE_H
 #define NODE_H
 
-#define STATEMENT_SOURCE_ELEMENT_TYPE "Statement"
-#define FUNCTION_DECLARATION_SOURCE_ELEMENT_TYPE "FunctionDeclaration"
-
 typedef enum  StatementType_enum        StatementType_enum;
+typedef enum  SourceElementType_enum    SourceElementType_enum;
 
 typedef union  Statement_union          Statement_union;
 typedef union  SourceElement_union      SourceElement_union;
@@ -27,7 +25,7 @@ Block_node*               createBlock();
 Statement_node*           createStatement(StatementType_enum, void*);
 FormalParameterList_node* createFormalParameterList(Identifier_node*);
 FunctionDeclaration_node* createFunctionDeclaration(Identifier_node*, FormalParameterList_node*, Block_node*);
-SourceElement_node*       createSourceElement(char*, void*);
+SourceElement_node*       createSourceElement(SourceElementType_enum, void*);
 SourceElements_node*      createSourceElements(SourceElement_node*);
 VariableStatement_node*   createVariableStatement();
 Program_node*             createProgram();
@@ -39,6 +37,11 @@ enum StatementType_enum {
     EMPTY_STATEMENT_TYPE
 };
 
+enum SourceElementType_enum {
+    STATEMENT_SOURCE_ELEMENT_TYPE,
+    FUNCTION_DECLARATION_SOURCE_ELEMENT_TYPE
+};
+
 union Statement_union {
     void* any;
     Block_node* block;
@@ -47,6 +50,7 @@ union Statement_union {
 };
 
 union SourceElement_union {
+    void* any;
     Statement_node* statement;
     FunctionDeclaration_node* functionDeclaration;
 };
@@ -88,8 +92,8 @@ struct FunctionDeclaration_node {
 };
 
 struct SourceElement_node {
-    char* type;
-    SourceElement_union sourceElement;
+    SourceElementType_enum type;
+    SourceElement_union sourceElementUnion;
     char* (*toString)(struct SourceElement_node*);
 };
 
