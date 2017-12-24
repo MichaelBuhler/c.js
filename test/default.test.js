@@ -35,6 +35,14 @@ test.cb('Variable Declaration', runner(function () {
     var buhler;
 }));
 
+test.cb('Variable Declaration, Initialize to Other Variable', runner(function () {
+    var buhler = michael;
+}));
+
+test.cb('Variable Declaration, Initialize to This', runner(function () {
+    var buhler = this;
+}));
+
 test.cb('Variable Declaration List', runner(function () {
     var buhler, michael;
 }));

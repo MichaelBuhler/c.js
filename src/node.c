@@ -244,12 +244,21 @@ VariableStatement_node* createVariableStatement(VariableDeclarationList_node* va
 }
 
 char* VariableDeclaration_toString(VariableDeclaration_node* variableDeclaration) {
-    return variableDeclaration->identifier->name;
+    char* string = variableDeclaration->identifier->name;
+    if ( variableDeclaration->initializer != NULL ) {
+        string = concat(string, " =\n");
+        char* tmp = variableDeclaration->initializer->toString(variableDeclaration->initializer);
+        string = concat(string, indent(tmp));
+        free(tmp);
+    }
+    return string;
 }
 
-VariableDeclaration_node*  createVariableDeclaration(Identifier_node* identifier) {
+VariableDeclaration_node*  createVariableDeclaration(Identifier_node* identifier, Initializer_node* initializer) {
     VariableDeclaration_node* variableDeclaration = (VariableDeclaration_node*) calloc(1, sizeof(VariableDeclaration_node));
     variableDeclaration->identifier = identifier;
+    variableDeclaration->initializer = initializer;
+    variableDeclaration->toString = VariableDeclaration_toString;
     return variableDeclaration;
 }
 
@@ -263,7 +272,7 @@ char* VariableDeclarationList_toString(VariableDeclarationList_node* variableDec
     char* string = new_string("VariableDeclarationList");
     for ( int i = 0 ; i < variableDeclarationList->count ; i++ ) {
         string = concat(string, "\n");
-        string = concat(string, indent(variableDeclarationList->variableDeclarations[i]->identifier->name));
+        string = concat(string, indent(variableDeclarationList->variableDeclarations[i]->toString(variableDeclarationList->variableDeclarations[i])));
     }
     return string;
 }
@@ -276,6 +285,16 @@ VariableDeclarationList_node* createVariableDeclarationList(VariableDeclaration_
     variableDeclarationList->toString = VariableDeclarationList_toString;
     variableDeclarationList->append(variableDeclarationList, variableDeclaration);
     return variableDeclarationList;
+}
+
+char* Initializer_toString(Initializer_node* initializer) {
+    return new_string("Initializer");
+}
+
+Initializer_node* createInitializer(/*AssignmentExpression_node**/) {
+    Initializer_node* initializer = (Initializer_node*) calloc(1, sizeof(Initializer_node));
+    initializer->toString = Initializer_toString;
+    return initializer;
 }
 
 char* EmptyStatement_toString(EmptyStatement_node* emptyStatement) {

@@ -19,6 +19,7 @@ typedef struct Identifier_node                Identifier_node;
 typedef struct VariableStatement_node         VariableStatement_node;
 typedef struct VariableDeclaration_node       VariableDeclaration_node;
 typedef struct VariableDeclarationList_node   VariableDeclarationList_node;
+typedef struct Initializer_node               Initializer_node;
 typedef struct EmptyStatement_node            EmptyStatement_node;
 
 Identifier_node*              createIdentifier(char*);
@@ -30,8 +31,9 @@ FunctionDeclaration_node*     createFunctionDeclaration(Identifier_node*, Formal
 SourceElement_node*           createSourceElement(SourceElementType_enum, void*);
 SourceElements_node*          createSourceElements(SourceElement_node*);
 VariableStatement_node*       createVariableStatement();
-VariableDeclaration_node*     createVariableDeclaration(Identifier_node*);
+VariableDeclaration_node*     createVariableDeclaration(Identifier_node*, Initializer_node*);
 VariableDeclarationList_node* createVariableDeclarationList(VariableDeclaration_node*);
+Initializer_node*             createInitializer(/*AssignmentExpression_node**/);
 Program_node*                 createProgram();
 EmptyStatement_node*          createEmptyStatement();
 
@@ -120,7 +122,12 @@ struct VariableStatement_node {
 
 struct VariableDeclaration_node {
     Identifier_node* identifier;
-    char* (*toString)(struct Identifier_node*);
+    Initializer_node* initializer;
+    char* (*toString)(struct VariableDeclaration_node*);
+};
+
+struct Initializer_node {
+    char* (*toString)(Initializer_node*);
 };
 
 struct VariableDeclarationList_node {

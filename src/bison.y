@@ -30,6 +30,7 @@ Program_node* root = NULL;
     VariableStatement_node*       variableStatement_node;
     VariableDeclaration_node*     variableDeclaration_node;
     VariableDeclarationList_node* variableDeclarationList_node;
+    Initializer_node*             initializer_node;
     EmptyStatement_node*          emptyStatement_node;
 }
 
@@ -60,6 +61,7 @@ Program_node* root = NULL;
 %type <variableStatement_node>       VariableStatement
 %type <variableDeclaration_node>     VariableDeclaration
 %type <variableDeclarationList_node> VariableDeclarationList
+%type <initializer_node>             Initializer
 %type <emptyStatement_node>          EmptyStatement
 
 %start Program
@@ -127,19 +129,19 @@ VariableStatement:
     VAR VariableDeclarationList SEMICOLON { puts("parsed VariableStatement"); $$ = createVariableStatement($2); }
     ;
 
-VariableDeclarationList :
+VariableDeclarationList:
     VariableDeclaration { puts("parsed VariableDeclarationList"); $$ = createVariableDeclarationList($1); }
     | VariableDeclarationList COMMA VariableDeclaration { puts("parsed VariableDeclarationList"); $1->append($1, $3); $$ = $1; }
     ;
 
-VariableDeclaration :
-    Identifier { puts("parsed VariableDeclaration"); $$ = createVariableDeclaration($1); }
-//    | Identifier Initializer {puts("parsed VariableDeclaration");}
+VariableDeclaration:
+    Identifier { puts("parsed VariableDeclaration"); $$ = createVariableDeclaration($1, NULL); }
+    | Identifier Initializer { puts("parsed VariableDeclaration"); $$ = createVariableDeclaration($1, $2); }
     ;
 
-//Initializer :
-//   EQUALS AssignmentExpression {puts("parsed Initializer");}
-//    ;
+Initializer:
+    EQUALS AssignmentExpression { puts("parsed Initializer"); $$ = createInitializer(); }
+    ;
 
 EmptyStatement:
     SEMICOLON { puts("parsed EmptyStatement"); $$ = createEmptyStatement(); }
@@ -188,6 +190,20 @@ EmptyStatement:
 //
 //WithStatement:
 //    WITH '(' Expression ')' Statement {puts("parsed WithStatement")}
+
+///////////////////////////////////////////////////////////
+// 11 Expressions
+
+PrimaryExpression:
+    THIS { puts("parsed PrimaryExpression"); }
+    | Identifier { puts("parsed PrimaryExpression"); }
+    ;
+
+AssignmentExpression:
+// TODO temporarily put PrimaryExpression here
+    PrimaryExpression { puts("parsed AssignmentExpression"); };
+//    | LeftHandSideExpression AssignmentOperator AssignmentExpression
+    ;
 
 ///////////////////////////////////////////////////////////
 // 7.5 Identifier
