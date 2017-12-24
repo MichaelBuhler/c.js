@@ -45,6 +45,7 @@ Program_node* root = NULL;
 %token RIGHT_BRACE
 %token RIGHT_PAREN
 %token SEMICOLON
+%token THIS
 
 %token <char_array> IDENTIFIER
 

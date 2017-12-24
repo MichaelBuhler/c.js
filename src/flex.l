@@ -46,6 +46,11 @@ function {
     return FUNCTION;
 }
 
+this {
+    puts("lexed this");
+    return THIS;
+}
+
 var {
     puts("lexed var");
     return VAR;
