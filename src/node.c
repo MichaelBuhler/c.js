@@ -390,6 +390,10 @@ char* Literal_toString(Literal_node* literal) {
     switch (literal->type) {
         case NULL_LITERAL_TYPE:
             return new_string("null");
+        case TRUE_LITERAL_TYPE:
+            return new_string("true");
+        case FALSE_LITERAL_TYPE:
+            return new_string("false");
     }
 }
 

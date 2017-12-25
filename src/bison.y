@@ -39,17 +39,17 @@ Program_node* root = NULL;
     Literal_node*                 literal_node;
 }
 
-%token LINE_TERMINATOR
-
+%token FALSE_LITERAL
 %token FUNCTION
+%token NULL_LITERAL
 %token THIS
+%token TRUE_LITERAL
 %token VAR
 
 %token COMMA
 %token EQUALS
 %token LEFT_BRACE
 %token LEFT_PAREN
-%token NULL_LITERAL
 %token RIGHT_BRACE
 %token RIGHT_PAREN
 %token SEMICOLON
@@ -234,6 +234,8 @@ Identifier:
 
 Literal:
     NULL_LITERAL { puts("parsed Literal"); $$ = createLiteral(NULL_LITERAL_TYPE, NULL); }
+    | TRUE_LITERAL { puts("parsed Literal"); $$ = createLiteral(TRUE_LITERAL_TYPE, NULL); }
+    | FALSE_LITERAL { puts("parsed Literal"); $$ = createLiteral(FALSE_LITERAL_TYPE, NULL); }
     ;
 
 %%

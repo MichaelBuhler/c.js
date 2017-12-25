@@ -41,6 +41,11 @@
     BEGIN(INITIAL);
 }
 
+false {
+    puts("lexed false");
+    return FALSE_LITERAL;
+}
+
 function {
     puts("lexed function");
     return FUNCTION;
@@ -54,6 +59,11 @@ null {
 this {
     puts("lexed this");
     return THIS;
+}
+
+true {
+    puts("lexed true");
+    return TRUE_LITERAL;
 }
 
 var {

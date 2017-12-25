@@ -75,7 +75,9 @@ enum AssignmentOperator_enum {
 };
 
 enum LiteralType_enum {
-    NULL_LITERAL_TYPE
+    NULL_LITERAL_TYPE,
+    TRUE_LITERAL_TYPE,
+    FALSE_LITERAL_TYPE
 };
 
 union Statement_union {

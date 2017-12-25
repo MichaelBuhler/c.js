@@ -47,6 +47,14 @@ test.cb('Variable Declaration, Initialize to Null', runner(function () {
     var buhler = null;
 }));
 
+test.cb('Variable Declaration, Initialize to True', runner(function () {
+    var buhler = null;
+}));
+
+test.cb('Variable Declaration, Initialize to False', runner(function () {
+    var buhler = null;
+}));
+
 test.cb('Multiple Variable Declaration', runner(function () {
     var buhler, michael;
 }));
@@ -66,12 +74,22 @@ test.cb('Assign to This', runner(function () {
 }));
 
 test.cb('Assign to Null', runner(function () {
-    var buhler, michael;
+    var buhler;
     buhler = null;
 }));
 
+test.cb('Assign to True', runner(function () {
+    var buhler;
+    buhler = true;
+}));
+
+test.cb('Assign to False', runner(function () {
+    var buhler;
+    buhler = false;
+}));
+
 test.cb('Multiple Variable Declaration, Mixed Initialization', runner(function () {
-    var buhler = michael, other;
+    var buhler = michael, other = true, another;
 }));
 
 test.cb('Single Line Comment', runner(function () {
