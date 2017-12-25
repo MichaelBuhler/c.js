@@ -32,11 +32,16 @@ Program_node* root = NULL;
     VariableDeclarationList_node* variableDeclarationList_node;
     Initializer_node*             initializer_node;
     EmptyStatement_node*          emptyStatement_node;
+    ExpressionStatement_node*     expressionStatement_node;
+    Expression_node*              expression_node;
+    AssignmentExpression_node*    assignmentExpression_node;
+    AssignmentOperator_enum       assignmentOperator_enum;
 }
 
 %token LINE_TERMINATOR
 
 %token FUNCTION
+%token THIS
 %token VAR
 
 %token COMMA
@@ -46,7 +51,6 @@ Program_node* root = NULL;
 %token RIGHT_BRACE
 %token RIGHT_PAREN
 %token SEMICOLON
-%token THIS
 
 %token <char_array> IDENTIFIER
 
@@ -63,6 +67,10 @@ Program_node* root = NULL;
 %type <variableDeclarationList_node> VariableDeclarationList
 %type <initializer_node>             Initializer
 %type <emptyStatement_node>          EmptyStatement
+%type <expressionStatement_node>     ExpressionStatement
+%type <expression_node>              Expression
+%type <assignmentExpression_node>    AssignmentExpression
+%type <assignmentOperator_enum>      AssignmentOperator
 
 %start Program
 
@@ -106,7 +114,7 @@ Statement:
     Block { puts("parsed Statement"); $$ = createStatement(BLOCK_STATEMENT_TYPE, $1); }
     | VariableStatement { puts("parsed Statement"); $$ = createStatement(VARIABLE_STATEMENT_TYPE, $1); }
     | EmptyStatement { puts("parsed Statement"); $$ = createStatement(EMPTY_STATEMENT_TYPE, $1); }
-//    | ExpressionStatement {puts("parsed Statement");}
+    | ExpressionStatement { puts("parsed Statement"); $$ = createStatement(EXPRESSION_STATEMENT_TYPE, $1); }
 //    | IfStatement {puts("parsed Statement");}
 //    | IterationStatement {puts("parsed Statement");}
 //    | ContinueStatement {puts("parsed Statement");}
@@ -140,17 +148,17 @@ VariableDeclaration:
     ;
 
 Initializer:
-    EQUALS AssignmentExpression { puts("parsed Initializer"); $$ = createInitializer(); }
+    EQUALS Expression { puts("parsed Initializer"); $$ = createInitializer($2); }
     ;
 
 EmptyStatement:
     SEMICOLON { puts("parsed EmptyStatement"); $$ = createEmptyStatement(); }
     ;
 
-//ExpressionStatement:
-//    Expression ';' {puts("parsed ExpressionStatement");}
-//    ;
-//
+ExpressionStatement:
+    Expression SEMICOLON { puts("parsed ExpressionStatement"); $$ = createExpressionStatement($1); }
+    ;
+
 //IfStatement:
 //    IF '(' Expression ')' Statement ELSE Statement {puts("parsed IfStatement")}
 //    | IF '(' Expression ')' Statement %prec NO_ELSE {puts("parsed IfStatement")}
@@ -194,15 +202,21 @@ EmptyStatement:
 ///////////////////////////////////////////////////////////
 // 11 Expressions
 
-PrimaryExpression:
-    THIS { puts("parsed PrimaryExpression"); }
-    | Identifier { puts("parsed PrimaryExpression"); }
+Expression:
+    THIS { puts("parsed Expression"); $$ = createExpression(THIS_EXPRESSION_TYPE, NULL); }
+    | Identifier { puts("parsed Expression"); $$ = createExpression(IDENTIFIER_EXPRESSION_TYPE, $1); }
+//    | Literal { puts("parsed Expression"); }
+    | LEFT_PAREN Expression RIGHT_PAREN { puts("parsed Expression"); $$ = $2; }
+    | AssignmentExpression { puts("parsed Expression"); $$ = createExpression(ASSIGNMENT_EXPRESSION_TYPE, $1); }
     ;
 
 AssignmentExpression:
-// TODO temporarily put PrimaryExpression here
-    PrimaryExpression { puts("parsed AssignmentExpression"); };
-//    | LeftHandSideExpression AssignmentOperator AssignmentExpression
+// TODO Identifier needs to be LeftHandSideExpression
+    Identifier AssignmentOperator Expression { puts("parsed AssignmentExpression"); $$ = createAssignmentExpression($1, $2, $3); }
+    ;
+
+AssignmentOperator:
+    EQUALS { puts("parsed AssignmentOperator"); $$ = EQUALS_ASSIGNMENT_OPERATOR; }
     ;
 
 ///////////////////////////////////////////////////////////

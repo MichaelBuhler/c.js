@@ -53,6 +53,8 @@ char* Statement_toString(Statement_node* statement) {
             return statement->statementUnion.variableStatement->toString(statement->statementUnion.variableStatement);
         case EMPTY_STATEMENT_TYPE:
             return statement->statementUnion.emptyStatement->toString(statement->statementUnion.emptyStatement);
+        case EXPRESSION_STATEMENT_TYPE:
+            return statement->statementUnion.expressionStatement->toString(statement->statementUnion.expressionStatement);
     }
 }
 
@@ -288,11 +290,16 @@ VariableDeclarationList_node* createVariableDeclarationList(VariableDeclaration_
 }
 
 char* Initializer_toString(Initializer_node* initializer) {
-    return new_string("Initializer");
+    char* string = new_string("Initializer\n");
+    char* tmp = initializer->expression->toString(initializer->expression);
+    string = concat(string, indent(tmp));
+    free(tmp);
+    return string;
 }
 
-Initializer_node* createInitializer(/*AssignmentExpression_node**/) {
+Initializer_node* createInitializer(Expression_node* expression) {
     Initializer_node* initializer = (Initializer_node*) calloc(1, sizeof(Initializer_node));
+    initializer->expression = expression;
     initializer->toString = Initializer_toString;
     return initializer;
 }
@@ -305,4 +312,64 @@ EmptyStatement_node* createEmptyStatement() {
     EmptyStatement_node* emptyStatement = (EmptyStatement_node*) calloc(1, sizeof(EmptyStatement_node));
     emptyStatement->toString = EmptyStatement_toString;
     return emptyStatement;
+}
+
+char* ExpressionStatement_toString(ExpressionStatement_node* expressionStatement) {
+    char* string = new_string("ExpressionStatement\n");
+    char* tmp = expressionStatement->expression->toString(expressionStatement->expression);
+    string = concat(string, indent(tmp));
+    free(tmp);
+    return string;
+}
+
+ExpressionStatement_node* createExpressionStatement(Expression_node* expression) {
+    ExpressionStatement_node* expressionStatement = (ExpressionStatement_node*) calloc(1, sizeof(ExpressionStatement_node));
+    expressionStatement->expression = expression;
+    expressionStatement->toString = ExpressionStatement_toString;
+    return expressionStatement;
+}
+
+char* Expression_toString(Expression_node* expression) {
+    switch (expression->type) {
+        case THIS_EXPRESSION_TYPE:
+            return new_string("this");
+        case IDENTIFIER_EXPRESSION_TYPE:
+            return expression->expressionUnion.identifier->name;
+        case ASSIGNMENT_EXPRESSION_TYPE:
+            return expression->expressionUnion.assignmentExpression->toString(expression->expressionUnion.assignmentExpression);
+    }
+}
+
+Expression_node* createExpression(ExpressionType_enum type, void* untypedExpression) {
+    Expression_node* expression = (Expression_node*) calloc(1, sizeof(Expression_node));
+    expression->type = type;
+    expression->expressionUnion.any = untypedExpression;
+    expression->toString = Expression_toString;
+    return expression;
+}
+
+char* AssignmentExpression_toString(AssignmentExpression_node* assignmentExpression) {
+    char* string = new_string("AssignmentExpression\n");
+    string = concat(string, indent(assignmentExpression->identifier->name));
+    string = concat(string, " ");
+    switch (assignmentExpression->assignmentOperator) {
+        case EQUALS_ASSIGNMENT_OPERATOR:
+            string = concat(string, "=");
+            break;
+    }
+    string = concat(string, "\n");
+    char* tmp = assignmentExpression->expression->toString(assignmentExpression->expression);
+    string = concat(string, indent(indent(tmp)));
+    free(tmp);
+    return string;
+}
+
+// TODO needs AssignmentOperator too. likely as an enum.
+AssignmentExpression_node* createAssignmentExpression(Identifier_node* identifier/* TODO needs to be LeftHandSideExpression_node */, AssignmentOperator_enum assignmentOperator, Expression_node* expression) {
+    AssignmentExpression_node* assignmentExpression = (AssignmentExpression_node*) calloc(1, sizeof(AssignmentExpression_node));
+    assignmentExpression->identifier = identifier;
+    assignmentExpression->assignmentOperator = assignmentOperator;
+    assignmentExpression->expression = expression;
+    assignmentExpression->toString = AssignmentExpression_toString;
+    return assignmentExpression;
 }

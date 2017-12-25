@@ -1,11 +1,14 @@
 #ifndef NODE_H
 #define NODE_H
 
-typedef enum  StatementType_enum        StatementType_enum;
-typedef enum  SourceElementType_enum    SourceElementType_enum;
+typedef enum   StatementType_enum             StatementType_enum;
+typedef enum   SourceElementType_enum         SourceElementType_enum;
+typedef enum   ExpressionType_enum            ExpressionType_enum;
+typedef enum   AssignmentOperator_enum        AssignmentOperator_enum;
 
-typedef union  Statement_union          Statement_union;
-typedef union  SourceElement_union      SourceElement_union;
+typedef union  Statement_union                Statement_union;
+typedef union  SourceElement_union            SourceElement_union;
+typedef union  Expression_union               Expression_union;
 
 typedef struct Program_node                   Program_node;
 typedef struct SourceElements_node            SourceElements_node;
@@ -21,6 +24,9 @@ typedef struct VariableDeclaration_node       VariableDeclaration_node;
 typedef struct VariableDeclarationList_node   VariableDeclarationList_node;
 typedef struct Initializer_node               Initializer_node;
 typedef struct EmptyStatement_node            EmptyStatement_node;
+typedef struct ExpressionStatement_node       ExpressionStatement_node;
+typedef struct Expression_node                Expression_node;
+typedef struct AssignmentExpression_node      AssignmentExpression_node;
 
 Identifier_node*              createIdentifier(char*);
 StatementList_node*           createStatementList(Statement_node*);
@@ -33,14 +39,18 @@ SourceElements_node*          createSourceElements(SourceElement_node*);
 VariableStatement_node*       createVariableStatement();
 VariableDeclaration_node*     createVariableDeclaration(Identifier_node*, Initializer_node*);
 VariableDeclarationList_node* createVariableDeclarationList(VariableDeclaration_node*);
-Initializer_node*             createInitializer(/*AssignmentExpression_node**/);
+Initializer_node*             createInitializer(Expression_node*);
 Program_node*                 createProgram();
 EmptyStatement_node*          createEmptyStatement();
+ExpressionStatement_node*     createExpressionStatement(Expression_node*);
+Expression_node*              createExpression(ExpressionType_enum, void*);
+AssignmentExpression_node*    createAssignmentExpression(Identifier_node* /* TODO needs to be LeftHandSideExpression_node */, AssignmentOperator_enum assignmentOperator, Expression_node*);
 
 enum StatementType_enum {
     BLOCK_STATEMENT_TYPE,
     VARIABLE_STATEMENT_TYPE,
-    EMPTY_STATEMENT_TYPE
+    EMPTY_STATEMENT_TYPE,
+    EXPRESSION_STATEMENT_TYPE
 };
 
 enum SourceElementType_enum {
@@ -48,17 +58,34 @@ enum SourceElementType_enum {
     FUNCTION_DECLARATION_SOURCE_ELEMENT_TYPE
 };
 
+enum ExpressionType_enum {
+    THIS_EXPRESSION_TYPE,
+    IDENTIFIER_EXPRESSION_TYPE,
+    ASSIGNMENT_EXPRESSION_TYPE
+};
+
+enum AssignmentOperator_enum {
+    EQUALS_ASSIGNMENT_OPERATOR
+};
+
 union Statement_union {
     void* any;
     Block_node* block;
     VariableStatement_node* variableStatement;
     EmptyStatement_node* emptyStatement;
+    ExpressionStatement_node* expressionStatement;
 };
 
 union SourceElement_union {
     void* any;
     Statement_node* statement;
     FunctionDeclaration_node* functionDeclaration;
+};
+
+union Expression_union {
+    void* any;
+    Identifier_node* identifier;
+    AssignmentExpression_node* assignmentExpression;
 };
 
 struct Identifier_node {
@@ -127,6 +154,7 @@ struct VariableDeclaration_node {
 };
 
 struct Initializer_node {
+    Expression_node* expression;
     char* (*toString)(Initializer_node*);
 };
 
@@ -139,6 +167,24 @@ struct VariableDeclarationList_node {
 
 struct EmptyStatement_node {
     char* (*toString)(struct EmptyStatement_node*);
+};
+
+struct ExpressionStatement_node {
+    Expression_node* expression;
+    char* (*toString)(ExpressionStatement_node*);
+};
+
+struct Expression_node {
+    ExpressionType_enum type;
+    Expression_union expressionUnion;
+    char* (*toString)(Expression_node*);
+};
+
+struct AssignmentExpression_node {
+    Identifier_node* identifier; // TODO needs to be LeftHandSideExpression_node
+    AssignmentOperator_enum assignmentOperator;
+    Expression_node* expression;
+    char* (*toString)(AssignmentExpression_node*);
 };
 
 #endif

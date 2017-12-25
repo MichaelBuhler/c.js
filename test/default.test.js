@@ -43,8 +43,26 @@ test.cb('Variable Declaration, Initialize to This', runner(function () {
     var buhler = this;
 }));
 
-test.cb('Variable Declaration List', runner(function () {
+test.cb('Multiple Variable Declaration', runner(function () {
     var buhler, michael;
+}));
+
+test.cb('Multiple Variable Declaration, Multiple Initialization', runner(function () {
+    var buhler = michael, other = another;
+}));
+
+test.cb('Multiple Variable Declaration, Mixed Initialization', runner(function () {
+    var buhler = michael, other;
+}));
+
+test.cb('Assign to This', runner(function () {
+    var buhler;
+    buhler = this;
+}));
+
+test.cb('Assign to Other Variable', runner(function () {
+    var buhler, michael;
+    buhler = michael;
 }));
 
 test.cb('Single Line Comment', runner(function () {
