@@ -46,6 +46,11 @@ function {
     return FUNCTION;
 }
 
+null {
+    puts("lexed null");
+    return NULL_LITERAL;
+}
+
 this {
     puts("lexed this");
     return THIS;

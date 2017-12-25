@@ -36,6 +36,7 @@ Program_node* root = NULL;
     Expression_node*              expression_node;
     AssignmentExpression_node*    assignmentExpression_node;
     AssignmentOperator_enum       assignmentOperator_enum;
+    Literal_node*                 literal_node;
 }
 
 %token LINE_TERMINATOR
@@ -48,6 +49,7 @@ Program_node* root = NULL;
 %token EQUALS
 %token LEFT_BRACE
 %token LEFT_PAREN
+%token NULL_LITERAL
 %token RIGHT_BRACE
 %token RIGHT_PAREN
 %token SEMICOLON
@@ -71,6 +73,7 @@ Program_node* root = NULL;
 %type <expression_node>              Expression
 %type <assignmentExpression_node>    AssignmentExpression
 %type <assignmentOperator_enum>      AssignmentOperator
+%type <literal_node>                 Literal
 
 %start Program
 
@@ -205,7 +208,7 @@ ExpressionStatement:
 Expression:
     THIS { puts("parsed Expression"); $$ = createExpression(THIS_EXPRESSION_TYPE, NULL); }
     | Identifier { puts("parsed Expression"); $$ = createExpression(IDENTIFIER_EXPRESSION_TYPE, $1); }
-//    | Literal { puts("parsed Expression"); }
+    | Literal { puts("parsed Expression"); $$ = createExpression(LITERAL_EXPRESSION_TYPE, $1); }
     | LEFT_PAREN Expression RIGHT_PAREN { puts("parsed Expression"); $$ = $2; }
     | AssignmentExpression { puts("parsed Expression"); $$ = createExpression(ASSIGNMENT_EXPRESSION_TYPE, $1); }
     ;
@@ -224,6 +227,13 @@ AssignmentOperator:
 
 Identifier:
     IDENTIFIER { puts("parsed Identifier"); $$ = createIdentifier($1); }
+    ;
+
+///////////////////////////////////////////////////////////
+// 7.7 Literals
+
+Literal:
+    NULL_LITERAL { puts("parsed Literal"); $$ = createLiteral(NULL_LITERAL_TYPE, NULL); }
     ;
 
 %%

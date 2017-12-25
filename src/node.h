@@ -5,6 +5,7 @@ typedef enum   StatementType_enum             StatementType_enum;
 typedef enum   SourceElementType_enum         SourceElementType_enum;
 typedef enum   ExpressionType_enum            ExpressionType_enum;
 typedef enum   AssignmentOperator_enum        AssignmentOperator_enum;
+typedef enum   LiteralType_enum               LiteralType_enum;
 
 typedef union  Statement_union                Statement_union;
 typedef union  SourceElement_union            SourceElement_union;
@@ -27,6 +28,8 @@ typedef struct EmptyStatement_node            EmptyStatement_node;
 typedef struct ExpressionStatement_node       ExpressionStatement_node;
 typedef struct Expression_node                Expression_node;
 typedef struct AssignmentExpression_node      AssignmentExpression_node;
+typedef struct LiteralExpression_node         LiteralExpression_node;
+typedef struct Literal_node                   Literal_node;
 
 Identifier_node*              createIdentifier(char*);
 StatementList_node*           createStatementList(Statement_node*);
@@ -45,6 +48,8 @@ EmptyStatement_node*          createEmptyStatement();
 ExpressionStatement_node*     createExpressionStatement(Expression_node*);
 Expression_node*              createExpression(ExpressionType_enum, void*);
 AssignmentExpression_node*    createAssignmentExpression(Identifier_node* /* TODO needs to be LeftHandSideExpression_node */, AssignmentOperator_enum assignmentOperator, Expression_node*);
+LiteralExpression_node*       createLiteralExpression(Literal_node*);
+Literal_node*                 createLiteral(LiteralType_enum, void*);
 
 enum StatementType_enum {
     BLOCK_STATEMENT_TYPE,
@@ -61,11 +66,16 @@ enum SourceElementType_enum {
 enum ExpressionType_enum {
     THIS_EXPRESSION_TYPE,
     IDENTIFIER_EXPRESSION_TYPE,
-    ASSIGNMENT_EXPRESSION_TYPE
+    ASSIGNMENT_EXPRESSION_TYPE,
+    LITERAL_EXPRESSION_TYPE
 };
 
 enum AssignmentOperator_enum {
     EQUALS_ASSIGNMENT_OPERATOR
+};
+
+enum LiteralType_enum {
+    NULL_LITERAL_TYPE
 };
 
 union Statement_union {
@@ -86,6 +96,7 @@ union Expression_union {
     void* any;
     Identifier_node* identifier;
     AssignmentExpression_node* assignmentExpression;
+    LiteralExpression_node* literalExpression;
 };
 
 struct Identifier_node {
@@ -185,6 +196,16 @@ struct AssignmentExpression_node {
     AssignmentOperator_enum assignmentOperator;
     Expression_node* expression;
     char* (*toString)(AssignmentExpression_node*);
+};
+
+struct LiteralExpression_node {
+    Literal_node* literal;
+    char* (*toString)(LiteralExpression_node*);
+};
+
+struct Literal_node {
+    LiteralType_enum type;
+    char* (*toString)(Literal_node*);
 };
 
 #endif

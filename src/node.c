@@ -337,6 +337,8 @@ char* Expression_toString(Expression_node* expression) {
             return expression->expressionUnion.identifier->name;
         case ASSIGNMENT_EXPRESSION_TYPE:
             return expression->expressionUnion.assignmentExpression->toString(expression->expressionUnion.assignmentExpression);
+        case LITERAL_EXPRESSION_TYPE:
+            return expression->expressionUnion.literalExpression->toString(expression->expressionUnion.literalExpression);
     }
 }
 
@@ -364,7 +366,6 @@ char* AssignmentExpression_toString(AssignmentExpression_node* assignmentExpress
     return string;
 }
 
-// TODO needs AssignmentOperator too. likely as an enum.
 AssignmentExpression_node* createAssignmentExpression(Identifier_node* identifier/* TODO needs to be LeftHandSideExpression_node */, AssignmentOperator_enum assignmentOperator, Expression_node* expression) {
     AssignmentExpression_node* assignmentExpression = (AssignmentExpression_node*) calloc(1, sizeof(AssignmentExpression_node));
     assignmentExpression->identifier = identifier;
@@ -372,4 +373,29 @@ AssignmentExpression_node* createAssignmentExpression(Identifier_node* identifie
     assignmentExpression->expression = expression;
     assignmentExpression->toString = AssignmentExpression_toString;
     return assignmentExpression;
+}
+
+char* LiteralExpression_toString(LiteralExpression_node* literalExpression) {
+    return literalExpression->literal->toString(literalExpression->literal);
+}
+
+LiteralExpression_node* createLiteralExpression(Literal_node* literal) {
+    LiteralExpression_node* literalExpression = (LiteralExpression_node*) calloc(1, sizeof(LiteralExpression_node));
+    literalExpression->literal = literal;
+    literalExpression->toString = LiteralExpression_toString;
+    return literalExpression;
+}
+
+char* Literal_toString(Literal_node* literal) {
+    switch (literal->type) {
+        case NULL_LITERAL_TYPE:
+            return new_string("null");
+    }
+}
+
+Literal_node* createLiteral(LiteralType_enum type, void* untypedLiteral) {
+    Literal_node* literal = (Literal_node*) calloc(1, sizeof(Literal_node));
+    literal->type = type;
+    literal->toString = Literal_toString;
+    return literal;
 }
