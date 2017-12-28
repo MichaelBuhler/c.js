@@ -113,3 +113,21 @@ var {
     yylval.char_array = str;
     return IDENTIFIER;
 }
+
+0 {
+    printf("lexed number: %s\n", yytext);
+    yylval.double_val = 0;
+    return NUMBER_LITERAL;
+}
+
+[1-9][0-9]* {
+    printf("lexed number: %s\n", yytext);
+    yylval.double_val = atof(yytext);
+    return NUMBER_LITERAL;
+}
+
+[0-9]*\.[0-9]* {
+    printf("lexed number: %s\n", yytext);
+    yylval.double_val = atof(yytext);
+    return NUMBER_LITERAL;
+}

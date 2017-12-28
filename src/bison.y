@@ -18,6 +18,7 @@ Program_node* root = NULL;
 %union {
     int                           token_id;
     char*                         char_array;
+    double                        double_val;
     Program_node*                 program_node;
     SourceElements_node*          sourceElements_node;
     SourceElement_node*           sourceElement_node;
@@ -37,6 +38,9 @@ Program_node* root = NULL;
     AssignmentExpression_node*    assignmentExpression_node;
     AssignmentOperator_enum       assignmentOperator_enum;
     Literal_node*                 literal_node;
+    NullLiteral_node*             nullLiteral_node;
+    BooleanLiteral_node*          booleanLiteral_node;
+    NumberLiteral_node*           numberLiteral_node;
 }
 
 %token FALSE_LITERAL
@@ -55,6 +59,7 @@ Program_node* root = NULL;
 %token SEMICOLON
 
 %token <char_array> IDENTIFIER
+%token <double_val> NUMBER_LITERAL
 
 %type <sourceElements_node>          SourceElements
 %type <sourceElement_node>           SourceElement
@@ -74,6 +79,9 @@ Program_node* root = NULL;
 %type <assignmentExpression_node>    AssignmentExpression
 %type <assignmentOperator_enum>      AssignmentOperator
 %type <literal_node>                 Literal
+%type <nullLiteral_node>             NullLiteral
+%type <booleanLiteral_node>          BooleanLiteral
+%type <numberLiteral_node>           NumberLiteral
 
 %start Program
 
@@ -233,9 +241,22 @@ Identifier:
 // 7.7 Literals
 
 Literal:
-    NULL_LITERAL { puts("parsed Literal"); $$ = createLiteral(NULL_LITERAL_TYPE, NULL); }
-    | TRUE_LITERAL { puts("parsed Literal"); $$ = createLiteral(TRUE_LITERAL_TYPE, NULL); }
-    | FALSE_LITERAL { puts("parsed Literal"); $$ = createLiteral(FALSE_LITERAL_TYPE, NULL); }
+    NullLiteral { puts("parsed Literal"); $$ = createLiteral(NULL_LITERAL_TYPE, $1); }
+    | BooleanLiteral { puts("parsed Literal"); $$ = createLiteral(BOOLEAN_LITERAL_TYPE, $1); }
+    | NumberLiteral { puts("parsed Literal"); $$ = createLiteral(NUMBER_LITERAL_TYPE, $1); }
+    ;
+
+NullLiteral:
+    NULL_LITERAL { puts("parsed NullLiteral"); $$ = createNullLiteral(); }
+    ;
+
+BooleanLiteral:
+    TRUE_LITERAL { puts("parsed BooleanLiteral"); $$ = createBooleanLiteral(1); }
+    | FALSE_LITERAL { puts("parsed BooleanLiteral"); $$ = createBooleanLiteral(0); }
+    ;
+
+NumberLiteral:
+    NUMBER_LITERAL { puts("parsed NumberLiteral"); $$ = createNumberLiteral($1); }
     ;
 
 %%

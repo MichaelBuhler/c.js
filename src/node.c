@@ -338,7 +338,7 @@ char* Expression_toString(Expression_node* expression) {
         case ASSIGNMENT_EXPRESSION_TYPE:
             return expression->expressionUnion.assignmentExpression->toString(expression->expressionUnion.assignmentExpression);
         case LITERAL_EXPRESSION_TYPE:
-            return expression->expressionUnion.literalExpression->toString(expression->expressionUnion.literalExpression);
+            return expression->expressionUnion.literal->toString(expression->expressionUnion.literal);
     }
 }
 
@@ -375,31 +375,60 @@ AssignmentExpression_node* createAssignmentExpression(Identifier_node* identifie
     return assignmentExpression;
 }
 
-char* LiteralExpression_toString(LiteralExpression_node* literalExpression) {
-    return literalExpression->literal->toString(literalExpression->literal);
-}
-
-LiteralExpression_node* createLiteralExpression(Literal_node* literal) {
-    LiteralExpression_node* literalExpression = (LiteralExpression_node*) calloc(1, sizeof(LiteralExpression_node));
-    literalExpression->literal = literal;
-    literalExpression->toString = LiteralExpression_toString;
-    return literalExpression;
-}
-
 char* Literal_toString(Literal_node* literal) {
     switch (literal->type) {
         case NULL_LITERAL_TYPE:
-            return new_string("null");
-        case TRUE_LITERAL_TYPE:
-            return new_string("true");
-        case FALSE_LITERAL_TYPE:
-            return new_string("false");
+            return literal->literalUnion.nullLiteral->toString(literal->literalUnion.nullLiteral);
+        case BOOLEAN_LITERAL_TYPE:
+            return literal->literalUnion.booleanLiteral->toString(literal->literalUnion.booleanLiteral);
+        case NUMBER_LITERAL_TYPE:
+            return literal->literalUnion.numberLiteral->toString(literal->literalUnion.numberLiteral);
     }
 }
 
 Literal_node* createLiteral(LiteralType_enum type, void* untypedLiteral) {
     Literal_node* literal = (Literal_node*) calloc(1, sizeof(Literal_node));
     literal->type = type;
+    literal->literalUnion.any = untypedLiteral;
     literal->toString = Literal_toString;
     return literal;
+}
+
+char* NullLiteral_toString(NullLiteral_node* nullLiteral) {
+    return new_string("null");
+}
+
+NullLiteral_node* createNullLiteral() {
+    NullLiteral_node* nullLiteral = (NullLiteral_node*) calloc(1, sizeof(NullLiteral_node));
+    nullLiteral->toString = NullLiteral_toString;
+    return nullLiteral;
+}
+
+char* BooleanLiteral_toString(BooleanLiteral_node* booleanLiteral) {
+    if (booleanLiteral->boolean) {
+        return new_string("true");
+    } else {
+        return new_string("false");
+    }
+}
+
+BooleanLiteral_node* createBooleanLiteral(char boolean) {
+    BooleanLiteral_node* booleanLiteral = (BooleanLiteral_node*) calloc(1, sizeof(BooleanLiteral_node));
+    booleanLiteral->boolean = boolean;
+    booleanLiteral->toString = BooleanLiteral_toString;
+    return booleanLiteral;
+}
+
+char* NumberLiteral_toString(NumberLiteral_node* numberLiteral) {
+    char* string = (char*) calloc(100, sizeof(char));
+    sprintf(string, "%.18e", numberLiteral->number);
+    string = (char*) realloc(string, strlen(string)+1);
+    return string;
+}
+
+NumberLiteral_node* createNumberLiteral(double number) {
+    NumberLiteral_node* numberLiteral = (NumberLiteral_node*) calloc(1, sizeof(NumberLiteral_node));
+    numberLiteral->number = number;
+    numberLiteral->toString = NumberLiteral_toString;
+    return numberLiteral;
 }

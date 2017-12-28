@@ -88,6 +88,11 @@ test.cb('Assign to False', runner(function () {
     buhler = false;
 }));
 
+test.cb('Parenthesis', runner(function () {
+    (true);
+    var buhler = (null);
+}));
+
 test.cb('Multiple Variable Declaration, Mixed Initialization', runner(function () {
     var buhler = michael, other = true, another;
 }));

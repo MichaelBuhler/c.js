@@ -10,6 +10,7 @@ typedef enum   LiteralType_enum               LiteralType_enum;
 typedef union  Statement_union                Statement_union;
 typedef union  SourceElement_union            SourceElement_union;
 typedef union  Expression_union               Expression_union;
+typedef union  Literal_union                  Literal_union;
 
 typedef struct Program_node                   Program_node;
 typedef struct SourceElements_node            SourceElements_node;
@@ -28,8 +29,10 @@ typedef struct EmptyStatement_node            EmptyStatement_node;
 typedef struct ExpressionStatement_node       ExpressionStatement_node;
 typedef struct Expression_node                Expression_node;
 typedef struct AssignmentExpression_node      AssignmentExpression_node;
-typedef struct LiteralExpression_node         LiteralExpression_node;
 typedef struct Literal_node                   Literal_node;
+typedef struct NullLiteral_node               NullLiteral_node;
+typedef struct BooleanLiteral_node            BooleanLiteral_node;
+typedef struct NumberLiteral_node             NumberLiteral_node;
 
 Identifier_node*              createIdentifier(char*);
 StatementList_node*           createStatementList(Statement_node*);
@@ -48,8 +51,10 @@ EmptyStatement_node*          createEmptyStatement();
 ExpressionStatement_node*     createExpressionStatement(Expression_node*);
 Expression_node*              createExpression(ExpressionType_enum, void*);
 AssignmentExpression_node*    createAssignmentExpression(Identifier_node* /* TODO needs to be LeftHandSideExpression_node */, AssignmentOperator_enum assignmentOperator, Expression_node*);
-LiteralExpression_node*       createLiteralExpression(Literal_node*);
 Literal_node*                 createLiteral(LiteralType_enum, void*);
+NullLiteral_node*             createNullLiteral();
+BooleanLiteral_node*          createBooleanLiteral(char);
+NumberLiteral_node*           createNumberLiteral(double);
 
 enum StatementType_enum {
     BLOCK_STATEMENT_TYPE,
@@ -76,8 +81,8 @@ enum AssignmentOperator_enum {
 
 enum LiteralType_enum {
     NULL_LITERAL_TYPE,
-    TRUE_LITERAL_TYPE,
-    FALSE_LITERAL_TYPE
+    BOOLEAN_LITERAL_TYPE,
+    NUMBER_LITERAL_TYPE
 };
 
 union Statement_union {
@@ -97,8 +102,15 @@ union SourceElement_union {
 union Expression_union {
     void* any;
     Identifier_node* identifier;
+    Literal_node* literal;
     AssignmentExpression_node* assignmentExpression;
-    LiteralExpression_node* literalExpression;
+};
+
+union Literal_union {
+    void* any;
+    NullLiteral_node* nullLiteral;
+    BooleanLiteral_node* booleanLiteral;
+    NumberLiteral_node* numberLiteral;
 };
 
 struct Identifier_node {
@@ -200,14 +212,24 @@ struct AssignmentExpression_node {
     char* (*toString)(AssignmentExpression_node*);
 };
 
-struct LiteralExpression_node {
-    Literal_node* literal;
-    char* (*toString)(LiteralExpression_node*);
-};
-
 struct Literal_node {
     LiteralType_enum type;
+    Literal_union literalUnion;
     char* (*toString)(Literal_node*);
+};
+
+struct NullLiteral_node {
+    char* (*toString)(NullLiteral_node*);
+};
+
+struct BooleanLiteral_node {
+    char boolean;
+    char* (*toString)(BooleanLiteral_node*);
+};
+
+struct NumberLiteral_node {
+    double number;
+    char* (*toString)(NumberLiteral_node*);
 };
 
 #endif
