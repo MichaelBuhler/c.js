@@ -4,9 +4,16 @@
 #include "node.h"
 #include "string_utils.h"
 
+char* Identifier_toString(Identifier_node* identifier) {
+    char* string = new_string("Identifier ");
+    string = concat(string, identifier->name);
+    return string;
+}
+
 Identifier_node* createIdentifier(char* name) {
     Identifier_node* identifier = (Identifier_node*) calloc(1, sizeof(Identifier_node));
     identifier->name = new_string(name);
+    identifier->toString = Identifier_toString;
     return identifier;
 }
 

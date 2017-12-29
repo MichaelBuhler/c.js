@@ -119,6 +119,7 @@ union Literal_union {
 
 struct Identifier_node {
     char* name;
+    char* (*toString)(Identifier_node*);
 };
 
 struct StatementList_node {
