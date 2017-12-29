@@ -9,6 +9,14 @@ char* concat(char* dest, char* src) {
     return dest;
 }
 
+char* concatc(char* dest, char c) {
+    int length = strlen(dest);
+    dest = (char*) realloc(dest, length + 2);
+    dest[length] = c;
+    dest[length+1] = 0;
+    return dest;
+}
+
 char* new_string(char* str) {
     char* string = (char*) calloc(1, sizeof(char));
     return concat(string, str);

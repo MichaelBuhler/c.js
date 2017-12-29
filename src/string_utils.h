@@ -2,6 +2,7 @@
 #define STRING_UTILS_H
 
 char* concat(char*, char*);
+char* concatc(char*, char);;
 char* new_string(char*);
 char* indent(char*);
 
