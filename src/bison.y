@@ -37,6 +37,8 @@ Program_node* root = NULL;
     Expression_node*              expression_node;
     AssignmentExpression_node*    assignmentExpression_node;
     AssignmentOperator_enum       assignmentOperator_enum;
+    CallExpression_node*          callExpression_node;
+    ArgumentList_node*            argumentList_node;
     Literal_node*                 literal_node;
     NullLiteral_node*             nullLiteral_node;
     BooleanLiteral_node*          booleanLiteral_node;
@@ -82,6 +84,8 @@ Program_node* root = NULL;
 %type <expression_node>              Expression
 %type <assignmentExpression_node>    AssignmentExpression
 %type <assignmentOperator_enum>      AssignmentOperator
+%type <callExpression_node>          CallExpression
+%type <argumentList_node>            ArgumentList
 %type <literal_node>                 Literal
 %type <nullLiteral_node>             NullLiteral
 %type <booleanLiteral_node>          BooleanLiteral
@@ -224,6 +228,17 @@ Expression:
     | Literal { puts("parsed Expression"); $$ = createExpression(LITERAL_EXPRESSION_TYPE, $1); }
     | LEFT_PAREN Expression RIGHT_PAREN { puts("parsed Expression"); $$ = $2; }
     | AssignmentExpression { puts("parsed Expression"); $$ = createExpression(ASSIGNMENT_EXPRESSION_TYPE, $1); }
+    | CallExpression { puts("parsed Expression"); $$ = createExpression(CALL_EXPRESSION_TYPE, $1); }
+    ;
+
+CallExpression:
+    Expression LEFT_PAREN RIGHT_PAREN { puts("parsed CallExpression"); $$ = createCallExpression($1, NULL); }
+    | Expression LEFT_PAREN ArgumentList RIGHT_PAREN { puts("parsed CallExpression"); $$ = createCallExpression($1, $3); }
+    ;
+
+ArgumentList:
+    Expression { puts("parsed ArgumentList"); $$ = createArgumentList($1); }
+    | ArgumentList COMMA Expression { puts("parsed ArgumentList"); $1->append($1, $3); $$ = $1; }
     ;
 
 AssignmentExpression:

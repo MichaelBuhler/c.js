@@ -33,7 +33,7 @@ char* Statement_toString(Statement_node* statement) {
 Statement_node* createStatement(StatementType_enum type, void* untypedStatement) {
     Statement_node* statement = (Statement_node*) calloc(1, sizeof(Statement_node));
     statement->type = type;
-    statement->statementUnion.any = untypedStatement;
+    statement->statementUnion.any = untypedStatement; // TODO do we need .any ?
     statement->toString = Statement_toString;
     return statement;
 }
@@ -165,7 +165,7 @@ char* SourceElement_toString(SourceElement_node* sourceElement) {
 SourceElement_node* createSourceElement(SourceElementType_enum type, void* untypedSourceElement) {
     SourceElement_node* sourceElement = (SourceElement_node*) calloc(1, sizeof(SourceElement_node));
     sourceElement->type = type;
-    sourceElement->sourceElementUnion.any = untypedSourceElement;
+    sourceElement->sourceElementUnion.any = untypedSourceElement; // TODO do we need .any ?
     sourceElement->toString = SourceElement_toString;
     return sourceElement;
 }
@@ -329,13 +329,15 @@ char* Expression_toString(Expression_node* expression) {
             return expression->expressionUnion.assignmentExpression->toString(expression->expressionUnion.assignmentExpression);
         case LITERAL_EXPRESSION_TYPE:
             return expression->expressionUnion.literal->toString(expression->expressionUnion.literal);
+        case CALL_EXPRESSION_TYPE:
+            return expression->expressionUnion.callExpression->toString(expression->expressionUnion.callExpression);
     }
 }
 
 Expression_node* createExpression(ExpressionType_enum type, void* untypedExpression) {
     Expression_node* expression = (Expression_node*) calloc(1, sizeof(Expression_node));
     expression->type = type;
-    expression->expressionUnion.any = untypedExpression;
+    expression->expressionUnion.any = untypedExpression; // TODO do we need .any ?
     expression->toString = Expression_toString;
     return expression;
 }
@@ -369,6 +371,66 @@ AssignmentExpression_node* createAssignmentExpression(Identifier_node* identifie
     return assignmentExpression;
 }
 
+char* CallExpression_toString(CallExpression_node* callExpression) {
+    char* string = new_string("CallExpression\n");
+    char* tmp = new_string("Function\n");
+    tmp = concat(tmp, indent(callExpression->function->toString(callExpression->function)));
+    char* tmp2 = indent(tmp);
+    string = concat(string, tmp2);
+    free(tmp2);
+    free(tmp);
+    string = concat(string, "\n");
+    if ( callExpression->argumentList == NULL ) {
+        char* tmp = indent("ArgumentList (empty)");
+        string = concat(string, tmp);
+        free(tmp);
+    } else {
+        char* tmp1 = callExpression->argumentList->toString(callExpression->argumentList);
+        char* tmp2 = indent(tmp1);
+        free(tmp1);
+        string = concat(string, tmp2);
+        free(tmp2);
+    }
+    return string;
+}
+
+CallExpression_node* createCallExpression(Expression_node* function, ArgumentList_node* argumentList) {
+    CallExpression_node* callExpression = (CallExpression_node*) calloc(1, sizeof(CallExpression_node));
+    callExpression->function = function;
+    callExpression->argumentList = argumentList;
+    callExpression->toString = CallExpression_toString;
+    return callExpression;
+}
+
+void ArgumentList_append(ArgumentList_node* argumentList, Expression_node* argument) {
+    argumentList->arguments = (Expression_node**) realloc(argumentList->arguments, ( argumentList->count + 1 ) * sizeof(Expression_node*) );
+    argumentList->arguments[argumentList->count] = argument;
+    argumentList->count += 1;
+}
+
+char* ArgumentList_toString(ArgumentList_node* argumentList) {
+    char* string = new_string("ArgumentList");
+    for ( int i = 0 ; i < argumentList->count ; i++ ) {
+        string = concat(string, "\n");
+        char* tmp1 = argumentList->arguments[i]->toString(argumentList->arguments[i]);
+        char* tmp2 = indent(tmp1);
+        free(tmp1);
+        string = concat(string, tmp2);
+        free(tmp2);
+    }
+    return string;
+}
+
+ArgumentList_node* createArgumentList(Expression_node* argument) {
+    ArgumentList_node* argumentList = (ArgumentList_node*) calloc(1, sizeof(ArgumentList_node));
+    argumentList->count = 0;
+    argumentList->arguments = NULL;
+    argumentList->append = ArgumentList_append;
+    argumentList->toString = ArgumentList_toString;
+    argumentList->append(argumentList, argument);
+    return argumentList;
+}
+
 char* Literal_toString(Literal_node* literal) {
     switch (literal->type) {
         case NULL_LITERAL_TYPE:
@@ -385,7 +447,7 @@ char* Literal_toString(Literal_node* literal) {
 Literal_node* createLiteral(LiteralType_enum type, void* untypedLiteral) {
     Literal_node* literal = (Literal_node*) calloc(1, sizeof(Literal_node));
     literal->type = type;
-    literal->literalUnion.any = untypedLiteral;
+    literal->literalUnion.any = untypedLiteral; // TODO do we need .any ?
     literal->toString = Literal_toString;
     return literal;
 }
@@ -434,7 +496,7 @@ NumberLiteral_node* createNumberLiteral(double number) {
 
 char* StringLiteral_toString(StringLiteral_node* stringLiteral) {
     char* string = new_string("\"");
-    for ( unsigned long i =  0 ; i < strlen(stringLiteral->string) ; i++ ) {
+    for ( int i =  0 ; i < strlen(stringLiteral->string) ; i++ ) {
         switch (stringLiteral->string[i]) {
             case '\b': string = concat(string, "\\b");  break; // \b backspace
             case '\f': string = concat(string, "\\f");  break; // \f form feed

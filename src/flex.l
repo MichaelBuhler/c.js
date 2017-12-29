@@ -151,6 +151,7 @@ var {
     yylval.char_array = new_string(string_literal);
     free(string_literal);
     BEGIN(INITIAL);
+    puts("lexed string");
     return STRING_LITERAL;
 }
 <SINGLE_QUOTE_STRING_LITERAL>. {
@@ -181,6 +182,7 @@ var {
     yylval.char_array = new_string(string_literal);
     free(string_literal);
     BEGIN(INITIAL);
+    puts("lexed string");
     return STRING_LITERAL;
 }
 <DOUBLE_QUOTE_STRING_LITERAL>. {

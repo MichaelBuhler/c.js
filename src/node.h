@@ -29,6 +29,8 @@ typedef struct EmptyStatement_node            EmptyStatement_node;
 typedef struct ExpressionStatement_node       ExpressionStatement_node;
 typedef struct Expression_node                Expression_node;
 typedef struct AssignmentExpression_node      AssignmentExpression_node;
+typedef struct CallExpression_node            CallExpression_node;
+typedef struct ArgumentList_node              ArgumentList_node;
 typedef struct Literal_node                   Literal_node;
 typedef struct NullLiteral_node               NullLiteral_node;
 typedef struct BooleanLiteral_node            BooleanLiteral_node;
@@ -52,6 +54,8 @@ EmptyStatement_node*          createEmptyStatement();
 ExpressionStatement_node*     createExpressionStatement(Expression_node*);
 Expression_node*              createExpression(ExpressionType_enum, void*);
 AssignmentExpression_node*    createAssignmentExpression(Identifier_node* /* TODO needs to be LeftHandSideExpression_node */, AssignmentOperator_enum assignmentOperator, Expression_node*);
+CallExpression_node*          createCallExpression(Expression_node*, ArgumentList_node*);
+ArgumentList_node*            createArgumentList(Expression_node*);
 Literal_node*                 createLiteral(LiteralType_enum, void*);
 NullLiteral_node*             createNullLiteral();
 BooleanLiteral_node*          createBooleanLiteral(char);
@@ -74,7 +78,8 @@ enum ExpressionType_enum {
     THIS_EXPRESSION_TYPE,
     IDENTIFIER_EXPRESSION_TYPE,
     ASSIGNMENT_EXPRESSION_TYPE,
-    LITERAL_EXPRESSION_TYPE
+    LITERAL_EXPRESSION_TYPE,
+    CALL_EXPRESSION_TYPE
 };
 
 enum AssignmentOperator_enum {
@@ -97,20 +102,21 @@ union Statement_union {
 };
 
 union SourceElement_union {
-    void* any;
+    void* any; // TODO do we need any ?
     Statement_node* statement;
     FunctionDeclaration_node* functionDeclaration;
 };
 
 union Expression_union {
-    void* any;
+    void* any; // TODO do we need any ?
     Identifier_node* identifier;
     Literal_node* literal;
     AssignmentExpression_node* assignmentExpression;
+    CallExpression_node* callExpression;
 };
 
 union Literal_union {
-    void* any;
+    void* any; // TODO do we need any ?
     NullLiteral_node* nullLiteral;
     BooleanLiteral_node* booleanLiteral;
     NumberLiteral_node* numberLiteral;
@@ -125,62 +131,62 @@ struct Identifier_node {
 struct StatementList_node {
     int count;
     Statement_node** statements;
-    void (*append)(struct StatementList_node*, Statement_node*);
-    char* (*toString)(struct StatementList_node*);
+    void (*append)(StatementList_node*, Statement_node*);
+    char* (*toString)(StatementList_node*);
 };
 
 struct Block_node {
     StatementList_node* statementList;
-    char* (*toString)(struct Block_node*);
+    char* (*toString)(Block_node*);
 };
 
 struct Statement_node {
     StatementType_enum type;
     Statement_union statementUnion;
-    char* (*toString)(struct Statement_node*);
+    char* (*toString)(Statement_node*);
 };
 
 struct FormalParameterList_node {
     int count;
     Identifier_node** parameters;
-    void (*append)(struct FormalParameterList_node*, Identifier_node*);
-    char* (*toString)(struct FormalParameterList_node*);
+    void (*append)(FormalParameterList_node*, Identifier_node*);
+    char* (*toString)(FormalParameterList_node*);
 };
 
 struct FunctionDeclaration_node {
     Identifier_node* identifier;
     FormalParameterList_node* formalParameterList;
     Block_node* block;
-    char* (*toString)(struct FunctionDeclaration_node*);
+    char* (*toString)(FunctionDeclaration_node*);
 };
 
 struct SourceElement_node {
     SourceElementType_enum type;
     SourceElement_union sourceElementUnion;
-    char* (*toString)(struct SourceElement_node*);
+    char* (*toString)(SourceElement_node*);
 };
 
 struct SourceElements_node {
     int count;
     SourceElement_node** elements;
-    void (*append)(struct SourceElements_node*, SourceElement_node*);
-    char* (*toString)(struct SourceElements_node*);
+    void (*append)(SourceElements_node*, SourceElement_node*);
+    char* (*toString)(SourceElements_node*);
 };
 
 struct Program_node {
     SourceElements_node* sourceElements;
-    char* (*toString)(struct Program_node*);
+    char* (*toString)(Program_node*);
 };
 
 struct VariableStatement_node {
     VariableDeclarationList_node* variableDeclarationList;
-    char* (*toString)(struct VariableStatement_node*);
+    char* (*toString)(VariableStatement_node*);
 };
 
 struct VariableDeclaration_node {
     Identifier_node* identifier;
     Initializer_node* initializer;
-    char* (*toString)(struct VariableDeclaration_node*);
+    char* (*toString)(VariableDeclaration_node*);
 };
 
 struct Initializer_node {
@@ -191,12 +197,12 @@ struct Initializer_node {
 struct VariableDeclarationList_node {
     int count;
     VariableDeclaration_node** variableDeclarations;
-    void (*append)(struct VariableDeclarationList_node*, VariableDeclaration_node*);
-    char* (*toString)(struct VariableDeclarationList_node*);
+    void (*append)(VariableDeclarationList_node*, VariableDeclaration_node*);
+    char* (*toString)(VariableDeclarationList_node*);
 };
 
 struct EmptyStatement_node {
-    char* (*toString)(struct EmptyStatement_node*);
+    char* (*toString)(EmptyStatement_node*);
 };
 
 struct ExpressionStatement_node {
@@ -215,6 +221,19 @@ struct AssignmentExpression_node {
     AssignmentOperator_enum assignmentOperator;
     Expression_node* expression;
     char* (*toString)(AssignmentExpression_node*);
+};
+
+struct CallExpression_node {
+    Expression_node* function;
+    ArgumentList_node* argumentList;
+    char* (*toString)(CallExpression_node*);
+};
+
+struct ArgumentList_node {
+    int count;
+    Expression_node** arguments;
+    void (*append)(ArgumentList_node*, Expression_node*);
+    char* (*toString)(ArgumentList_node*);
 };
 
 struct Literal_node {

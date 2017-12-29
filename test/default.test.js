@@ -79,6 +79,18 @@ test.cb('Variable Declaration, Initialize to Double Quote String, with Escape Ch
     var buhler = "mi\nc\"h\tae'l";
 }));
 
+test.cb('Variable Declaration, Initialize to Call Expression, Zero Arguments', runner(function () {
+    var buhler = michael();
+}));
+
+test.cb('Variable Declaration, Initialize to Call Expression, One Argument', runner(function () {
+    var buhler = michael(buhler);
+}));
+
+test.cb('Variable Declaration, Initialize to Call Expression, Multiple Arguments', runner(function () {
+    var buhler = michael(buhler, other);
+}));
+
 test.cb('Multiple Variable Declaration', runner(function () {
     var buhler, michael;
 }));
@@ -140,6 +152,25 @@ test.cb('Variable Assignment, to Double Quote String', runner(function () {
 test.cb('Variable Assignment, to Double Quote String, with Escape Characters', runner(function () {
     var buhler;
     buhler = "mi\nc\"h\tae'l";
+}));
+
+test.cb('Variable Assignment, to Call Expression, Zero Arguments', runner(function () {
+    var buhler;
+    buhler = michael();
+}));
+
+test.cb('Variable Assignment, to Call Expression, One Argument', runner(function () {
+    var buhler;
+    buhler = michael(buhler);
+}));
+
+test.cb('Variable Assignment, to Call Expression, Multiple Arguments', runner(function () {
+    var buhler;
+    buhle = michael(buhler, other);
+}));
+
+test.cb('Multiple Variable Declaration', runner(function () {
+    var buhler, michael;
 }));
 
 test.cb('Parenthesis', runner(function () {
