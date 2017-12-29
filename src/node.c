@@ -94,13 +94,18 @@ void FormalParameterList_append(FormalParameterList_node* formalParameterList, I
 }
 
 char* FormalParameterList_toString(FormalParameterList_node* formalParameterList) {
-    if (formalParameterList->count == 0) {
-        return new_string("");
+    char* string = new_string("FormalParameterList");
+    if ( formalParameterList->count == 0 ) {
+        string = concat(string, " (empty)");
+        return string;
     }
-    char* string = new_string(formalParameterList->parameters[0]->name);
-    for ( int i = 1 ; i < formalParameterList->count ; i++ ) {
-        string = concat(string, ", ");
-        string = concat(string, formalParameterList->parameters[i]->name);
+    for ( int i = 0 ; i < formalParameterList->count ; i++ ) {
+        string = concat(string, "\n");
+        char* tmp = formalParameterList->parameters[i]->toString(formalParameterList->parameters[i]);
+        char* tmp2 = indent(tmp);
+        free(tmp);
+        string = concat(string, tmp2);
+        free(tmp2);
     }
     return string;
 }
@@ -116,18 +121,24 @@ FormalParameterList_node* createFormalParameterList(Identifier_node* parameter) 
 }
 
 char* FunctionDeclaration_toString(FunctionDeclaration_node* functionDeclaration) {
-    char* string = new_string("FunctionDeclaration: ");
-    string = concat(string, functionDeclaration->identifier->name);
-    string = concat(string, " (");
-    if ( functionDeclaration->formalParameterList != NULL ) {
-        char* tmp = functionDeclaration->formalParameterList->toString(functionDeclaration->formalParameterList);
-        string = concat(string, tmp);
-        free(tmp);
+    char* string = new_string("FunctionDeclaration\n");
+    char* tmp1 = functionDeclaration->identifier->toString(functionDeclaration->identifier);
+    tmp1 = concat(tmp1, "\n");
+    if ( functionDeclaration->formalParameterList == NULL ) {
+        tmp1 = concat(tmp1, "FormalParameterList (empty)");
+    } else {
+        char* tmp2 = functionDeclaration->formalParameterList->toString(functionDeclaration->formalParameterList);
+        tmp1 = concat(tmp1, tmp2);
+        free(tmp2);
     }
-    string = concat(string, ")\n");
-    char* tmp = functionDeclaration->block->toString(functionDeclaration->block);
-    string = concat(string, indent(tmp));
-    free(tmp);
+    tmp1 = concat(tmp1, "\n");
+    char* tmp2 = functionDeclaration->block->toString(functionDeclaration->block);
+    tmp1 = concat(tmp1, tmp2);
+    free(tmp2);
+    tmp2 = indent(tmp1);
+    free(tmp1);
+    string = concat(string, tmp2);
+    free(tmp2);
     return string;
 }
 
@@ -218,13 +229,18 @@ VariableStatement_node* createVariableStatement(VariableDeclarationList_node* va
 }
 
 char* VariableDeclaration_toString(VariableDeclaration_node* variableDeclaration) {
-    char* string = variableDeclaration->identifier->name;
+    char* string = new_string("VariableDeclaration\n");
+    char* tmp1 = variableDeclaration->identifier->toString(variableDeclaration->identifier);
     if ( variableDeclaration->initializer != NULL ) {
-        string = concat(string, " =\n");
-        char* tmp = variableDeclaration->initializer->toString(variableDeclaration->initializer);
-        string = concat(string, indent(tmp));
-        free(tmp);
+        tmp1 = concat(tmp1, "\n");
+        char* tmp2 = variableDeclaration->initializer->toString(variableDeclaration->initializer);
+        tmp1 = concat(tmp1, tmp2);
+        free(tmp2);
     }
+    char* tmp2 = indent(tmp1);
+    free(tmp1);
+    string = concat(string, tmp2);
+    free(tmp2);
     return string;
 }
 
@@ -306,7 +322,7 @@ char* Expression_toString(Expression_node* expression) {
         case THIS_EXPRESSION_TYPE:
             return new_string("this");
         case IDENTIFIER_EXPRESSION_TYPE:
-            return expression->expressionUnion.identifier->name;
+            return expression->expressionUnion.identifier->toString(expression->expressionUnion.identifier);
         case ASSIGNMENT_EXPRESSION_TYPE:
             return expression->expressionUnion.assignmentExpression->toString(expression->expressionUnion.assignmentExpression);
         case LITERAL_EXPRESSION_TYPE:
@@ -324,17 +340,21 @@ Expression_node* createExpression(ExpressionType_enum type, void* untypedExpress
 
 char* AssignmentExpression_toString(AssignmentExpression_node* assignmentExpression) {
     char* string = new_string("AssignmentExpression\n");
-    string = concat(string, indent(assignmentExpression->identifier->name));
-    string = concat(string, " ");
+    char* tmp1 = assignmentExpression->identifier->toString(assignmentExpression->identifier);
+    tmp1 = concat(tmp1, "\n");
     switch (assignmentExpression->assignmentOperator) {
         case EQUALS_ASSIGNMENT_OPERATOR:
-            string = concat(string, "=");
+            tmp1 = concat(tmp1, "=");
             break;
     }
-    string = concat(string, "\n");
-    char* tmp = assignmentExpression->expression->toString(assignmentExpression->expression);
-    string = concat(string, indent(indent(tmp)));
-    free(tmp);
+    tmp1 = concat(tmp1, "\n");
+    char* tmp2 = assignmentExpression->expression->toString(assignmentExpression->expression);
+    tmp1 = concat(tmp1, tmp2);
+    free(tmp2);
+    tmp2 = indent(tmp1);
+    free(tmp1);
+    string = concat(string, tmp2);
+    free(tmp2);
     return string;
 }
 
