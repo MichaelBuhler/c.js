@@ -46,15 +46,15 @@ void StatementList_append(StatementList_node* statementList, Statement_node* sta
 
 char* StatementList_toString(StatementList_node* statementList) {
     char* string = new_string("StatementList");
+    if ( statementList->count == 0 ) {
+        string = concat(string, " (empty)");
+        return string;
+    }
     for ( int i = 0 ; i < statementList->count ; i++ ) {
         string = concat(string, "\n");
-        if ( statementList->statements[i] == NULL ) {
-            string = concat(string, indent("null"));
-        } else {
-            char* tmp = statementList->statements[i]->toString(statementList->statements[i]);
-            string = concat(string, indent(tmp));
-            free(tmp);
-        }
+        char* tmp = statementList->statements[i]->toString(statementList->statements[i]);
+        string = concat(string, indent(tmp));
+        free(tmp);
     }
     return string;
 }
@@ -71,7 +71,9 @@ StatementList_node* createStatementList(Statement_node* statement) {
 
 char* Block_toString(Block_node* block) {
     char* string = new_string("Block");
-    if ( block->statementList != NULL ) {
+    if ( block->statementList == NULL ) {
+        string = concat(string, " (empty)");
+    } else {
         string = concat(string, "\n");
         char* tmp = block->statementList->toString(block->statementList);
         string = concat(string, indent(tmp));
