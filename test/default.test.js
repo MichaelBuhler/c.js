@@ -55,6 +55,14 @@ test.cb('Variable Declaration, Initialize to False', runner(function () {
     var buhler = null;
 }));
 
+test.cb('Variable Declaration, Initialize to Integer', runner(function () {
+    var buhler = 123;
+}));
+
+test.cb('Variable Declaration, Initialize to Floating Point', runner(function () {
+    var buhler = 123.456;
+}));
+
 test.cb('Multiple Variable Declaration', runner(function () {
     var buhler, michael;
 }));
@@ -86,6 +94,16 @@ test.cb('Assign to True', runner(function () {
 test.cb('Assign to False', runner(function () {
     var buhler;
     buhler = false;
+}));
+
+test.cb('Assign to Integer', runner(function () {
+    var buhler;
+    buhler = 123;
+}));
+
+test.cb('Assign to Floating Point', runner(function () {
+    var buhler;
+    buhler = 123.456;
 }));
 
 test.cb('Parenthesis', runner(function () {
