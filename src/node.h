@@ -33,6 +33,7 @@ typedef struct Literal_node                   Literal_node;
 typedef struct NullLiteral_node               NullLiteral_node;
 typedef struct BooleanLiteral_node            BooleanLiteral_node;
 typedef struct NumberLiteral_node             NumberLiteral_node;
+typedef struct StringLiteral_node             StringLiteral_node;
 
 Identifier_node*              createIdentifier(char*);
 StatementList_node*           createStatementList(Statement_node*);
@@ -55,6 +56,7 @@ Literal_node*                 createLiteral(LiteralType_enum, void*);
 NullLiteral_node*             createNullLiteral();
 BooleanLiteral_node*          createBooleanLiteral(char);
 NumberLiteral_node*           createNumberLiteral(double);
+StringLiteral_node*           createStringLiteral(char*);
 
 enum StatementType_enum {
     BLOCK_STATEMENT_TYPE,
@@ -82,7 +84,8 @@ enum AssignmentOperator_enum {
 enum LiteralType_enum {
     NULL_LITERAL_TYPE,
     BOOLEAN_LITERAL_TYPE,
-    NUMBER_LITERAL_TYPE
+    NUMBER_LITERAL_TYPE,
+    STRING_LITERAL_TYPE
 };
 
 union Statement_union {
@@ -111,6 +114,7 @@ union Literal_union {
     NullLiteral_node* nullLiteral;
     BooleanLiteral_node* booleanLiteral;
     NumberLiteral_node* numberLiteral;
+    StringLiteral_node* stringLiteral;
 };
 
 struct Identifier_node {
@@ -230,6 +234,11 @@ struct BooleanLiteral_node {
 struct NumberLiteral_node {
     double number;
     char* (*toString)(NumberLiteral_node*);
+};
+
+struct StringLiteral_node {
+    char* string;
+    char* (*toString)(StringLiteral_node*);
 };
 
 #endif

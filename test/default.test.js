@@ -63,6 +63,22 @@ test.cb('Variable Declaration, Initialize to Floating Point', runner(function ()
     var buhler = 123.456;
 }));
 
+test.cb('Variable Declaration, Initialize to Single Quote String', runner(function () {
+    var buhler = 'michael';
+}));
+
+test.cb('Variable Declaration, Initialize to Single Quote String, Escape Characters', runner(function () {
+    var buhler = 'mi\nc\'h\tae"l';
+}));
+
+test.cb('Variable Declaration, Initialize to Double Quote String', runner(function () {
+    var buhler = "michael";
+}));
+
+test.cb('Variable Declaration, Initialize to Double Quote String, Escape Characters', runner(function () {
+    var buhler = "mi\nc\"h\tae'l";
+}));
+
 test.cb('Multiple Variable Declaration', runner(function () {
     var buhler, michael;
 }));
@@ -71,39 +87,59 @@ test.cb('Multiple Variable Declaration, Multiple Initialization', runner(functio
     var buhler = michael, other = another;
 }));
 
-test.cb('Assign to Other Variable', runner(function () {
+test.cb('Variable Assignment, to Other Variable', runner(function () {
     var buhler;
     buhler = michael;
 }));
 
-test.cb('Assign to This', runner(function () {
+test.cb('Variable Assignment, to This', runner(function () {
     var buhler;
     buhler = this;
 }));
 
-test.cb('Assign to Null', runner(function () {
+test.cb('Variable Assignment, to Null', runner(function () {
     var buhler;
     buhler = null;
 }));
 
-test.cb('Assign to True', runner(function () {
+test.cb('Variable Assignment, to True', runner(function () {
     var buhler;
     buhler = true;
 }));
 
-test.cb('Assign to False', runner(function () {
+test.cb('Variable Assignment, to False', runner(function () {
     var buhler;
     buhler = false;
 }));
 
-test.cb('Assign to Integer', runner(function () {
+test.cb('Variable Assignment, to Integer', runner(function () {
     var buhler;
     buhler = 123;
 }));
 
-test.cb('Assign to Floating Point', runner(function () {
+test.cb('Variable Assignment, to Floating Point', runner(function () {
     var buhler;
     buhler = 123.456;
+}));
+
+test.cb('Variable Assignment, Initialize to Single Quote String', runner(function () {
+    var buhler;
+    buhler = 'michael';
+}));
+
+test.cb('Variable Assignment, Initialize to Single Quote String, Escape Characters', runner(function () {
+    var buhler;
+    buhler = 'mi\nc\'h\tae"l';
+}));
+
+test.cb('Variable Assignment, Initialize to Double Quote String', runner(function () {
+    var buhler;
+    buhler = "michael";
+}));
+
+test.cb('Variable Assignment, Initialize to Double Quote String, Escape Characters', runner(function () {
+    var buhler;
+    buhler = "mi\nc\"h\tae'l";
 }));
 
 test.cb('Parenthesis', runner(function () {

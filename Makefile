@@ -1,7 +1,7 @@
 transpiler: out/transpiler
 
-out/transpiler: out src/main.c src/node.c out/bison.c out/flex.c
-	gcc -o out/transpiler -I src src/main.c src/node.c out/bison.c out/flex.c
+out/transpiler: out src/main.c src/node.c src/string_utils.c out/bison.c out/flex.c
+	gcc -o out/transpiler -I src src/main.c src/node.c src/string_utils.c out/bison.c out/flex.c
 
 out/flex.c: out src/flex.l
 	flex --outfile out/flex.c src/flex.l

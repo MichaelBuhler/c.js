@@ -41,6 +41,7 @@ Program_node* root = NULL;
     NullLiteral_node*             nullLiteral_node;
     BooleanLiteral_node*          booleanLiteral_node;
     NumberLiteral_node*           numberLiteral_node;
+    StringLiteral_node*           stringLiteral_node;
 }
 
 %token FALSE_LITERAL
@@ -60,6 +61,7 @@ Program_node* root = NULL;
 
 %token <char_array> IDENTIFIER
 %token <double_val> NUMBER_LITERAL
+%token <char_array> STRING_LITERAL
 
 %type <sourceElements_node>          SourceElements
 %type <sourceElement_node>           SourceElement
@@ -82,6 +84,7 @@ Program_node* root = NULL;
 %type <nullLiteral_node>             NullLiteral
 %type <booleanLiteral_node>          BooleanLiteral
 %type <numberLiteral_node>           NumberLiteral
+%type <stringLiteral_node>           StringLiteral
 
 %start Program
 
@@ -244,6 +247,7 @@ Literal:
     NullLiteral { puts("parsed Literal"); $$ = createLiteral(NULL_LITERAL_TYPE, $1); }
     | BooleanLiteral { puts("parsed Literal"); $$ = createLiteral(BOOLEAN_LITERAL_TYPE, $1); }
     | NumberLiteral { puts("parsed Literal"); $$ = createLiteral(NUMBER_LITERAL_TYPE, $1); }
+    | StringLiteral { puts("parsed Literal"); $$ = createLiteral(STRING_LITERAL_TYPE, $1); }
     ;
 
 NullLiteral:
@@ -257,6 +261,10 @@ BooleanLiteral:
 
 NumberLiteral:
     NUMBER_LITERAL { puts("parsed NumberLiteral"); $$ = createNumberLiteral($1); }
+    ;
+
+StringLiteral:
+    STRING_LITERAL { puts("parsed StringLiteral"); $$ = createStringLiteral($1); }
     ;
 
 %%

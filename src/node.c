@@ -6,7 +6,7 @@
 
 Identifier_node* createIdentifier(char* name) {
     Identifier_node* identifier = (Identifier_node*) calloc(1, sizeof(Identifier_node));
-    identifier->name = name;
+    identifier->name = new_string(name);
     return identifier;
 }
 
@@ -348,6 +348,8 @@ char* Literal_toString(Literal_node* literal) {
             return literal->literalUnion.booleanLiteral->toString(literal->literalUnion.booleanLiteral);
         case NUMBER_LITERAL_TYPE:
             return literal->literalUnion.numberLiteral->toString(literal->literalUnion.numberLiteral);
+        case STRING_LITERAL_TYPE:
+            return literal->literalUnion.stringLiteral->toString(literal->literalUnion.stringLiteral);
     }
 }
 
@@ -396,4 +398,28 @@ NumberLiteral_node* createNumberLiteral(double number) {
     numberLiteral->number = number;
     numberLiteral->toString = NumberLiteral_toString;
     return numberLiteral;
+}
+
+char* StringLiteral_toString(StringLiteral_node* stringLiteral) {
+    char* string = new_string("\"");
+    for ( unsigned long i =  0 ; i < strlen(stringLiteral->string) ; i++ ) {
+        switch (stringLiteral->string[i]) {
+            case '\b': string = concat(string, "\\b");  break; // \b backspace
+            case '\f': string = concat(string, "\\f");  break; // \f form feed
+            case '\n': string = concat(string, "\\n");  break; // \n line feed (new line)
+            case '\r': string = concat(string, "\\r");  break; // \r carriage return
+            case '\t': string = concat(string, "\\t");  break; // \t horizontal tab
+            case '"':  string = concat(string, "\\\""); break; // \" double quotation mark
+            default:   string = concatc(string, stringLiteral->string[i]);
+        }
+    }
+    string = concat(string, "\"");
+    return string;
+}
+
+StringLiteral_node* createStringLiteral(char* string) {
+    StringLiteral_node* stringLiteral = (StringLiteral_node*) calloc(1, sizeof(StringLiteral_node));
+    stringLiteral->string = new_string(string);
+    stringLiteral->toString = StringLiteral_toString;
+    return stringLiteral;
 }
