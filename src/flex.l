@@ -200,3 +200,7 @@ var {
     BEGIN(DOUBLE_QUOTE_STRING_LITERAL);
 }
 
+. {
+    fprintf(stderr, "Lexer error: unrecognized character: %s\n", yytext);
+    return LEXER_ERROR;
+}

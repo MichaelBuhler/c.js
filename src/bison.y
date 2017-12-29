@@ -44,6 +44,8 @@ Program_node* root = NULL;
     StringLiteral_node*           stringLiteral_node;
 }
 
+%token LEXER_ERROR
+
 %token FALSE_LITERAL
 %token FUNCTION
 %token NULL_LITERAL
