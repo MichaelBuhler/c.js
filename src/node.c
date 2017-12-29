@@ -400,9 +400,9 @@ NullLiteral_node* createNullLiteral() {
 
 char* BooleanLiteral_toString(BooleanLiteral_node* booleanLiteral) {
     if (booleanLiteral->boolean) {
-        return new_string("true");
+        return new_string("BooleanLiteral true");
     } else {
-        return new_string("false");
+        return new_string("BooleanLiteral false");
     }
 }
 
@@ -414,9 +414,12 @@ BooleanLiteral_node* createBooleanLiteral(char boolean) {
 }
 
 char* NumberLiteral_toString(NumberLiteral_node* numberLiteral) {
-    char* string = (char*) calloc(100, sizeof(char));
-    sprintf(string, "%.18e", numberLiteral->number);
-    string = (char*) realloc(string, strlen(string)+1);
+    char* string = new_string("NumberLiteral ");
+    char* tmp = (char*) calloc(100, sizeof(char));
+    sprintf(tmp, "%.18e", numberLiteral->number);
+    tmp = (char*) realloc(tmp, strlen(tmp)+1);
+    string = concat(string, tmp);
+    free(tmp);
     return string;
 }
 
