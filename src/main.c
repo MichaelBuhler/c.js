@@ -37,6 +37,7 @@ int main(int argc, char** argv) {
         fputs("An error occurred while parsing.\n", stderr);
         exit(1);
     }
-    puts("\nparse tree:");
-    puts(root->toString(root));
+    if (args_flag("--tree")) {
+        puts(root->toString(root));
+    }
 }
