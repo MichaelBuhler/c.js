@@ -5,7 +5,15 @@
 #include "bison.h"
 #include "string_utils.h"
 
+extern char VERBOSE_LEXER;
+
 static char* string_literal;
+
+static void debug(char* string) {
+    if (VERBOSE_LEXER) {
+        fprintf(stdout, "%s\n", string);
+    }
+}
 
 %}
 
@@ -22,12 +30,12 @@ static char* string_literal;
 
 [\x09\x0b\x0c\x20] {
     /* WhiteSpace */
-    puts("lexed whitespace");
+    debug("lexed %whitespace%");
 }
 
 [\x0a\x0d] {
     /* LineTerminator */
-    puts("lexed line_terminator");
+    debug("lexed line_terminator");
 }
 
 \/\/ {
@@ -35,7 +43,7 @@ static char* string_literal;
 }
 <COMMENT>. {}
 <COMMENT>[\x0a\x0d] {
-    puts("lexed comment");
+    debug("lexed comment");
     BEGIN(INITIAL);
 }
 
@@ -45,97 +53,104 @@ static char* string_literal;
 <MULTILINE_COMMENT>. {}
 <MULTILINE_COMMENT>[\x0a\x0d] {}
 <MULTILINE_COMMENT>"*/" {
-    puts("lexed multiline comment");
+    debug("lexed multiline comment");
     BEGIN(INITIAL);
 }
 
 false {
-    puts("lexed false");
+    debug("lexed false");
     return FALSE_LITERAL;
 }
 
 function {
-    puts("lexed function");
+    debug("lexed function");
     return FUNCTION;
 }
 
 null {
-    puts("lexed null");
+    debug("lexed null");
     return NULL_LITERAL;
 }
 
 this {
-    puts("lexed this");
+    debug("lexed this");
     return THIS;
 }
 
 true {
-    puts("lexed true");
+    debug("lexed true");
     return TRUE_LITERAL;
 }
 
 var {
-    puts("lexed var");
+    debug("lexed var");
     return VAR;
 }
 
 \, {
-    puts("lexed ,");
+    debug("lexed ,");
     return COMMA;
 }
 
 \= {
-    puts("lexed =");
+    debug("lexed =");
     return EQUALS;
 }
 
 \{ {
-    puts("lexed {");
+    debug("lexed {");
     return LEFT_BRACE;
 }
 
 \( {
-    puts("lexed (");
+    debug("lexed (");
     return LEFT_PAREN;
 }
 
 \} {
-    puts("lexed }");
+    debug("lexed }");
     return RIGHT_BRACE;
 }
 
 \) {
-    puts("lexed )");
+    debug("lexed )");
     return RIGHT_PAREN;
 }
 
 \; {
-    puts("lexed ;");
+    debug("lexed ;");
     return SEMICOLON;
 }
 
 [a-zA-Z_$][a-zA-Z0-9_$]* {
-    printf("lexed identifier: %s\n", yytext);
-    char* tmp = (char*) calloc(strlen(yytext), sizeof(char) * strlen(yytext));
-    strcpy(tmp, yytext);
-    yylval.char_array = tmp;
+    char* tmp = (char*) calloc(strlen(yytext) + 20, sizeof(char));
+    sprintf(tmp, "lexed identifier: %s", yytext);
+    debug(tmp);
+    free(tmp);
+    yylval.char_array = new_string(yytext);
     return IDENTIFIER;
 }
 
 0 {
-    printf("lexed number: %s\n", yytext);
+    debug("lexed number: 0\n");
     yylval.double_val = 0;
     return NUMBER_LITERAL;
 }
 
 [1-9][0-9]* {
-    printf("lexed number: %s\n", yytext);
+    char* tmp = (char*) calloc(strlen(yytext) + 15, sizeof(char));
+    sprintf(tmp, "lexed number: %s", yytext);
+    debug(tmp);
+    free(tmp);
     yylval.double_val = atof(yytext);
     return NUMBER_LITERAL;
 }
 
 [0-9]*\.[0-9]* {
-    printf("lexed number: %s\n", yytext);
+    char* tmp = (char*) calloc(strlen(yytext) + 15, sizeof(char));
+    sprintf(tmp, "lexed number: %s", yytext);
+    debug(tmp);
+    free(tmp);
     yylval.double_val = atof(yytext);
     return NUMBER_LITERAL;
 }
@@ -151,7 +166,7 @@ var {
     yylval.char_array = new_string(string_literal);
     free(string_literal);
     BEGIN(INITIAL);
-    puts("lexed string");
+    debug("lexed string");
     return STRING_LITERAL;
 }
 <SINGLE_QUOTE_STRING_LITERAL>. {
@@ -182,7 +197,7 @@ var {
     yylval.char_array = new_string(string_literal);
     free(string_literal);
     BEGIN(INITIAL);
-    puts("lexed string");
+    debug("lexed string");
     return STRING_LITERAL;
 }
 <DOUBLE_QUOTE_STRING_LITERAL>. {

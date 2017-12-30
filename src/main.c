@@ -7,6 +7,9 @@ extern FILE* yyin;
 extern int yyparse();
 extern Program_node* root;
 
+char VERBOSE_LEXER;
+char VERBOSE_PARSER;
+
 int main(int argc, char** argv) {
     args_init(argc, argv);
     if (args_flagv(2, "-h", "--help")) {
@@ -33,6 +36,8 @@ int main(int argc, char** argv) {
             return 1;
         }
     }
+    VERBOSE_LEXER  = args_flagv(2, "--verbose", "--verbose-lexer");
+    VERBOSE_PARSER = args_flagv(2, "--verbose", "--verbose-parser");
     if (yyparse()) {
         fputs("An error occurred while parsing.\n", stderr);
         exit(1);
