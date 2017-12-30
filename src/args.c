@@ -7,10 +7,10 @@ static int count;
 static char** arguments;
 
 void args_init(int argc, char** argv) {
-    count = argc;
+    count = argc - 1;
     arguments = (char**) calloc(count, sizeof(char*));
     for ( int i = 0 ; i < count ; i++ ) {
-        arguments[i] = new_string(argv[i]);
+        arguments[i] = new_string(argv[i+1]);
     }
 }
 
@@ -34,4 +34,20 @@ char* args_value(char* name) {
         }
     }
     return NULL;
+}
+
+int args_varargs(char** varargs) {
+    int num = 0;
+    for ( int i = 0 ; i < count ; i++ ) {
+        if ( strncmp(arguments[i], "-", 1) == 0 ) {
+            i++;
+        } else {
+            num++;
+            if ( varargs != NULL ) {
+                varargs = (char**) realloc(varargs, num * sizeof(char*));
+                varargs[num-1] = new_string(arguments[i]);
+            }
+        }
+    }
+    return num;
 }

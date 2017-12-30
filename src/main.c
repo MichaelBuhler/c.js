@@ -13,10 +13,23 @@ int main(int argc, char** argv) {
         puts("TODO"); //TODO
         exit(0);
     }
-    if (args_flag("--file")) {
-        yyin = fopen(args_value("--file"), "r");
+    if (args_flag("--stdin")) {
+        yyin = stdin;
+    } else {
+        char** varargs = (char**) calloc(1, sizeof(char*));
+        int num = args_varargs(varargs);
+        if ( num == 0 ) {
+            fputs("no input file specified\n", stderr);
+            exit(1);
+        }
+        if ( num > 1 ) {
+            // TODO support multiple input files?
+            fputs("only one input file is supported at this time\n", stderr);
+            exit(1);
+        }
+        yyin = fopen(varargs[0], "r");
         if ( yyin == NULL ) {
-            printf("file not found: %s\n", args_value("--file"));
+            printf("file not found: %s\n", varargs[0]);
             return 1;
         }
     }
