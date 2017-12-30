@@ -100,7 +100,13 @@ static void yyerror(char *s) {
 %type <numberLiteral_node>           NumberLiteral
 %type <stringLiteral_node>           StringLiteral
 
+%right EQUALS
+%left LEFT_PAREN
+
 %start Program
+
+%right ASSIGNMENT_PRECEDENCE
+%right CALL_EXPRESSION_PRECENDENCE
 
 %%
 
@@ -240,8 +246,8 @@ Expression:
     ;
 
 CallExpression:
-    Expression LEFT_PAREN RIGHT_PAREN { debug("parsed CallExpression"); $$ = createCallExpression($1, NULL); }
-    | Expression LEFT_PAREN ArgumentList RIGHT_PAREN { debug("parsed CallExpression"); $$ = createCallExpression($1, $3); }
+    Expression LEFT_PAREN RIGHT_PAREN %prec CALL_EXPRESSION_PRECENDENCE { debug("parsed CallExpression"); $$ = createCallExpression($1, NULL); }
+    | Expression LEFT_PAREN ArgumentList RIGHT_PAREN %prec CALL_EXPRESSION_PRECENDENCE { debug("parsed CallExpression"); $$ = createCallExpression($1, $3); }
     ;
 
 ArgumentList:
@@ -251,7 +257,7 @@ ArgumentList:
 
 AssignmentExpression:
 // TODO Identifier needs to be LeftHandSideExpression
-    Identifier AssignmentOperator Expression { debug("parsed AssignmentExpression"); $$ = createAssignmentExpression($1, $2, $3); }
+    Identifier AssignmentOperator Expression %prec ASSIGNMENT_PRECEDENCE { debug("parsed AssignmentExpression"); $$ = createAssignmentExpression($1, $2, $3); }
     ;
 
 AssignmentOperator:
