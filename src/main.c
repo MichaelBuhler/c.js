@@ -9,7 +9,7 @@ extern Program_node* root;
 
 int main(int argc, char** argv) {
     args_init(argc, argv);
-    if (args_either("-h", "--help")) {
+    if (args_flagv(2, "-h", "--help")) {
         puts("TODO"); //TODO
         exit(0);
     }

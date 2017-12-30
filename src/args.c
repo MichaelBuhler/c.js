@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include "args.h"
@@ -23,8 +24,19 @@ char args_flag(char* name) {
     return 0;
 }
 
-char args_either(char* name, char* otherName) {
-    return args_flag(name) || args_flag(otherName);
+char args_flagv(int count, ...) {
+    va_list va;
+    va_start(va, count);
+    char flag = 0;
+    for ( int i = 0 ; i < count ; i++ ) {
+        char* name = va_arg(va, char*);
+        if (args_flag(name)) {
+            flag = 1;
+            break;
+        }
+    }
+    va_end(va);
+    return flag;
 }
 
 char* args_value(char* name) {
