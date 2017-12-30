@@ -43,6 +43,7 @@ int main(int argc, char** argv) {
         exit(1);
     }
     if (args_flag("--tree")) {
-        puts(root->toString(root));
+        printf("%s\n", root->toString(root));
     }
+    printf("%s\n", root->toCode(root));
 }

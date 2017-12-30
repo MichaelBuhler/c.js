@@ -30,11 +30,16 @@ char* Statement_toString(Statement_node* statement) {
     }
 }
 
+char* Statement_toCode(Statement_node* statement) {
+    return new_string("statement; // TODO"); // TODO
+}
+
 Statement_node* createStatement(StatementType_enum type, void* untypedStatement) {
     Statement_node* statement = (Statement_node*) calloc(1, sizeof(Statement_node));
     statement->type = type;
     statement->statementUnion.any = untypedStatement; // TODO do we need .any ?
     statement->toString = Statement_toString;
+    statement->toCode = Statement_toCode;
     return statement;
 }
 
@@ -144,12 +149,31 @@ char* FunctionDeclaration_toString(FunctionDeclaration_node* functionDeclaration
     return string;
 }
 
+char* FunctionDeclaration_toCode(FunctionDeclaration_node* functionDeclaration) {
+    char* string = new_string("static return_t ");
+    string = concat(string, functionDeclaration->identifier->name);
+    string = concat(string, "(");
+    if ( functionDeclaration->formalParameterList != NULL ) {
+        Identifier_node** parameters = functionDeclaration->formalParameterList->parameters;
+        string = concat(string, "type_t ");
+        string = concat(string, parameters[0]->name);
+        for ( int j = 1; j < functionDeclaration->formalParameterList->count; j++ ) {
+            string = concat(string, ", type_t ");
+            string = concat(string, parameters[j]->name);
+        }
+    }
+    string = concat(string, ") {\n");
+    string = concat(string, "}\n\n");
+    return string;
+}
+
 FunctionDeclaration_node* createFunctionDeclaration(Identifier_node* identifier, FormalParameterList_node* formalParameterList, Block_node* block) {
     FunctionDeclaration_node* functionDeclaration = (FunctionDeclaration_node*) calloc(1, sizeof(FunctionDeclaration_node));
     functionDeclaration->identifier = identifier;
     functionDeclaration->formalParameterList = formalParameterList;
     functionDeclaration->block = block;
     functionDeclaration->toString = FunctionDeclaration_toString;
+    functionDeclaration->toCode = FunctionDeclaration_toCode;
     return functionDeclaration;
 }
 
@@ -208,10 +232,59 @@ char* Program_toString(Program_node* program) {
     return string;
 }
 
-Program_node* createProgram() {
+char* Program_toCode(Program_node* program) {
+    if ( program->sourceElements == NULL || program->sourceElements->count == 0 ) {
+        return new_string("// empty program");
+    }
+    char* string = new_string("");
+    string = concat(string, "////////////////////////////////////////////////////////////////////////////////\n");
+    string = concat(string, "// type definitions                                                             \n");
+    string = concat(string, "                                                                                \n");
+    string = concat(string, "typedef struct return_t {                                                       \n");
+    string = concat(string, "  char* error; void* value;                                                     \n");
+    string = concat(string, "} return_t;                                                                     \n");
+    string = concat(string, "                                                                                \n");
+    string = concat(string, "typedef void* type_t;                                                           \n");
+    string = concat(string, "                                                                                \n");
+    string = concat(string, "////////////////////////////////////////////////////////////////////////////////\n");
+    string = concat(string, "// function definitions                                                         \n");
+    string = concat(string, "                                                                                \n");
+    for ( int i = 0 ; i < program->sourceElements->count ; i++ ) {
+        if ( program->sourceElements->elements[i]->type == FUNCTION_DECLARATION_SOURCE_ELEMENT_TYPE ) {
+            FunctionDeclaration_node* functionDeclaration = program->sourceElements->elements[i]->sourceElementUnion.functionDeclaration;
+            char* tmp = functionDeclaration->toCode(functionDeclaration);
+            string = concat(string, tmp);
+            free(tmp);
+        }
+    }
+    string = concat(string, "////////////////////////////////////////////////////////////////////////////////\n");
+    string = concat(string, "// main program                                                                 \n");
+    string = concat(string, "                                                                                \n");
+    string = concat(string, "int main(int argc, char** argv) {                                               \n");
+    char* tmp1 = new_string("");
+    for ( int i = 0 ; i < program->sourceElements->count ; i++ ) {
+        if ( program->sourceElements->elements[i]->type == STATEMENT_SOURCE_ELEMENT_TYPE ) {
+            if ( i > 0 ) tmp1 = concat(tmp1, "\n");
+            Statement_node* statement = program->sourceElements->elements[i]->sourceElementUnion.statement;
+            char* tmp2 = statement->toCode(statement);
+            tmp1 = concat(tmp1, tmp2);
+            free(tmp2);
+        }
+    }
+    char* tmp2 = indent(tmp1);
+    free(tmp1);
+    string = concat(string, tmp2);
+    free(tmp2);
+    string = concat(string, "\n");
+    string = concat(string, "}                                                                               \n");
+    return string;
+}
+
+Program_node* createProgram(SourceElements_node* sourceElements) {
     Program_node* program = (Program_node*) calloc(1, sizeof(Program_node));
-    program->sourceElements = NULL;
+    program->sourceElements = sourceElements;
     program->toString = Program_toString;
+    program->toCode = Program_toCode;
     return program;
 }
 

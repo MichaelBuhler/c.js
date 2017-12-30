@@ -108,8 +108,8 @@ static void yyerror(char *s) {
 // 14 Program
 
 Program:
-    /* empty program */ { debug("parsed empty Program"); root = createProgram(); }
-    | SourceElements { debug("parsed Program"); root = createProgram(); root->sourceElements = $1; }
+    /* empty program */ { debug("parsed empty Program"); root = createProgram(NULL); }
+    | SourceElements { debug("parsed Program"); root = createProgram($1); }
     ;
 
 SourceElements:

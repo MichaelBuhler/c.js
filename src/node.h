@@ -49,7 +49,7 @@ VariableStatement_node*       createVariableStatement();
 VariableDeclaration_node*     createVariableDeclaration(Identifier_node*, Initializer_node*);
 VariableDeclarationList_node* createVariableDeclarationList(VariableDeclaration_node*);
 Initializer_node*             createInitializer(Expression_node*);
-Program_node*                 createProgram();
+Program_node*                 createProgram(SourceElements_node*);
 EmptyStatement_node*          createEmptyStatement();
 ExpressionStatement_node*     createExpressionStatement(Expression_node*);
 Expression_node*              createExpression(ExpressionType_enum, void*);
@@ -144,6 +144,7 @@ struct Statement_node {
     StatementType_enum type;
     Statement_union statementUnion;
     char* (*toString)(Statement_node*);
+    char* (*toCode)(Statement_node*);
 };
 
 struct FormalParameterList_node {
@@ -158,6 +159,7 @@ struct FunctionDeclaration_node {
     FormalParameterList_node* formalParameterList;
     Block_node* block;
     char* (*toString)(FunctionDeclaration_node*);
+    char* (*toCode)(FunctionDeclaration_node*);
 };
 
 struct SourceElement_node {
@@ -176,6 +178,7 @@ struct SourceElements_node {
 struct Program_node {
     SourceElements_node* sourceElements;
     char* (*toString)(Program_node*);
+    char* (*toCode)(Program_node*);
 };
 
 struct VariableStatement_node {
