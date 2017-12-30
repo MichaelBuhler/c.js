@@ -22,12 +22,12 @@ int main(int argc, char** argv) {
         char** varargs = (char**) calloc(1, sizeof(char*));
         int num = args_varargs(varargs);
         if ( num == 0 ) {
-            fputs("no input file specified\n", stderr);
+            fprintf(stderr, "%s\n", "no input file specified");
             exit(1);
         }
         if ( num > 1 ) {
             // TODO support multiple input files?
-            fputs("only one input file is supported at this time\n", stderr);
+            fprintf(stderr, "%s\n", "only one input file is supported at this time");
             exit(1);
         }
         yyin = fopen(varargs[0], "r");
@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
     VERBOSE_LEXER  = args_flagv(4, "--debug", "--debug-lexer",  "--verbose", "--verbose-lexer");
     VERBOSE_PARSER = args_flagv(4, "--debug", "--debug-parser", "--verbose", "--verbose-parser");
     if (yyparse()) {
-        fputs("An error occurred while parsing.\n", stderr);
+        fprintf(stderr, "%s\n", "an error occurred while parsing");
         exit(1);
     }
     if (args_flag("--tree")) {

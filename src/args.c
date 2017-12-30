@@ -4,44 +4,40 @@
 #include "args.h"
 #include "string_utils.h"
 
-static int count;
+static int argumentCount;
 static char** arguments;
 
 void args_init(int argc, char** argv) {
-    count = argc - 1;
-    arguments = (char**) calloc(count, sizeof(char*));
-    for ( int i = 0 ; i < count ; i++ ) {
+    argumentCount = argc - 1;
+    arguments = (char**) calloc(argumentCount, sizeof(char*));
+    for ( int i = 0 ; i < argumentCount ; i++ ) {
         arguments[i] = new_string(argv[i+1]);
     }
 }
 
 char args_flag(char* name) {
-    for ( int i = 0 ; i < count ; i++ ) {
-        if ( strcmp(name, arguments[i]) == 0 ) {
-            return 1;
-        }
-    }
-    return 0;
+    return args_flagv(1, name);
 }
 
-char args_flagv(int count, ...) {
+char args_flagv(int vaCount, ...) {
     va_list va;
-    va_start(va, count);
-    char flag = 0;
-    for ( int i = 0 ; i < count ; i++ ) {
+    va_start(va, vaCount);
+    for ( int i = 0 ; i < vaCount ; i++ ) {
         char* name = va_arg(va, char*);
-        if (args_flag(name)) {
-            flag = 1;
-            break;
+        for ( int j = 0 ; j < argumentCount ; j++ ) {
+            if ( strcmp(name, arguments[j]) == 0 ) {
+                va_end(va);
+                return 1;
+            }
         }
     }
     va_end(va);
-    return flag;
+    return 0;
 }
 
 char* args_value(char* name) {
-    for ( int i = 0 ; i < count ; i++ ) {
-        if ( strcmp(name, arguments[i]) == 0 && i+1<count) {
+    for ( int i = 0 ; i < argumentCount ; i++ ) {
+        if ( strcmp(name, arguments[i]) == 0 && i+1<argumentCount) {
             return arguments[i+1];
         }
     }
@@ -50,7 +46,7 @@ char* args_value(char* name) {
 
 int args_varargs(char** varargs) {
     int num = 0;
-    for ( int i = 0 ; i < count ; i++ ) {
+    for ( int i = 0 ; i < argumentCount ; i++ ) {
         if ( strncmp(arguments[i], "-", 1) == 0 ) {
             i++;
         } else {
