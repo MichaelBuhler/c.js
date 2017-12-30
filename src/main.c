@@ -36,8 +36,8 @@ int main(int argc, char** argv) {
             return 1;
         }
     }
-    VERBOSE_LEXER  = args_flagv(2, "--verbose", "--verbose-lexer");
-    VERBOSE_PARSER = args_flagv(2, "--verbose", "--verbose-parser");
+    VERBOSE_LEXER  = args_flagv(4, "--debug", "--debug-lexer",  "--verbose", "--verbose-lexer");
+    VERBOSE_PARSER = args_flagv(4, "--debug", "--debug-parser", "--verbose", "--verbose-parser");
     if (yyparse()) {
         fputs("An error occurred while parsing.\n", stderr);
         exit(1);
