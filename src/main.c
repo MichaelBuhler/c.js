@@ -42,8 +42,9 @@ int main(int argc, char** argv) {
         fprintf(stderr, "%s\n", "an error occurred while parsing");
         exit(1);
     }
-    if (args_flag("--tree")) {
+    if (args_flagv(3, "-t", "--tree", "--parse-tree")) {
         printf("%s\n", root->toString(root));
+    } else {
+        printf("%s\n", root->toCode(root));
     }
-    printf("%s\n", root->toCode(root));
 }
