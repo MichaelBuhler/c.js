@@ -4,6 +4,6 @@
 char* new_string(char*);
 char* concat(char*, char*);
 char* concat_char(char*, char);
-char* indent(char*);
+char* concat_indent(char*, char*);
 
 #endif

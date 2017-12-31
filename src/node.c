@@ -58,7 +58,7 @@ char* StatementList_toString(StatementList_node* statementList) {
     for ( int i = 0 ; i < statementList->count ; i++ ) {
         string = concat(string, "\n");
         char* tmp = statementList->statements[i]->toString(statementList->statements[i]);
-        string = concat(string, indent(tmp));
+        string = concat_indent(string, tmp);
         free(tmp);
     }
     return string;
@@ -81,7 +81,7 @@ char* Block_toString(Block_node* block) {
     } else {
         string = concat(string, "\n");
         char* tmp = block->statementList->toString(block->statementList);
-        string = concat(string, indent(tmp));
+        string = concat_indent(string, tmp);
         free(tmp);
     }
     return string;
@@ -109,10 +109,8 @@ char* FormalParameterList_toString(FormalParameterList_node* formalParameterList
     for ( int i = 0 ; i < formalParameterList->count ; i++ ) {
         string = concat(string, "\n");
         char* tmp = formalParameterList->parameters[i]->toString(formalParameterList->parameters[i]);
-        char* tmp2 = indent(tmp);
+        string = concat_indent(string, tmp);
         free(tmp);
-        string = concat(string, tmp2);
-        free(tmp2);
     }
     return string;
 }
@@ -142,10 +140,8 @@ char* FunctionDeclaration_toString(FunctionDeclaration_node* functionDeclaration
     char* tmp2 = functionDeclaration->block->toString(functionDeclaration->block);
     tmp1 = concat(tmp1, tmp2);
     free(tmp2);
-    tmp2 = indent(tmp1);
+    string = concat_indent(string, tmp1);
     free(tmp1);
-    string = concat(string, tmp2);
-    free(tmp2);
     return string;
 }
 
@@ -205,7 +201,7 @@ char* SourceElements_toString(SourceElements_node* sourceElements) {
     for ( int i = 0 ; i < sourceElements->count ; i++ ) {
         string = concat(string, "\n");
         char* tmp = sourceElements->elements[i]->toString(sourceElements->elements[i]);
-        string = concat(string, indent(tmp));
+        string = concat_indent(string, tmp);
         free(tmp);
     }
     return string;
@@ -226,7 +222,7 @@ char* Program_toString(Program_node* program) {
     if ( program->sourceElements != NULL ) {
         string = concat(string, "\n");
         char* tmp = program->sourceElements->toString(program->sourceElements);
-        string = concat(string, indent(tmp));
+        string = concat_indent(string, tmp);
         free(tmp);
     }
     return string;
@@ -271,12 +267,9 @@ char* Program_toCode(Program_node* program) {
             free(tmp2);
         }
     }
-    char* tmp2 = indent(tmp1);
+    string = concat_indent(string, tmp1);
     free(tmp1);
-    string = concat(string, tmp2);
-    free(tmp2);
-    string = concat(string, "\n");
-    string = concat(string, "}                                                                               \n");
+    string = concat(string, "\n}");
     return string;
 }
 
@@ -291,7 +284,7 @@ Program_node* createProgram(SourceElements_node* sourceElements) {
 char* VariableStatement_toString(VariableStatement_node* variableStatement) {
     char* string = new_string("VariableStatement\n");
     char* tmp = variableStatement->variableDeclarationList->toString(variableStatement->variableDeclarationList);
-    string = concat(string, indent(tmp));
+    string = concat_indent(string, tmp);
     free(tmp);
     return string;
 }
@@ -312,10 +305,8 @@ char* VariableDeclaration_toString(VariableDeclaration_node* variableDeclaration
         tmp1 = concat(tmp1, tmp2);
         free(tmp2);
     }
-    char* tmp2 = indent(tmp1);
+    string = concat_indent(string, tmp1);
     free(tmp1);
-    string = concat(string, tmp2);
-    free(tmp2);
     return string;
 }
 
@@ -337,7 +328,9 @@ char* VariableDeclarationList_toString(VariableDeclarationList_node* variableDec
     char* string = new_string("VariableDeclarationList");
     for ( int i = 0 ; i < variableDeclarationList->count ; i++ ) {
         string = concat(string, "\n");
-        string = concat(string, indent(variableDeclarationList->variableDeclarations[i]->toString(variableDeclarationList->variableDeclarations[i])));
+        char* tmp = variableDeclarationList->variableDeclarations[i]->toString(variableDeclarationList->variableDeclarations[i]);
+        string = concat_indent(string, tmp);
+        free(tmp);
     }
     return string;
 }
@@ -355,7 +348,7 @@ VariableDeclarationList_node* createVariableDeclarationList(VariableDeclaration_
 char* Initializer_toString(Initializer_node* initializer) {
     char* string = new_string("Initializer\n");
     char* tmp = initializer->expression->toString(initializer->expression);
-    string = concat(string, indent(tmp));
+    string = concat_indent(string, tmp);
     free(tmp);
     return string;
 }
@@ -380,7 +373,7 @@ EmptyStatement_node* createEmptyStatement() {
 char* ExpressionStatement_toString(ExpressionStatement_node* expressionStatement) {
     char* string = new_string("ExpressionStatement\n");
     char* tmp = expressionStatement->expression->toString(expressionStatement->expression);
-    string = concat(string, indent(tmp));
+    string = concat_indent(string, tmp);
     free(tmp);
     return string;
 }
@@ -428,10 +421,8 @@ char* AssignmentExpression_toString(AssignmentExpression_node* assignmentExpress
     char* tmp2 = assignmentExpression->expression->toString(assignmentExpression->expression);
     tmp1 = concat(tmp1, tmp2);
     free(tmp2);
-    tmp2 = indent(tmp1);
+    string = concat_indent(string, tmp1);
     free(tmp1);
-    string = concat(string, tmp2);
-    free(tmp2);
     return string;
 }
 
@@ -446,23 +437,19 @@ AssignmentExpression_node* createAssignmentExpression(Identifier_node* identifie
 
 char* CallExpression_toString(CallExpression_node* callExpression) {
     char* string = new_string("CallExpression\n");
-    char* tmp = new_string("Function\n");
-    tmp = concat(tmp, indent(callExpression->function->toString(callExpression->function)));
-    char* tmp2 = indent(tmp);
-    string = concat(string, tmp2);
+    char* tmp1 = new_string("Function\n");
+    char* tmp2 = callExpression->function->toString(callExpression->function);
+    tmp1 = concat_indent(tmp1, tmp2);
     free(tmp2);
-    free(tmp);
+    string = concat_indent(string, tmp1);
+    free(tmp1);
     string = concat(string, "\n");
     if ( callExpression->argumentList == NULL ) {
-        char* tmp = indent("ArgumentList (empty)");
-        string = concat(string, tmp);
-        free(tmp);
+        string = concat_indent(string, "ArgumentList (empty)");
     } else {
-        char* tmp1 = callExpression->argumentList->toString(callExpression->argumentList);
-        char* tmp2 = indent(tmp1);
-        free(tmp1);
-        string = concat(string, tmp2);
-        free(tmp2);
+        char* tmp = callExpression->argumentList->toString(callExpression->argumentList);
+        string = concat_indent(string, tmp);
+        free(tmp);
     }
     return string;
 }
@@ -485,11 +472,9 @@ char* ArgumentList_toString(ArgumentList_node* argumentList) {
     char* string = new_string("ArgumentList");
     for ( int i = 0 ; i < argumentList->count ; i++ ) {
         string = concat(string, "\n");
-        char* tmp1 = argumentList->arguments[i]->toString(argumentList->arguments[i]);
-        char* tmp2 = indent(tmp1);
-        free(tmp1);
-        string = concat(string, tmp2);
-        free(tmp2);
+        char* tmp = argumentList->arguments[i]->toString(argumentList->arguments[i]);
+        string = concat_indent(string, tmp);
+        free(tmp);
     }
     return string;
 }

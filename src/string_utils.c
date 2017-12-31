@@ -22,14 +22,14 @@ char* concat_char(char* dest, char c) {
     return dest;
 }
 
-char* indent(char* str) {
-    char* string = new_string("  ");
-    for ( int i = 0 ; i < strlen(str) ; i++ ) {
-        if ( str[i] == '\n' ) {
-            string = concat(string, "\n  ");
+char* concat_indent(char* dest, char* src) {
+    dest = concat(dest, "  ");
+    for ( int i = 0 ; i < strlen(src) ; i++ ) {
+        if ( src[i] == '\n' ) {
+            dest = concat(dest, "\n  ");
         } else {
-            string = concat_char(string, str[i]);
+            dest = concat_char(dest, src[i]);
         }
     }
-    return string;
+    return dest;
 }
