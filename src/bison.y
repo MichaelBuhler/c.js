@@ -137,8 +137,8 @@ FunctionDeclaration:
     ;
 
 FormalParameterList:
-    Identifier {debug("parsed FormalParameterList"); $$ = createFormalParameterList($1); }
-    | FormalParameterList COMMA Identifier {debug("parsed FormalParameterList"); $1->append($1, $3); $$ = $1; }
+    Identifier { debug("parsed FormalParameterList"); $$ = createFormalParameterList($1); }
+    | FormalParameterList COMMA Identifier { debug("parsed FormalParameterList"); $1->append($1, $3); $$ = $1; }
     ;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -149,12 +149,12 @@ Statement:
     | VariableStatement { debug("parsed Statement"); $$ = createStatement(VARIABLE_STATEMENT_TYPE, $1); }
     | EmptyStatement { debug("parsed Statement"); $$ = createStatement(EMPTY_STATEMENT_TYPE, $1); }
     | ExpressionStatement { debug("parsed Statement"); $$ = createStatement(EXPRESSION_STATEMENT_TYPE, $1); }
-//    | IfStatement {debug("parsed Statement");}
-//    | IterationStatement {debug("parsed Statement");}
-//    | ContinueStatement {debug("parsed Statement");}
-//    | BreakStatement {debug("parsed Statement");}
+//    | IfStatement { debug("parsed Statement"); }
+//    | IterationStatement { debug("parsed Statement"); }
+//    | ContinueStatement { debug("parsed Statement"); }
+//    | BreakStatement { debug("parsed Statement"); }
     | ReturnStatement { debug("parsed Statement"); $$ = createStatement(RETURN_STATEMENT_TYPE, $1); }
-//    | WithStatement {debug("parsed Statement");}
+//    | WithStatement { debug("parsed Statement"); }
     ;
 
 Block:
@@ -194,35 +194,35 @@ ExpressionStatement:
     ;
 
 //IfStatement:
-//    IF '(' Expression ')' Statement ELSE Statement {debug("parsed IfStatement")}
-//    | IF '(' Expression ')' Statement %prec NO_ELSE {debug("parsed IfStatement")}
+//    IF LEFT_PAREN Expression RIGHT_PAREN Statement ELSE Statement { debug("parsed IfStatement") }
+//    | IF LEFT_PAREN Expression RIGHT_PAREN Statement { debug("parsed IfStatement") }
 //    ;
 //
 //IterationStatement:
-//    WHILE '(' Expression ')' {debug("parsed IterationStatement")}
-//    | FOR '(' ';' ';' ')' Statement {debug("parsed IterationStatement")}
-//    | FOR '(' ';' ';' Expression ')' Statement {debug("parsed IterationStatement")}
-//    | FOR '(' ';' Expression ';' ')' Statement {debug("parsed IterationStatement")}
-//    | FOR '(' ';' Expression ';' Expression ')' Statement {debug("parsed IterationStatement")}
-//    | FOR '(' Expression ';' ';' ')' Statement {debug("parsed IterationStatement")}
-//    | FOR '(' Expression ';' ';' Expression ')' Statement {debug("parsed IterationStatement")}
-//    | FOR '(' Expression ';' Expression ';' ')' Statement {debug("parsed IterationStatement")}
-//    | FOR '(' Expression ';' Expression ';' Expression ')' Statement {debug("parsed IterationStatement")}
-//    | FOR '(' VAR VariableDeclarationList ';' ';' ')' Statement {debug("parsed IterationStatement")}
-//    | FOR '(' VAR VariableDeclarationList ';' ';' Expression ')' Statement {debug("parsed IterationStatement")}
-//    | FOR '(' VAR VariableDeclarationList ';' Expression ';' ')' Statement {debug("parsed IterationStatement")}
-//    | FOR '(' VAR VariableDeclarationList ';' Expression ';' Expression ')' Statement {debug("parsed IterationStatement")}
-//    | FOR '(' LeftHandSideExpression IN Expression ')' Statement {debug("parsed IterationStatement")}
-//    | FOR '(' VAR Identifier IN Expression ')' Statement {debug("parsed IterationStatement")}
-//    | FOR '(' VAR Identifier Initializer IN Expression ')' Statement {debug("parsed IterationStatement")}
+//    WHILE LEFT_PAREN Expression RIGHT_PAREN { debug("parsed IterationStatement") }
+//    | FOR LEFT_PAREN SEMICOLON SEMICOLON RIGHT_PAREN Statement { debug("parsed IterationStatement") }
+//    | FOR LEFT_PAREN SEMICOLON SEMICOLON Expression RIGHT_PAREN Statement { debug("parsed IterationStatement") }
+//    | FOR LEFT_PAREN SEMICOLON Expression SEMICOLON RIGHT_PAREN Statement { debug("parsed IterationStatement") }
+//    | FOR LEFT_PAREN SEMICOLON Expression SEMICOLON Expression RIGHT_PAREN Statement { debug("parsed IterationStatement") }
+//    | FOR LEFT_PAREN Expression SEMICOLON SEMICOLON RIGHT_PAREN Statement { debug("parsed IterationStatement") }
+//    | FOR LEFT_PAREN Expression SEMICOLON SEMICOLON Expression RIGHT_PAREN Statement { debug("parsed IterationStatement") }
+//    | FOR LEFT_PAREN Expression SEMICOLON Expression SEMICOLON RIGHT_PAREN Statement { debug("parsed IterationStatement") }
+//    | FOR LEFT_PAREN Expression SEMICOLON Expression SEMICOLON Expression RIGHT_PAREN Statement { debug("parsed IterationStatement") }
+//    | FOR LEFT_PAREN VAR VariableDeclarationList SEMICOLON SEMICOLON RIGHT_PAREN Statement { debug("parsed IterationStatement") }
+//    | FOR LEFT_PAREN VAR VariableDeclarationList SEMICOLON SEMICOLON Expression RIGHT_PAREN Statement { debug("parsed IterationStatement") }
+//    | FOR LEFT_PAREN VAR VariableDeclarationList SEMICOLON Expression SEMICOLON RIGHT_PAREN Statement { debug("parsed IterationStatement") }
+//    | FOR LEFT_PAREN VAR VariableDeclarationList SEMICOLON Expression SEMICOLON Expression RIGHT_PAREN Statement { debug("parsed IterationStatement") }
+//    | FOR LEFT_PAREN LeftHandSideExpression IN Expression RIGHT_PAREN Statement { debug("parsed IterationStatement") }
+//    | FOR LEFT_PAREN VAR Identifier IN Expression RIGHT_PAREN Statement { debug("parsed IterationStatement") }
+//    | FOR LEFT_PAREN VAR Identifier Initializer IN Expression RIGHT_PAREN Statement { debug("parsed IterationStatement") }
 //    ;
 //
 //ContinueStatement:
-//    CONTINUE ';' {debug("parsed ContinueStatement")}
+//    CONTINUE SEMICOLON { debug("parsed ContinueStatement") }
 //    ;
 //
 //BreakStatement:
-//    BREAK ';' {debug("parsed BreakStatement")}
+//    BREAK SEMICOLON { debug("parsed BreakStatement") }
 //    ;
 
 ReturnStatement:
@@ -231,7 +231,7 @@ ReturnStatement:
     ;
 
 //WithStatement:
-//    WITH '(' Expression ')' Statement {debug("parsed WithStatement")}
+//    WITH LEFT_PAREN Expression RIGHT_PAREN Statement { debug("parsed WithStatement") }
 
 ///////////////////////////////////////////////////////////
 // 11 Expressions
