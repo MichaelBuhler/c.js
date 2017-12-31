@@ -72,6 +72,11 @@ null {
     return NULL_LITERAL;
 }
 
+return {
+    debug("lexed return");
+    return RETURN;
+}
+
 this {
     debug("lexed this");
     return THIS;

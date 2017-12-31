@@ -31,6 +31,7 @@ typedef struct Expression_node                Expression_node;
 typedef struct AssignmentExpression_node      AssignmentExpression_node;
 typedef struct CallExpression_node            CallExpression_node;
 typedef struct ArgumentList_node              ArgumentList_node;
+typedef struct ReturnStatement_node           ReturnStatement_node;
 typedef struct Literal_node                   Literal_node;
 typedef struct NullLiteral_node               NullLiteral_node;
 typedef struct BooleanLiteral_node            BooleanLiteral_node;
@@ -56,6 +57,7 @@ Expression_node*              createExpression(ExpressionType_enum, void*);
 AssignmentExpression_node*    createAssignmentExpression(Identifier_node* /* TODO needs to be LeftHandSideExpression_node */, AssignmentOperator_enum assignmentOperator, Expression_node*);
 CallExpression_node*          createCallExpression(Expression_node*, ArgumentList_node*);
 ArgumentList_node*            createArgumentList(Expression_node*);
+ReturnStatement_node*         createReturnStatement(Expression_node*);
 Literal_node*                 createLiteral(LiteralType_enum, void*);
 NullLiteral_node*             createNullLiteral();
 BooleanLiteral_node*          createBooleanLiteral(char);
@@ -66,7 +68,8 @@ enum StatementType_enum {
     BLOCK_STATEMENT_TYPE,
     VARIABLE_STATEMENT_TYPE,
     EMPTY_STATEMENT_TYPE,
-    EXPRESSION_STATEMENT_TYPE
+    EXPRESSION_STATEMENT_TYPE,
+    RETURN_STATEMENT_TYPE
 };
 
 enum SourceElementType_enum {
@@ -99,6 +102,7 @@ union Statement_union {
     VariableStatement_node* variableStatement;
     EmptyStatement_node* emptyStatement;
     ExpressionStatement_node* expressionStatement;
+    ReturnStatement_node* returnStatement;
 };
 
 union SourceElement_union {
@@ -244,6 +248,12 @@ struct ArgumentList_node {
     Expression_node** arguments;
     void (*append)(ArgumentList_node*, Expression_node*);
     char* (*toString)(ArgumentList_node*);
+};
+
+struct ReturnStatement_node {
+    Expression_node* expression;
+    char* (*toString)(ReturnStatement_node*);
+    char* (*toCode)(ReturnStatement_node*);
 };
 
 struct Literal_node {

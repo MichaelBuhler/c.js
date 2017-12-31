@@ -27,6 +27,8 @@ char* Statement_toString(Statement_node* statement) {
             return statement->statementUnion.emptyStatement->toString(statement->statementUnion.emptyStatement);
         case EXPRESSION_STATEMENT_TYPE:
             return statement->statementUnion.expressionStatement->toString(statement->statementUnion.expressionStatement);
+        case RETURN_STATEMENT_TYPE:
+            return statement->statementUnion.returnStatement->toString(statement->statementUnion.returnStatement);
     }
 }
 
@@ -40,6 +42,8 @@ char* Statement_toCode(Statement_node* statement) {
             return statement->statementUnion.emptyStatement->toCode(statement->statementUnion.emptyStatement);
         case EXPRESSION_STATEMENT_TYPE:
             return statement->statementUnion.expressionStatement->toCode(statement->statementUnion.expressionStatement);
+        case RETURN_STATEMENT_TYPE:
+            return statement->statementUnion.returnStatement->toCode(statement->statementUnion.returnStatement);
     }
 }
 
@@ -82,9 +86,6 @@ char* StatementList_toCode(StatementList_node* statementList) {
         code = concat(code, tmp);
         free(tmp);
     }
-//    char* tmp = statementList->toString(statementList);
-//    code = concat_comment(code, tmp);
-//    free(tmp);
     return code;
 }
 
@@ -122,7 +123,12 @@ char* Block_toCode(Block_node* block, char isFunction) {
         free(tmp);
     }
     if (isFunction) {
-        code = concat_indent(code, "\nreturn_t ret;\nret.type = UNDEFINED;\nreturn ret;");
+        code = concat(code, "\n");
+        ReturnStatement_node* returnStatement = createReturnStatement(NULL);
+        char* tmp = returnStatement->toCode(returnStatement);
+        free(returnStatement);
+        code = concat_indent(code, tmp);
+        free(tmp);
     }
     code = concat(code, "\n}");
     return code;
@@ -279,6 +285,8 @@ char* Program_toCode(Program_node* program) {
         return new_string("// empty program");
     }
     char* code = new_string("");
+    code = concat(code, "#include <stdlib.h>                                                             \n");
+    code = concat(code, "                                                                                \n");
     code = concat(code, "////////////////////////////////////////////////////////////////////////////////\n");
     code = concat(code, "// type definitions                                                             \n");
     code = concat(code, "                                                                                \n");
@@ -293,7 +301,7 @@ char* Program_toCode(Program_node* program) {
     code = concat(code, "                                                                                \n");
     code = concat(code, "typedef struct return_t {                                                       \n");
     code = concat(code, "  char* error;                                                                  \n");
-    code = concat(code, "  variable* value;                                                              \n");
+    code = concat(code, "  variable value;                                                               \n");
     code = concat(code, "} return_t;                                                                     \n");
     code = concat(code, "                                                                                \n");
     code = concat(code, "variable* new_variable() {                                                      \n");
@@ -314,11 +322,11 @@ char* Program_toCode(Program_node* program) {
     code = concat(code, "////////////////////////////////////////////////////////////////////////////////\n");
     code = concat(code, "// main program                                                                 \n");
     code = concat(code, "                                                                                \n");
-    code = concat(code, "int main(int argc, char** argv) {                                               \n");
+    code = concat(code, "int main(int argc, char** argv) {");
     char* tmp1 = new_string("");
     for ( int i = 0 ; i < program->sourceElements->count ; i++ ) {
         if ( program->sourceElements->elements[i]->type == STATEMENT_SOURCE_ELEMENT_TYPE ) {
-            if ( i > 0 ) tmp1 = concat(tmp1, "\n");
+            tmp1 = concat(tmp1, "\n");
             Statement_node* statement = program->sourceElements->elements[i]->sourceElementUnion.statement;
             char* tmp2 = statement->toCode(statement);
             tmp1 = concat(tmp1, tmp2);
@@ -385,7 +393,7 @@ char* VariableDeclaration_toCode(VariableDeclaration_node* variableDeclaration) 
         free(tmp);
         code = concat(code, "\n");
         code = concat(code, variableDeclaration->identifier->name);
-        code = concat(code, ".value = NULL; // TODO");
+        code = concat(code, "->value = NULL; // TODO");
     }
     return code;
 }
@@ -595,6 +603,48 @@ ArgumentList_node* createArgumentList(Expression_node* argument) {
     argumentList->toString = ArgumentList_toString;
     argumentList->append(argumentList, argument);
     return argumentList;
+}
+
+char* ReturnStatement_toString(ReturnStatement_node* returnStatement) {
+    char* string = new_string("ReturnStatement");
+    if ( returnStatement->expression == NULL ) {
+        string = concat(string, " (undefined)");
+    } else {
+        string = concat(string, "\n");
+        char* tmp = returnStatement->expression->toString(returnStatement->expression);
+        string = concat_indent(string, tmp);
+        free(tmp);
+    }
+    return string;
+}
+
+char* ReturnStatement_toCode(ReturnStatement_node* returnStatement) {
+    char* code = new_string("{\n");
+    char* tmp1 = new_string("return_t ret;\n");
+    if ( returnStatement->expression == NULL ) {
+        tmp1 = concat(tmp1, "ret.value.type = UNDEFINED;");
+    } else {
+        char* tmp2 = new_string("evaluate this expression:\n");
+        char* tmp3 = returnStatement->expression->toString(returnStatement->expression);
+        tmp2 = concat(tmp2, tmp3);
+        free(tmp3);
+        tmp1 = concat_comment(tmp1, tmp2);
+        free(tmp2);
+        tmp1 = concat(tmp1, "\nret.value.type = UNDEFINED; // not really\nret.value.value = NULL; // result of expression");
+    }
+    tmp1 = concat(tmp1, "\nreturn ret;");
+    code = concat_indent(code, tmp1);
+    free(tmp1);
+    code = concat(code, "\n}");
+    return code;
+}
+
+ReturnStatement_node* createReturnStatement(Expression_node* expression) {
+    ReturnStatement_node* returnStatement = (ReturnStatement_node*) calloc(1, sizeof(ReturnStatement_node));
+    returnStatement->expression = expression;
+    returnStatement->toString = ReturnStatement_toString;
+    returnStatement->toCode = ReturnStatement_toCode;
+    return returnStatement;
 }
 
 char* Literal_toString(Literal_node* literal) {

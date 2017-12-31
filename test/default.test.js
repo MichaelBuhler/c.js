@@ -1,6 +1,18 @@
 import test from 'ava';
 import runner from './runner';
 
+test.cb('Single Line Comment', runner(function () {
+    // this is a comment
+}));
+
+test.cb('Multi Line Comment', runner(function () {
+    var buhler;
+    /* this is a
+     * multiline comment
+     */
+    var michael;
+}));
+
 test.cb('Empty Block', runner(function () {
     {}
 }));
@@ -169,27 +181,23 @@ test.cb('Variable Assignment, to Call Expression, Multiple Arguments', runner(fu
     buhle = michael(buhler, other);
 }));
 
-test.cb('Multiple Variable Declaration', runner(function () {
-    var buhler, michael;
-}));
-
 test.cb('Parenthesis', runner(function () {
     (true);
     var buhler = (null);
+}));
+
+test.cb('Multiple Variable Declaration', runner(function () {
+    var buhler, michael;
 }));
 
 test.cb('Multiple Variable Declaration, Mixed Initialization', runner(function () {
     var buhler = michael, other = true, another;
 }));
 
-test.cb('Single Line Comment', runner(function () {
-    // this is a comment
+test.cb('Return Statement', runner(function () {
+    return;
 }));
 
-test.cb('Multi Line Comment', runner(function () {
-    var buhler;
-    /* this is a
-     * multiline comment
-     */
-    var michael;
+test.cb('Return Statement, with Expression', runner(function () {
+    return buhler;
 }));

@@ -47,6 +47,7 @@ static void yyerror(char *s) {
     AssignmentOperator_enum       assignmentOperator_enum;
     CallExpression_node*          callExpression_node;
     ArgumentList_node*            argumentList_node;
+    ReturnStatement_node*         returnStatement_node;
     Literal_node*                 literal_node;
     NullLiteral_node*             nullLiteral_node;
     BooleanLiteral_node*          booleanLiteral_node;
@@ -59,6 +60,7 @@ static void yyerror(char *s) {
 %token FALSE_LITERAL
 %token FUNCTION
 %token NULL_LITERAL
+%token RETURN
 %token THIS
 %token TRUE_LITERAL
 %token VAR
@@ -94,6 +96,7 @@ static void yyerror(char *s) {
 %type <assignmentOperator_enum>      AssignmentOperator
 %type <callExpression_node>          CallExpression
 %type <argumentList_node>            ArgumentList
+%type <returnStatement_node>         ReturnStatement
 %type <literal_node>                 Literal
 %type <nullLiteral_node>             NullLiteral
 %type <booleanLiteral_node>          BooleanLiteral
@@ -150,7 +153,7 @@ Statement:
 //    | IterationStatement {debug("parsed Statement");}
 //    | ContinueStatement {debug("parsed Statement");}
 //    | BreakStatement {debug("parsed Statement");}
-//    | ReturnStatement {debug("parsed Statement");}
+    | ReturnStatement { debug("parsed Statement"); $$ = createStatement(RETURN_STATEMENT_TYPE, $1); }
 //    | WithStatement {debug("parsed Statement");}
     ;
 
@@ -221,12 +224,12 @@ ExpressionStatement:
 //BreakStatement:
 //    BREAK ';' {debug("parsed BreakStatement")}
 //    ;
-//
-//ReturnStatement:
-//    RETURN ';' {debug("parsed ReturnStatement")}
-//    | RETURN Expression ';' {debug("parsed ReturnStatement")}
-//    ;
-//
+
+ReturnStatement:
+    RETURN SEMICOLON { debug("parsed ReturnStatement"); $$ = createReturnStatement(NULL); }
+    | RETURN Expression SEMICOLON { debug("parsed ReturnStatement"); $$ = createReturnStatement($2); }
+    ;
+
 //WithStatement:
 //    WITH '(' Expression ')' Statement {debug("parsed WithStatement")}
 
