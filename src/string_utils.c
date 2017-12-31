@@ -33,3 +33,15 @@ char* concat_indent(char* dest, char* src) {
     }
     return dest;
 }
+
+char* concat_comment(char* dest, char* src) {
+    dest = concat(dest, "// ");
+    for ( int i = 0 ; i < strlen(src) ; i++ ) {
+        if ( src[i] == '\n' ) {
+            dest = concat(dest, "\n// ");
+        } else {
+            dest = concat_char(dest, src[i]);
+        }
+    }
+    return dest;
+}
