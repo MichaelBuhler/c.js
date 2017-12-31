@@ -133,11 +133,13 @@ struct StatementList_node {
     Statement_node** statements;
     void (*append)(StatementList_node*, Statement_node*);
     char* (*toString)(StatementList_node*);
+    char* (*toCode)(StatementList_node*);
 };
 
 struct Block_node {
     StatementList_node* statementList;
     char* (*toString)(Block_node*);
+    char* (*toCode)(Block_node*, char);
 };
 
 struct Statement_node {
@@ -184,12 +186,14 @@ struct Program_node {
 struct VariableStatement_node {
     VariableDeclarationList_node* variableDeclarationList;
     char* (*toString)(VariableStatement_node*);
+    char* (*toCode)(VariableStatement_node*);
 };
 
 struct VariableDeclaration_node {
     Identifier_node* identifier;
     Initializer_node* initializer;
     char* (*toString)(VariableDeclaration_node*);
+    char* (*toCode)(VariableDeclaration_node*);
 };
 
 struct Initializer_node {
@@ -202,15 +206,18 @@ struct VariableDeclarationList_node {
     VariableDeclaration_node** variableDeclarations;
     void (*append)(VariableDeclarationList_node*, VariableDeclaration_node*);
     char* (*toString)(VariableDeclarationList_node*);
+    char* (*toCode)(VariableDeclarationList_node*);
 };
 
 struct EmptyStatement_node {
     char* (*toString)(EmptyStatement_node*);
+    char* (*toCode)(EmptyStatement_node*);
 };
 
 struct ExpressionStatement_node {
     Expression_node* expression;
     char* (*toString)(ExpressionStatement_node*);
+    char* (*toCode)(ExpressionStatement_node*);
 };
 
 struct Expression_node {
