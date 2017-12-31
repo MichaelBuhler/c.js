@@ -577,7 +577,7 @@ char* StringLiteral_toString(StringLiteral_node* stringLiteral) {
             case '\r': string = concat(string, "\\r");  break; // \r carriage return
             case '\t': string = concat(string, "\\t");  break; // \t horizontal tab
             case '"':  string = concat(string, "\\\""); break; // \" double quotation mark
-            default:   string = concatc(string, stringLiteral->string[i]);
+            default:   string = concat_char(string, stringLiteral->string[i]);
         }
     }
     string = concat(string, "\"");

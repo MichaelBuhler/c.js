@@ -182,7 +182,7 @@ var {
         case 't': c = '\t'; break; // \t horizontal tab
         default:  c = *yytext;
     }
-    string_literal = concatc(string_literal, c);
+    string_literal = concat_char(string_literal, c);
     BEGIN(SINGLE_QUOTE_STRING_LITERAL);
 }
 
@@ -213,7 +213,7 @@ var {
         case 't': c = '\t'; break; // \t horizontal tab
         default:  c = *yytext;
     }
-    string_literal = concatc(string_literal, c);
+    string_literal = concat_char(string_literal, c);
     BEGIN(DOUBLE_QUOTE_STRING_LITERAL);
 }
 
