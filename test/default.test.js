@@ -17,6 +17,15 @@ test.cb('Empty Block', runner(function () {
     {}
 }));
 
+test.cb('Empty Statement', runner(function () {
+    ;
+}));
+
+test.cb('Parenthesis', runner(function () {
+    (true);
+    var buhler = (null);
+}));
+
 test.cb('Function Definition, Zero Arguments, Empty Block', runner(function () {
     function buhler () {
     }
@@ -39,12 +48,20 @@ test.cb('Function Definition, Zero Arguments, Non-Empty Block', runner(function 
     }
 }));
 
-test.cb('Empty Statement', runner(function () {
-    ;
-}));
-
 test.cb('Variable Declaration', runner(function () {
     var buhler;
+}));
+
+test.cb('Multiple Variable Declaration', runner(function () {
+    var buhler, michael;
+}));
+
+test.cb('Multiple Variable Declaration, Mixed Initialization', runner(function () {
+    var buhler = michael, other = true, another;
+}));
+
+test.cb('Multiple Variable Declaration, Multiple Initialization', runner(function () {
+    var buhler = michael, other = another;
 }));
 
 test.cb('Variable Declaration, Initialize to Other Variable', runner(function () {
@@ -103,140 +120,176 @@ test.cb('Variable Declaration, Initialize to Call Expression, Multiple Arguments
     var buhler = michael(buhler, other);
 }));
 
-test.cb('Variable Declaration, to Member Expression, with Dot Notation', runner(function () {
+test.cb('Variable Declaration, Initialize to Member Expression, with Dot Notation', runner(function () {
     var buhler = michael.other;
 }));
 
-test.cb('Variable Declaration, to Member Expression, with Chained Dot Notation', runner(function () {
+test.cb('Variable Declaration, Initialize to Member Expression, with Chained Dot Notation', runner(function () {
     var buhler = michael.other.another;
 }));
 
-test.cb('Variable Declaration, to Member Expression, with Bracket Notation, with String Literal', runner(function () {
+test.cb('Variable Declaration, Initialize to Member Expression, with Bracket Notation, with String Literal', runner(function () {
     var buhler = michael['other'];
 }));
 
-test.cb('Variable Declaration, to Member Expression, with Bracket Notation, with Expression', runner(function () {
+test.cb('Variable Declaration, Initialize to Member Expression, with Bracket Notation, with Expression', runner(function () {
     var buhler = michael[other];
 }));
 
-test.cb('Variable Declaration, to Member Expression, with Chained Bracket Notation, with String Literals', runner(function () {
+test.cb('Variable Declaration, Initialize to Member Expression, with Chained Bracket Notation, with String Literals', runner(function () {
     var buhler = michael['other']['another'];
 }));
 
-test.cb('Multiple Variable Declaration', runner(function () {
-    var buhler, michael;
-}));
-
-test.cb('Multiple Variable Declaration, Multiple Initialization', runner(function () {
-    var buhler = michael, other = another;
-}));
-
-test.cb('Variable Assignment, to Other Variable', runner(function () {
-    var buhler;
+test.cb('Assignment Expression, with Left Hand Identifier, to Other Variable', runner(function () {
     buhler = michael;
 }));
 
-test.cb('Variable Assignment, to This', runner(function () {
-    var buhler;
+test.cb('Assignment Expression, with Left Hand Identifier, to This', runner(function () {
     buhler = this;
 }));
 
-test.cb('Variable Assignment, to Null', runner(function () {
-    var buhler;
+test.cb('Assignment Expression, with Left Hand Identifier, to Null', runner(function () {
     buhler = null;
 }));
 
-test.cb('Variable Assignment, to True', runner(function () {
-    var buhler;
+test.cb('Assignment Expression, with Left Hand Identifier, to True', runner(function () {
     buhler = true;
 }));
 
-test.cb('Variable Assignment, to False', runner(function () {
-    var buhler;
+test.cb('Assignment Expression, with Left Hand Identifier, to False', runner(function () {
     buhler = false;
 }));
 
-test.cb('Variable Assignment, to Integer', runner(function () {
-    var buhler;
+test.cb('Assignment Expression, with Left Hand Identifier, to Integer', runner(function () {
     buhler = 123;
 }));
 
-test.cb('Variable Assignment, to Floating Point', runner(function () {
-    var buhler;
+test.cb('Assignment Expression, with Left Hand Identifier, to Floating Point', runner(function () {
     buhler = 123.456;
 }));
 
-test.cb('Variable Assignment, to Single Quote String', runner(function () {
-    var buhler;
+test.cb('Assignment Expression, with Left Hand Identifier, to Single Quote String', runner(function () {
     buhler = 'michael';
 }));
 
-test.cb('Variable Assignment, to Single Quote String, with Escape Characters', runner(function () {
-    var buhler;
+test.cb('Assignment Expression, with Left Hand Identifier, to Single Quote String, with Escape Characters', runner(function () {
     buhler = 'mi\nc\'h\tae"l';
 }));
 
-test.cb('Variable Assignment, to Double Quote String', runner(function () {
-    var buhler;
+test.cb('Assignment Expression, with Left Hand Identifier, to Double Quote String', runner(function () {
     buhler = "michael";
 }));
 
-test.cb('Variable Assignment, to Double Quote String, with Escape Characters', runner(function () {
-    var buhler;
+test.cb('Assignment Expression, with Left Hand Identifier, to Double Quote String, with Escape Characters', runner(function () {
     buhler = "mi\nc\"h\tae'l";
 }));
 
-test.cb('Variable Assignment, to Call Expression, Zero Arguments', runner(function () {
-    var buhler;
+test.cb('Assignment Expression, with Left Hand Identifier, to Call Expression, Zero Arguments', runner(function () {
     buhler = michael();
 }));
 
-test.cb('Variable Assignment, to Call Expression, One Argument', runner(function () {
-    var buhler;
+test.cb('Assignment Expression, with Left Hand Identifier, to Call Expression, One Argument', runner(function () {
     buhler = michael(buhler);
 }));
 
-test.cb('Variable Assignment, to Call Expression, Multiple Arguments', runner(function () {
-    var buhler;
+test.cb('Assignment Expression, with Left Hand Identifier, to Call Expression, Multiple Arguments', runner(function () {
     buhler = michael(buhler, other);
 }));
 
-test.cb('Variable Assignment, to Member Expression, with Dot Notation', runner(function () {
-    var buhler;
+test.cb('Assignment Expression, with Left Hand Identifier, to Member Expression, with Dot Notation', runner(function () {
     buhler = michael.other;
 }));
 
-test.cb('Variable Assignment, to Member Expression, with Chained Dot Notation', runner(function () {
-    var buhler;
+test.cb('Assignment Expression, with Left Hand Identifier, to Member Expression, with Chained Dot Notation', runner(function () {
     buhler = michael.other.another;
 }));
 
-test.cb('Variable Assignment, to Member Expression, with Bracket Notation, with String Literal', runner(function () {
-    var buhler;
+test.cb('Assignment Expression, with Left Hand Identifier, to Member Expression, with Bracket Notation, with String Literal', runner(function () {
     buhler = michael['other'];
 }));
 
-test.cb('Variable Assignment, to Member Expression, with Bracket Notation, with Expression', runner(function () {
-    var buhler;
+test.cb('Assignment Expression, with Left Hand Identifier, to Member Expression, with Bracket Notation, with Expression', runner(function () {
     buhler = michael[other];
 }));
 
-test.cb('Variable Assignment, to Member Expression, with Chained Bracket Notation, with String Literals', runner(function () {
-    var buhler;
+test.cb('Assignment Expression, with Left Hand Identifier, to Member Expression, with Chained Bracket Notation, with String Literals', runner(function () {
     buhler = michael['other']['another'];
 }));
 
-test.cb('Parenthesis', runner(function () {
-    (true);
-    var buhler = (null);
+test.cb('Assignment Expression, with Left Hand Dot Member Expression, to Other Variable', runner(function () {
+    buhler.member = michael;
 }));
 
-test.cb('Multiple Variable Declaration', runner(function () {
-    var buhler, michael;
+test.cb('Assignment Expression, with Left Hand Dot Member Expression, to This', runner(function () {
+    buhler.member = this;
 }));
 
-test.cb('Multiple Variable Declaration, Mixed Initialization', runner(function () {
-    var buhler = michael, other = true, another;
+test.cb('Assignment Expression, with Left Hand Dot Member Expression, to Null', runner(function () {
+    buhler.member = null;
+}));
+
+test.cb('Assignment Expression, with Left Hand Dot Member Expression, to True', runner(function () {
+    buhler.member = true;
+}));
+
+test.cb('Assignment Expression, with Left Hand Dot Member Expression, to False', runner(function () {
+    buhler.member = false;
+}));
+
+test.cb('Assignment Expression, with Left Hand Dot Member Expression, to Integer', runner(function () {
+    buhler.member = 123;
+}));
+
+test.cb('Assignment Expression, with Left Hand Dot Member Expression, to Floating Point', runner(function () {
+    buhler.member = 123.456;
+}));
+
+test.cb('Assignment Expression, with Left Hand Dot Member Expression, to Single Quote String', runner(function () {
+    buhler.member = 'michael';
+}));
+
+test.cb('Assignment Expression, with Left Hand Dot Member Expression, to Single Quote String, with Escape Characters', runner(function () {
+    buhler.member = 'mi\nc\'h\tae"l';
+}));
+
+test.cb('Assignment Expression, with Left Hand Dot Member Expression, to Double Quote String', runner(function () {
+    buhler.member = "michael";
+}));
+
+test.cb('Assignment Expression, with Left Hand Dot Member Expression, to Double Quote String, with Escape Characters', runner(function () {
+    buhler.member = "mi\nc\"h\tae'l";
+}));
+
+test.cb('Assignment Expression, with Left Hand Dot Member Expression, to Call Expression, Zero Arguments', runner(function () {
+    buhler.member = michael();
+}));
+
+test.cb('Assignment Expression, with Left Hand Dot Member Expression, to Call Expression, One Argument', runner(function () {
+    buhler.member = michael(buhler);
+}));
+
+test.cb('Assignment Expression, with Left Hand Dot Member Expression, to Call Expression, Multiple Arguments', runner(function () {
+    buhler.member = michael(buhler, other);
+}));
+
+test.cb('Assignment Expression, with Left Hand Dot Member Expression, to Member Expression, with Dot Notation', runner(function () {
+    buhler.member = michael.other;
+}));
+
+test.cb('Assignment Expression, with Left Hand Dot Member Expression, to Member Expression, with Chained Dot Notation', runner(function () {
+    buhler.member = michael.other.another;
+}));
+
+test.cb('Assignment Expression, with Left Hand Dot Member Expression, to Member Expression, with Bracket Notation, with String Literal', runner(function () {
+    buhler.member = michael['other'];
+}));
+
+test.cb('Assignment Expression, with Left Hand Dot Member Expression, to Member Expression, with Bracket Notation, with Expression', runner(function () {
+    buhler.member = michael[other];
+}));
+
+test.cb('Assignment Expression, with Left Hand Dot Member Expression, to Member Expression, with Chained Bracket Notation, with String Literals', runner(function () {
+    buhler.member = michael['other']['another'];
 }));
 
 test.cb('Return Statement', runner(function () {

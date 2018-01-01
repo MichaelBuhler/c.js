@@ -44,6 +44,7 @@ static void yyerror(char *s) {
     ExpressionStatement_node*     expressionStatement_node;
     Expression_node*              expression_node;
     MemberExpression_node*        memberExpression_node;
+    LeftHandSideExpression_node*  leftHandSideExpression_node;
     AssignmentExpression_node*    assignmentExpression_node;
     AssignmentOperator_enum       assignmentOperator_enum;
     CallExpression_node*          callExpression_node;
@@ -97,6 +98,7 @@ static void yyerror(char *s) {
 %type <expressionStatement_node>     ExpressionStatement
 %type <expression_node>              Expression
 %type <memberExpression_node>        MemberExpression
+%type <leftHandSideExpression_node>  LeftHandSideExpression
 %type <assignmentExpression_node>    AssignmentExpression
 %type <assignmentOperator_enum>      AssignmentOperator
 %type <callExpression_node>          CallExpression
@@ -267,12 +269,16 @@ ArgumentList:
     ;
 
 AssignmentExpression:
-// TODO Identifier needs to be LeftHandSideExpression
-    Identifier AssignmentOperator Expression %prec ASSIGNMENT_PRECEDENCE { debug("parsed AssignmentExpression"); $$ = createAssignmentExpression($1, $2, $3); }
+    LeftHandSideExpression AssignmentOperator Expression %prec ASSIGNMENT_PRECEDENCE { debug("parsed AssignmentExpression"); $$ = createAssignmentExpression($1, $2, $3); }
     ;
 
 AssignmentOperator:
     EQUALS { debug("parsed AssignmentOperator"); $$ = EQUALS_ASSIGNMENT_OPERATOR; }
+    ;
+
+LeftHandSideExpression:
+    Identifier { debug("parsed LeftHandSideExpression"); $$ = createLeftHandSideExpression(IDENTIFIER_LEFT_HAND_SIDE_EXPRESSION_TYPE, $1); }
+    | MemberExpression { debug("parsed LeftHandSideExpression"); $$ = createLeftHandSideExpression(MEMBER_EXPRESSION_LEFT_HAND_SIDE_EXPRESSION_TYPE, $1); }
     ;
 
 ///////////////////////////////////////////////////////////

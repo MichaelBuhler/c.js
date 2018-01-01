@@ -557,27 +557,51 @@ MemberExpression_node* createMemberExpression(Expression_node* parent, MemberExp
     return memberExpression;
 }
 
-char* AssignmentExpression_toString(AssignmentExpression_node* assignmentExpression) {
-    char* string = new_string("AssignmentExpression\n");
-    char* tmp1 = assignmentExpression->identifier->toString(assignmentExpression->identifier);
-    tmp1 = concat(tmp1, "\n");
-    switch (assignmentExpression->assignmentOperator) {
-        case EQUALS_ASSIGNMENT_OPERATOR:
-            tmp1 = concat(tmp1, "=");
+char* LeftHandSideExpression_toString(LeftHandSideExpression_node* leftHandSideExpression) {
+    char* string = new_string("LeftHandSideExpression\n");
+    char* tmp;
+    switch (leftHandSideExpression->type) {
+        case IDENTIFIER_LEFT_HAND_SIDE_EXPRESSION_TYPE:
+            tmp = leftHandSideExpression->leftHandSideExpressionUnion.identifier->toString(leftHandSideExpression->leftHandSideExpressionUnion.identifier);
+            break;
+        case MEMBER_EXPRESSION_LEFT_HAND_SIDE_EXPRESSION_TYPE:
+            tmp = leftHandSideExpression->leftHandSideExpressionUnion.memberExpression->toString(leftHandSideExpression->leftHandSideExpressionUnion.memberExpression);
             break;
     }
-    tmp1 = concat(tmp1, "\n");
+    string = concat_indent(string, tmp);
+    free(tmp);
+    return string;
+}
+
+LeftHandSideExpression_node* createLeftHandSideExpression(LeftHandSideExpressionType_enum type, void* expression) {
+    LeftHandSideExpression_node* leftHandSideExpression = (LeftHandSideExpression_node*) calloc(1, sizeof(LeftHandSideExpression_node));
+    leftHandSideExpression->type = type;
+    leftHandSideExpression->leftHandSideExpressionUnion.any = expression;
+    leftHandSideExpression->toString = LeftHandSideExpression_toString;
+    return leftHandSideExpression;
+}
+
+char* AssignmentExpression_toString(AssignmentExpression_node* assignmentExpression) {
+    char* string = new_string("AssignmentExpression\n");
+    char* tmp1 = assignmentExpression->leftHandSideExpression->toString(assignmentExpression->leftHandSideExpression);
+    tmp1 = concat(tmp1, "\nAssignmentOperator\n");
+    switch (assignmentExpression->assignmentOperator) {
+        case EQUALS_ASSIGNMENT_OPERATOR:
+            tmp1 = concat_indent(tmp1, "=");
+            break;
+    }
+    tmp1 = concat(tmp1, "\nRightHandSideExpression\n");
     char* tmp2 = assignmentExpression->expression->toString(assignmentExpression->expression);
-    tmp1 = concat(tmp1, tmp2);
+    tmp1 = concat_indent(tmp1, tmp2);
     free(tmp2);
     string = concat_indent(string, tmp1);
     free(tmp1);
     return string;
 }
 
-AssignmentExpression_node* createAssignmentExpression(Identifier_node* identifier/* TODO needs to be LeftHandSideExpression_node */, AssignmentOperator_enum assignmentOperator, Expression_node* expression) {
+AssignmentExpression_node* createAssignmentExpression(LeftHandSideExpression_node* leftHandSideExpression, AssignmentOperator_enum assignmentOperator, Expression_node* expression) {
     AssignmentExpression_node* assignmentExpression = (AssignmentExpression_node*) calloc(1, sizeof(AssignmentExpression_node));
-    assignmentExpression->identifier = identifier;
+    assignmentExpression->leftHandSideExpression = leftHandSideExpression;
     assignmentExpression->assignmentOperator = assignmentOperator;
     assignmentExpression->expression = expression;
     assignmentExpression->toString = AssignmentExpression_toString;
