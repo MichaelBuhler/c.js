@@ -513,6 +513,8 @@ char* Expression_toString(Expression_node* expression) {
             return expression->expressionUnion.literal->toString(expression->expressionUnion.literal);
         case CALL_EXPRESSION_TYPE:
             return expression->expressionUnion.callExpression->toString(expression->expressionUnion.callExpression);
+        case MEMBER_EXPRESSION_TYPE:
+            return expression->expressionUnion.memberExpression->toString(expression->expressionUnion.memberExpression);
     }
 }
 
@@ -522,6 +524,37 @@ Expression_node* createExpression(ExpressionType_enum type, void* untypedExpress
     expression->expressionUnion.any = untypedExpression; // TODO do we need .any ?
     expression->toString = Expression_toString;
     return expression;
+}
+
+char* MemberExpression_toString(MemberExpression_node* memberExpression) {
+    char* string = new_string("MemberExpression\n");
+    char* tmp1 = new_string("Parent\n");
+    char* tmp2 = memberExpression->parent->toString(memberExpression->parent);
+    tmp1 = concat_indent(tmp1, tmp2);
+    free(tmp2);
+    tmp1 = concat(tmp1, "\nChild\n");
+    switch (memberExpression->type) {
+        case DOT_MEMBER_EXPRESSION_TYPE:
+            tmp2 = memberExpression->child.identifier->toString(memberExpression->child.identifier);
+            break;
+        case BRACKET_MEMBER_EXPRESSION_TYPE:
+            tmp2 = memberExpression->child.expression->toString(memberExpression->child.expression);
+            break;
+    }
+    tmp1 = concat_indent(tmp1, tmp2);
+    free(tmp2);
+    string = concat_indent(string, tmp1);
+    free(tmp1);
+    return string;
+}
+
+MemberExpression_node* createMemberExpression(Expression_node* parent, MemberExpressionType_enum type, void* child) {
+    MemberExpression_node* memberExpression = (MemberExpression_node*) calloc(1, sizeof(MemberExpression_node));
+    memberExpression->type = type;
+    memberExpression->parent = parent;
+    memberExpression->child.any = child;
+    memberExpression->toString = MemberExpression_toString;
+    return memberExpression;
 }
 
 char* AssignmentExpression_toString(AssignmentExpression_node* assignmentExpression) {

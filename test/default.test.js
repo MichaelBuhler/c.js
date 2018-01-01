@@ -103,6 +103,26 @@ test.cb('Variable Declaration, Initialize to Call Expression, Multiple Arguments
     var buhler = michael(buhler, other);
 }));
 
+test.cb('Variable Declaration, to Member Expression, with Dot Notation', runner(function () {
+    var buhler = michael.other;
+}));
+
+test.cb('Variable Declaration, to Member Expression, with Chained Dot Notation', runner(function () {
+    var buhler = michael.other.another;
+}));
+
+test.cb('Variable Declaration, to Member Expression, with Bracket Notation, with String Literal', runner(function () {
+    var buhler = michael['other'];
+}));
+
+test.cb('Variable Declaration, to Member Expression, with Bracket Notation, with Expression', runner(function () {
+    var buhler = michael[other];
+}));
+
+test.cb('Variable Declaration, to Member Expression, with Chained Bracket Notation, with String Literals', runner(function () {
+    var buhler = michael['other']['another'];
+}));
+
 test.cb('Multiple Variable Declaration', runner(function () {
     var buhler, michael;
 }));
@@ -178,7 +198,32 @@ test.cb('Variable Assignment, to Call Expression, One Argument', runner(function
 
 test.cb('Variable Assignment, to Call Expression, Multiple Arguments', runner(function () {
     var buhler;
-    buhle = michael(buhler, other);
+    buhler = michael(buhler, other);
+}));
+
+test.cb('Variable Assignment, to Member Expression, with Dot Notation', runner(function () {
+    var buhler;
+    buhler = michael.other;
+}));
+
+test.cb('Variable Assignment, to Member Expression, with Chained Dot Notation', runner(function () {
+    var buhler;
+    buhler = michael.other.another;
+}));
+
+test.cb('Variable Assignment, to Member Expression, with Bracket Notation, with String Literal', runner(function () {
+    var buhler;
+    buhler = michael['other'];
+}));
+
+test.cb('Variable Assignment, to Member Expression, with Bracket Notation, with Expression', runner(function () {
+    var buhler;
+    buhler = michael[other];
+}));
+
+test.cb('Variable Assignment, to Member Expression, with Chained Bracket Notation, with String Literals', runner(function () {
+    var buhler;
+    buhler = michael['other']['another'];
 }));
 
 test.cb('Parenthesis', runner(function () {

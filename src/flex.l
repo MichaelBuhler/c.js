@@ -97,6 +97,11 @@ var {
     return COMMA;
 }
 
+\. {
+    debug("lexed .");
+    return DOT;
+}
+
 \= {
     debug("lexed =");
     return EQUALS;
@@ -107,6 +112,11 @@ var {
     return LEFT_BRACE;
 }
 
+\[ {
+    debug("lexed [");
+    return LEFT_BRACKET;
+}
+
 \( {
     debug("lexed (");
     return LEFT_PAREN;
@@ -115,6 +125,11 @@ var {
 \} {
     debug("lexed }");
     return RIGHT_BRACE;
+}
+
+\] {
+    debug("lexed ]");
+    return RIGHT_BRACKET;
 }
 
 \) {

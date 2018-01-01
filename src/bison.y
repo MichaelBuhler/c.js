@@ -43,6 +43,7 @@ static void yyerror(char *s) {
     EmptyStatement_node*          emptyStatement_node;
     ExpressionStatement_node*     expressionStatement_node;
     Expression_node*              expression_node;
+    MemberExpression_node*        memberExpression_node;
     AssignmentExpression_node*    assignmentExpression_node;
     AssignmentOperator_enum       assignmentOperator_enum;
     CallExpression_node*          callExpression_node;
@@ -66,10 +67,13 @@ static void yyerror(char *s) {
 %token VAR
 
 %token COMMA
+%token DOT
 %token EQUALS
 %token LEFT_BRACE
+%token LEFT_BRACKET
 %token LEFT_PAREN
 %token RIGHT_BRACE
+%token RIGHT_BRACKET
 %token RIGHT_PAREN
 %token SEMICOLON
 
@@ -92,6 +96,7 @@ static void yyerror(char *s) {
 %type <emptyStatement_node>          EmptyStatement
 %type <expressionStatement_node>     ExpressionStatement
 %type <expression_node>              Expression
+%type <memberExpression_node>        MemberExpression
 %type <assignmentExpression_node>    AssignmentExpression
 %type <assignmentOperator_enum>      AssignmentOperator
 %type <callExpression_node>          CallExpression
@@ -104,7 +109,7 @@ static void yyerror(char *s) {
 %type <stringLiteral_node>           StringLiteral
 
 %nonassoc ASSIGNMENT_PRECEDENCE
-%nonassoc LEFT_PAREN
+%left DOT LEFT_BRACKET LEFT_PAREN
 
 %start Program
 
@@ -242,7 +247,13 @@ Expression:
     | Literal { debug("parsed Expression"); $$ = createExpression(LITERAL_EXPRESSION_TYPE, $1); }
     | LEFT_PAREN Expression RIGHT_PAREN { debug("parsed Expression"); $$ = $2; }
     | AssignmentExpression { debug("parsed Expression"); $$ = createExpression(ASSIGNMENT_EXPRESSION_TYPE, $1); }
+    | MemberExpression { debug("parsed Expression"); $$ = createExpression(MEMBER_EXPRESSION_TYPE, $1); };
     | CallExpression { debug("parsed Expression"); $$ = createExpression(CALL_EXPRESSION_TYPE, $1); }
+    ;
+
+MemberExpression:
+    Expression DOT Identifier { debug("parsed MemberExpression"); $$ = createMemberExpression($1, DOT_MEMBER_EXPRESSION_TYPE, $3); }
+    | Expression LEFT_BRACKET Expression RIGHT_BRACKET { debug("parsed MemberExpression"); $$ = createMemberExpression($1, BRACKET_MEMBER_EXPRESSION_TYPE, $3); }
     ;
 
 CallExpression:

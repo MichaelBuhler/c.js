@@ -4,12 +4,14 @@
 typedef enum   StatementType_enum             StatementType_enum;
 typedef enum   SourceElementType_enum         SourceElementType_enum;
 typedef enum   ExpressionType_enum            ExpressionType_enum;
+typedef enum   MemberExpressionType_enum      MemberExpressionType_enum;
 typedef enum   AssignmentOperator_enum        AssignmentOperator_enum;
 typedef enum   LiteralType_enum               LiteralType_enum;
 
 typedef union  Statement_union                Statement_union;
 typedef union  SourceElement_union            SourceElement_union;
 typedef union  Expression_union               Expression_union;
+typedef union  MemberExpression_union         MemberExpression_union;
 typedef union  Literal_union                  Literal_union;
 
 typedef struct Program_node                   Program_node;
@@ -28,6 +30,7 @@ typedef struct Initializer_node               Initializer_node;
 typedef struct EmptyStatement_node            EmptyStatement_node;
 typedef struct ExpressionStatement_node       ExpressionStatement_node;
 typedef struct Expression_node                Expression_node;
+typedef struct MemberExpression_node          MemberExpression_node;
 typedef struct AssignmentExpression_node      AssignmentExpression_node;
 typedef struct CallExpression_node            CallExpression_node;
 typedef struct ArgumentList_node              ArgumentList_node;
@@ -54,6 +57,7 @@ Program_node*                 createProgram(SourceElements_node*);
 EmptyStatement_node*          createEmptyStatement();
 ExpressionStatement_node*     createExpressionStatement(Expression_node*);
 Expression_node*              createExpression(ExpressionType_enum, void*);
+MemberExpression_node*        createMemberExpression(Expression_node*, MemberExpressionType_enum, void*);
 AssignmentExpression_node*    createAssignmentExpression(Identifier_node* /* TODO needs to be LeftHandSideExpression_node */, AssignmentOperator_enum assignmentOperator, Expression_node*);
 CallExpression_node*          createCallExpression(Expression_node*, ArgumentList_node*);
 ArgumentList_node*            createArgumentList(Expression_node*);
@@ -82,7 +86,13 @@ enum ExpressionType_enum {
     IDENTIFIER_EXPRESSION_TYPE,
     ASSIGNMENT_EXPRESSION_TYPE,
     LITERAL_EXPRESSION_TYPE,
+    MEMBER_EXPRESSION_TYPE,
     CALL_EXPRESSION_TYPE
+};
+
+enum MemberExpressionType_enum {
+    DOT_MEMBER_EXPRESSION_TYPE,
+    BRACKET_MEMBER_EXPRESSION_TYPE
 };
 
 enum AssignmentOperator_enum {
@@ -115,8 +125,15 @@ union Expression_union {
     void* any; // TODO do we need any ?
     Identifier_node* identifier;
     Literal_node* literal;
+    MemberExpression_node* memberExpression;
     AssignmentExpression_node* assignmentExpression;
     CallExpression_node* callExpression;
+};
+
+union MemberExpression_union {
+    void* any;
+    Identifier_node* identifier;
+    Expression_node* expression;
 };
 
 union Literal_union {
@@ -228,6 +245,13 @@ struct Expression_node {
     ExpressionType_enum type;
     Expression_union expressionUnion;
     char* (*toString)(Expression_node*);
+};
+
+struct MemberExpression_node {
+    Expression_node* parent;
+    MemberExpressionType_enum type;
+    MemberExpression_union child;
+    char* (*toString)(MemberExpression_node*);
 };
 
 struct AssignmentExpression_node {
