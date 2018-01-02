@@ -162,6 +162,7 @@ union Literal_union {
 struct Identifier_node {
     char* name;
     char* (*toString)(Identifier_node*);
+    char* (*toCode)(Identifier_node*);
 };
 
 struct StatementList_node {
@@ -235,6 +236,7 @@ struct VariableDeclaration_node {
 struct Initializer_node {
     Expression_node* expression;
     char* (*toString)(Initializer_node*);
+    char* (*toCode)(Initializer_node*);
 };
 
 struct VariableDeclarationList_node {
@@ -260,6 +262,7 @@ struct Expression_node {
     ExpressionType_enum type;
     Expression_union expressionUnion;
     char* (*toString)(Expression_node*);
+    char* (*toCode)(Expression_node*);
 };
 
 struct MemberExpression_node {
@@ -267,6 +270,7 @@ struct MemberExpression_node {
     MemberExpressionType_enum type;
     MemberExpression_union child;
     char* (*toString)(MemberExpression_node*);
+    char* (*toCode)(MemberExpression_node*);
 };
 
 struct LeftHandSideExpression_node {

@@ -15,6 +15,15 @@ variable* new_null() {
     return var;
 }
 
+char* native_toString(variable* var) {
+    switch (var->type) {
+        case UNDEFINED_VARIABLE_TYPE:
+            return "undefined";
+        case NULL_VARIABLE_TYPE:
+            return "null";
+    }
+};
+
 static variable* getMember(char* name) {
     return new_undefined();
 }

@@ -8,6 +8,7 @@ typedef struct return_t return_t;
 
 variable* new_undefined();
 variable* new_null();
+char* native_toString(variable*);
 
 enum variable_type {
     UNDEFINED_VARIABLE_TYPE,

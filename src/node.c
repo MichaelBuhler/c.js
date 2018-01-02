@@ -10,10 +10,15 @@ char* Identifier_toString(Identifier_node* identifier) {
     return string;
 }
 
+char* Identifier_toCode(Identifier_node* identifier) {
+    return new_string(identifier->name);
+}
+
 Identifier_node* createIdentifier(char* name) {
     Identifier_node* identifier = (Identifier_node*) calloc(1, sizeof(Identifier_node));
     identifier->name = new_string(name);
     identifier->toString = Identifier_toString;
+    identifier->toCode = Identifier_toCode;
     return identifier;
 }
 
@@ -195,7 +200,7 @@ char* FunctionDeclaration_toString(FunctionDeclaration_node* functionDeclaration
 
 char* FunctionDeclaration_toCode(FunctionDeclaration_node* functionDeclaration) {
     char* code = new_string("static return_t ");
-    code = concat(code, functionDeclaration->identifier->name);
+    code = concat(code, functionDeclaration->identifier->toCode(functionDeclaration->identifier));
     code = concat(code, "(");
     if ( functionDeclaration->formalParameterList != NULL ) {
         // TODO move this to formalParameterList->toCode()
@@ -364,16 +369,16 @@ char* VariableDeclaration_toString(VariableDeclaration_node* variableDeclaration
 
 char* VariableDeclaration_toCode(VariableDeclaration_node* variableDeclaration) {
     char* code = new_string("variable* ");
-    code = concat(code, variableDeclaration->identifier->name);
+    code = concat(code, variableDeclaration->identifier->toCode(variableDeclaration->identifier));
     code = concat(code, " = new_undefined();");
     if ( variableDeclaration->initializer != NULL ) {
         code = concat(code, "\n");
-        char* tmp = variableDeclaration->initializer->toString(variableDeclaration->initializer);
-        code = concat_comment(code, tmp);
+        code = concat(code, variableDeclaration->identifier->toCode(variableDeclaration->identifier));
+        code = concat(code, "->value = ");
+        char* tmp = variableDeclaration->initializer->toCode(variableDeclaration->initializer);
+        code = concat(code, tmp);
         free(tmp);
-        code = concat(code, "\n");
-        code = concat(code, variableDeclaration->identifier->name);
-        code = concat(code, "->value = NULL; // TODO");
+        code = concat(code, ";");
     }
     return code;
 }
@@ -435,10 +440,15 @@ char* Initializer_toString(Initializer_node* initializer) {
     return string;
 }
 
+char* Initializer_toCode(Initializer_node* initializer) {
+    return initializer->expression->toCode(initializer->expression);
+}
+
 Initializer_node* createInitializer(Expression_node* expression) {
     Initializer_node* initializer = (Initializer_node*) calloc(1, sizeof(Initializer_node));
     initializer->expression = expression;
     initializer->toString = Initializer_toString;
+    initializer->toCode = Initializer_toCode;
     return initializer;
 }
 
@@ -466,11 +476,8 @@ char* ExpressionStatement_toString(ExpressionStatement_node* expressionStatement
 }
 
 char* ExpressionStatement_toCode(ExpressionStatement_node* expressionStatement) {
-    char* code = new_string("");
-    char* tmp = expressionStatement->toString(expressionStatement);
-    code = concat_comment(code, tmp);
-    free(tmp);
-    return code;
+    char* code = expressionStatement->expression->toCode(expressionStatement->expression);
+    return concat(code, ";");
 }
 
 ExpressionStatement_node* createExpressionStatement(Expression_node* expression) {
@@ -498,11 +505,23 @@ char* Expression_toString(Expression_node* expression) {
     }
 }
 
+char* Expression_toCode(Expression_node* expression) {
+    switch (expression->type) {
+        case IDENTIFIER_EXPRESSION_TYPE:
+            return expression->expressionUnion.identifier->toCode(expression->expressionUnion.identifier);
+        case MEMBER_EXPRESSION_TYPE:
+            return expression->expressionUnion.memberExpression->toCode(expression->expressionUnion.memberExpression);
+        default:
+            return new_string("(/* Unsupported Expression */)");
+    }
+}
+
 Expression_node* createExpression(ExpressionType_enum type, void* untypedExpression) {
     Expression_node* expression = (Expression_node*) calloc(1, sizeof(Expression_node));
     expression->type = type;
     expression->expressionUnion.any = untypedExpression; // TODO do we need .any ?
     expression->toString = Expression_toString;
+    expression->toCode = Expression_toCode;
     return expression;
 }
 
@@ -528,12 +547,40 @@ char* MemberExpression_toString(MemberExpression_node* memberExpression) {
     return string;
 }
 
+char* MemberExpression_toCode(MemberExpression_node* memberExpression) {
+    char* code = memberExpression->parent->toCode(memberExpression->parent);
+    code = concat(code, "->getMember(");
+    char* tmp1;
+    char* tmp2;
+    switch (memberExpression->type) {
+        case DOT_MEMBER_EXPRESSION_TYPE:
+            tmp1 = new_string("\"");
+            tmp2 = memberExpression->child.identifier->toCode(memberExpression->child.identifier);
+            tmp1 = concat(tmp1, tmp2);
+            free(tmp2);
+            tmp1 = concat(tmp1, "\"");
+            break;
+        case BRACKET_MEMBER_EXPRESSION_TYPE:
+            tmp1 = new_string("native_toString(");
+            tmp2 = memberExpression->child.expression->toCode(memberExpression->child.expression);
+            tmp1 = concat(tmp1, tmp2);
+            free(tmp2);
+            tmp1 = concat(tmp1, ")");
+            break;
+    }
+    code = concat(code, tmp1);
+    free(tmp1);
+    code = concat(code, ")");
+    return code;
+}
+
 MemberExpression_node* createMemberExpression(Expression_node* parent, MemberExpressionType_enum type, void* child) {
     MemberExpression_node* memberExpression = (MemberExpression_node*) calloc(1, sizeof(MemberExpression_node));
     memberExpression->type = type;
     memberExpression->parent = parent;
     memberExpression->child.any = child;
     memberExpression->toString = MemberExpression_toString;
+    memberExpression->toCode = MemberExpression_toCode;
     return memberExpression;
 }
 
