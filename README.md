@@ -18,11 +18,11 @@ Your *nix distro probably has these bundled.
 
 ```
 $ make test
-$ make test-verbose
 ```
 
 ### Requirements
 
-Tests require `ava`.
+Tests require `node`, `npm`, and `ava`.
 
-Use `$ npm install` to install `ava`.
+If you have `npm`, `ava` will be automatically installed in `./node_modules`.
+
