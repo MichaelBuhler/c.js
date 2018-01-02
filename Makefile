@@ -1,24 +1,22 @@
-transpiler: out/transpiler
-
-out/transpiler: out src/main.c src/args.c src/node.c src/string_utils.c out/bison.c out/flex.c
-	gcc -o out/transpiler -I src src/main.c src/args.c src/node.c src/string_utils.c out/bison.c out/flex.c
-
-out/flex.c: out src/flex.l
-	flex --outfile out/flex.c src/flex.l
+transpiler: out/flex.c out/bison.c src/main.c src/args.c src/node.c src/string_utils.c
+	gcc -o transpiler -I src out/flex.c out/bison.c src/main.c src/args.c src/node.c src/string_utils.c
 
 out:
 	mkdir out
 
+out/flex.c: out src/flex.l
+	flex --outfile out/flex.c src/flex.l
+
 out/bison.c: out src/bison.y
 	bison --verbose --defines --output-file out/bison.c src/bison.y
 
-clean:
-	rm -fr out
-
-test: transpiler
-	node_modules/.bin/ava test/**/*.test.js
-
-test-verbose: transpiler
+test: transpiler node_modules/.bin/ava
 	node_modules/.bin/ava test/**/*.test.js --verbose
 
-.PHONY: test test-verbose clean
+node_modules/.bin/ava:
+	npm install
+
+clean:
+	rm -frv out transpiler
+
+.PHONY: test clean
