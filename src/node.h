@@ -309,10 +309,12 @@ struct Literal_node {
     LiteralType_enum type;
     Literal_union literalUnion;
     char* (*toString)(Literal_node*);
+    char* (*toCode)(Literal_node*);
 };
 
 struct NullLiteral_node {
     char* (*toString)(NullLiteral_node*);
+    char* (*toCode)(NullLiteral_node*);
 };
 
 struct BooleanLiteral_node {

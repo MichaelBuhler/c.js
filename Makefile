@@ -20,8 +20,8 @@ clean:
 
 sample: out/sample
 
-out/sample: out/sample.c
-	gcc -o out/sample -I src out/sample.c
+out/sample: out/sample.c src/runtime.h src/runtime.c
+	gcc -o out/sample -I src out/sample.c src/runtime.c
 
 out/sample.c: sample.js out/transpiler
 	cat sample.js | out/transpiler --stdin > out/sample.c

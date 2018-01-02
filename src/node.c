@@ -509,6 +509,8 @@ char* Expression_toCode(Expression_node* expression) {
     switch (expression->type) {
         case IDENTIFIER_EXPRESSION_TYPE:
             return expression->expressionUnion.identifier->toCode(expression->expressionUnion.identifier);
+        case LITERAL_EXPRESSION_TYPE:
+            return expression->expressionUnion.literal->toCode(expression->expressionUnion.literal);
         case MEMBER_EXPRESSION_TYPE:
             return expression->expressionUnion.memberExpression->toCode(expression->expressionUnion.memberExpression);
         default:
@@ -744,11 +746,21 @@ char* Literal_toString(Literal_node* literal) {
     }
 }
 
+char* Literal_toCode(Literal_node* literal) {
+    switch (literal->type) {
+        case NULL_LITERAL_TYPE:
+            return literal->literalUnion.nullLiteral->toCode(literal->literalUnion.nullLiteral);
+        default:
+            return new_string("/* Unsupported Literal */");
+    }
+}
+
 Literal_node* createLiteral(LiteralType_enum type, void* untypedLiteral) {
     Literal_node* literal = (Literal_node*) calloc(1, sizeof(Literal_node));
     literal->type = type;
     literal->literalUnion.any = untypedLiteral; // TODO do we need .any ?
     literal->toString = Literal_toString;
+    literal->toCode = Literal_toCode;
     return literal;
 }
 
@@ -756,9 +768,14 @@ char* NullLiteral_toString(NullLiteral_node* nullLiteral) {
     return new_string("null");
 }
 
+char* NullLiteral_toCode(NullLiteral_node* nullLiteral) {
+    return new_string("new_null()");
+}
+
 NullLiteral_node* createNullLiteral() {
     NullLiteral_node* nullLiteral = (NullLiteral_node*) calloc(1, sizeof(NullLiteral_node));
     nullLiteral->toString = NullLiteral_toString;
+    nullLiteral->toCode = NullLiteral_toCode;
     return nullLiteral;
 }
 
