@@ -286,27 +286,7 @@ char* Program_toCode(Program_node* program) {
     }
     char* code = new_string("");
     code = concat(code, "#include <stdlib.h>                                                             \n");
-    code = concat(code, "                                                                                \n");
-    code = concat(code, "////////////////////////////////////////////////////////////////////////////////\n");
-    code = concat(code, "// type definitions                                                             \n");
-    code = concat(code, "                                                                                \n");
-    code = concat(code, "typedef enum variable_type {                                                    \n");
-    code = concat(code, "  UNDEFINED                                                                     \n");
-    code = concat(code, "} variable_type;                                                                \n");
-    code = concat(code, "                                                                                \n");
-    code = concat(code, "typedef struct variable {                                                       \n");
-    code = concat(code, "  variable_type type;                                                           \n");
-    code = concat(code, "  void* value;                                                                  \n");
-    code = concat(code, "} variable;                                                                     \n");
-    code = concat(code, "                                                                                \n");
-    code = concat(code, "typedef struct return_t {                                                       \n");
-    code = concat(code, "  char* error;                                                                  \n");
-    code = concat(code, "  variable value;                                                               \n");
-    code = concat(code, "} return_t;                                                                     \n");
-    code = concat(code, "                                                                                \n");
-    code = concat(code, "variable* new_variable() {                                                      \n");
-    code = concat(code, "  return (variable*) calloc(1, sizeof(variable));                               \n");
-    code = concat(code, "}                                                                               \n");
+    code = concat(code, "#include \"runtime.h\"                                                          \n");
     code = concat(code, "                                                                                \n");
     code = concat(code, "////////////////////////////////////////////////////////////////////////////////\n");
     code = concat(code, "// function definitions                                                         \n");
@@ -385,7 +365,7 @@ char* VariableDeclaration_toString(VariableDeclaration_node* variableDeclaration
 char* VariableDeclaration_toCode(VariableDeclaration_node* variableDeclaration) {
     char* code = new_string("variable* ");
     code = concat(code, variableDeclaration->identifier->name);
-    code = concat(code, " = new_variable();");
+    code = concat(code, " = new_undefined();");
     if ( variableDeclaration->initializer != NULL ) {
         code = concat(code, "\n");
         char* tmp = variableDeclaration->initializer->toString(variableDeclaration->initializer);
@@ -679,7 +659,7 @@ char* ReturnStatement_toCode(ReturnStatement_node* returnStatement) {
     char* code = new_string("{\n");
     char* tmp1 = new_string("return_t ret;\n");
     if ( returnStatement->expression == NULL ) {
-        tmp1 = concat(tmp1, "ret.value.type = UNDEFINED;");
+        tmp1 = concat(tmp1, "ret.value = new_undefined();");
     } else {
         char* tmp2 = new_string("evaluate this expression:\n");
         char* tmp3 = returnStatement->expression->toString(returnStatement->expression);
@@ -687,7 +667,7 @@ char* ReturnStatement_toCode(ReturnStatement_node* returnStatement) {
         free(tmp3);
         tmp1 = concat_comment(tmp1, tmp2);
         free(tmp2);
-        tmp1 = concat(tmp1, "\nret.value.type = UNDEFINED; // not really\nret.value.value = NULL; // result of expression");
+        tmp1 = concat(tmp1, "\nret.value = new_undefined(); // not really\nret.value = NULL; // result of expression");
     }
     tmp1 = concat(tmp1, "\nreturn ret;");
     code = concat_indent(code, tmp1);
