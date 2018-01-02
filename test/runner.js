@@ -8,7 +8,7 @@ module.exports = function (wrappedCode) {
     return function (t) {
         t.plan(1);
 
-        const child = child_process.spawn('./transpiler', ['--stdin']);
+        const child = child_process.spawn('out/transpiler', ['--stdin']);
         child.stdin.end(code);
 
         let stdout = '';
