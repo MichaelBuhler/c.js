@@ -750,6 +750,8 @@ char* Literal_toCode(Literal_node* literal) {
     switch (literal->type) {
         case NULL_LITERAL_TYPE:
             return literal->literalUnion.nullLiteral->toCode(literal->literalUnion.nullLiteral);
+        case BOOLEAN_LITERAL_TYPE:
+            return literal->literalUnion.booleanLiteral->toCode(literal->literalUnion.booleanLiteral);
         default:
             return new_string("/* Unsupported Literal */");
     }
@@ -787,10 +789,19 @@ char* BooleanLiteral_toString(BooleanLiteral_node* booleanLiteral) {
     }
 }
 
+char* BooleanLiteral_toCode(BooleanLiteral_node* booleanLiteral) {
+    if (booleanLiteral->boolean) {
+        return new_string("new_boolean(true)");
+    } else {
+        return new_string("new_boolean(false)");
+    }
+}
+
 BooleanLiteral_node* createBooleanLiteral(char boolean) {
     BooleanLiteral_node* booleanLiteral = (BooleanLiteral_node*) calloc(1, sizeof(BooleanLiteral_node));
     booleanLiteral->boolean = boolean;
     booleanLiteral->toString = BooleanLiteral_toString;
+    booleanLiteral->toCode = BooleanLiteral_toCode;
     return booleanLiteral;
 }
 

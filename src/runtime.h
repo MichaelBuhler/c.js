@@ -1,6 +1,8 @@
 #ifndef RUNTIME_H
 #define RUNTIME_H
 
+#include <stdbool.h>
+
 typedef enum variable_type variable_type;
 
 typedef struct variable variable;
@@ -8,11 +10,13 @@ typedef struct return_t return_t;
 
 variable* new_undefined();
 variable* new_null();
+variable* new_boolean(bool);
 char* native_toString(variable*);
 
 enum variable_type {
     UNDEFINED_VARIABLE_TYPE,
-    NULL_VARIABLE_TYPE
+    NULL_VARIABLE_TYPE,
+    BOOLEAN_VARIABLE_TYPE
 };
 
 struct variable {

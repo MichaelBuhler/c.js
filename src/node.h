@@ -320,6 +320,7 @@ struct NullLiteral_node {
 struct BooleanLiteral_node {
     char boolean;
     char* (*toString)(BooleanLiteral_node*);
+    char* (*toCode)(BooleanLiteral_node*);
 };
 
 struct NumberLiteral_node {
