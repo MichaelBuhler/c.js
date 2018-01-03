@@ -331,6 +331,7 @@ struct NumberLiteral_node {
 struct StringLiteral_node {
     char* string;
     char* (*toString)(StringLiteral_node*);
+    char* (*toCode)(StringLiteral_node*);
 };
 
 #endif

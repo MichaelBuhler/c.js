@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "string.h"
 
 static variable* new_variable();
 static variable* getMember();
@@ -25,6 +26,14 @@ variable* new_boolean(bool value) {
 
 }
 
+variable* new_string(char* string) {
+    variable* var = new_variable();
+    var->type = STRING_VARIABLE_TYPE;
+    char* tmp = var->value = (char*) calloc(1, strlen(string)+1);
+    strcpy(tmp, string);
+    return var;
+}
+
 char* native_toString(variable* var) {
     switch (var->type) {
         case UNDEFINED_VARIABLE_TYPE:
@@ -37,6 +46,8 @@ char* native_toString(variable* var) {
             } else {
                 return "false";
             }
+        case STRING_VARIABLE_TYPE:
+            return (char*) var->value;
     }
 };
 

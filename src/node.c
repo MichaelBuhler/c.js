@@ -752,6 +752,8 @@ char* Literal_toCode(Literal_node* literal) {
             return literal->literalUnion.nullLiteral->toCode(literal->literalUnion.nullLiteral);
         case BOOLEAN_LITERAL_TYPE:
             return literal->literalUnion.booleanLiteral->toCode(literal->literalUnion.booleanLiteral);
+        case STRING_LITERAL_TYPE:
+            return literal->literalUnion.stringLiteral->toCode(literal->literalUnion.stringLiteral);
         default:
             return new_string("/* Unsupported Literal */");
     }
@@ -839,9 +841,19 @@ char* StringLiteral_toString(StringLiteral_node* stringLiteral) {
     return string;
 }
 
+char* StringLiteral_toCode(StringLiteral_node* stringLiteral) {
+    char* code = new_string("new_string(");
+    char* tmp = stringLiteral->toString(stringLiteral);
+    code = concat(code, tmp);
+    free(tmp);
+    code = concat(code, ")");
+    return code;
+}
+
 StringLiteral_node* createStringLiteral(char* string) {
     StringLiteral_node* stringLiteral = (StringLiteral_node*) calloc(1, sizeof(StringLiteral_node));
     stringLiteral->string = new_string(string);
     stringLiteral->toString = StringLiteral_toString;
+    stringLiteral->toCode = StringLiteral_toCode;
     return stringLiteral;
 }
