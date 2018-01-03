@@ -277,6 +277,7 @@ struct LeftHandSideExpression_node {
     LeftHandSideExpressionType_enum type;
     LeftHandSideExpression_union leftHandSideExpressionUnion;
     char* (*toString)(LeftHandSideExpression_node*);
+    char* (*toCode)(LeftHandSideExpression_node*);
 };
 
 struct AssignmentExpression_node {
@@ -284,6 +285,7 @@ struct AssignmentExpression_node {
     AssignmentOperator_enum assignmentOperator;
     Expression_node* expression;
     char* (*toString)(AssignmentExpression_node*);
+    char* (*toCode)(AssignmentExpression_node*);
 };
 
 struct CallExpression_node {

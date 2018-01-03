@@ -509,6 +509,8 @@ char* Expression_toCode(Expression_node* expression) {
     switch (expression->type) {
         case IDENTIFIER_EXPRESSION_TYPE:
             return expression->expressionUnion.identifier->toCode(expression->expressionUnion.identifier);
+        case ASSIGNMENT_EXPRESSION_TYPE:
+            return expression->expressionUnion.assignmentExpression->toCode(expression->expressionUnion.assignmentExpression);
         case LITERAL_EXPRESSION_TYPE:
             return expression->expressionUnion.literal->toCode(expression->expressionUnion.literal);
         case MEMBER_EXPRESSION_TYPE:
@@ -602,11 +604,21 @@ char* LeftHandSideExpression_toString(LeftHandSideExpression_node* leftHandSideE
     return string;
 }
 
+char* LeftHandSideExpression_toCode(LeftHandSideExpression_node* leftHandSideExpression) {
+    switch (leftHandSideExpression->type) {
+        case IDENTIFIER_LEFT_HAND_SIDE_EXPRESSION_TYPE:
+            return leftHandSideExpression->leftHandSideExpressionUnion.identifier->toCode(leftHandSideExpression->leftHandSideExpressionUnion.identifier);
+        case MEMBER_EXPRESSION_LEFT_HAND_SIDE_EXPRESSION_TYPE:
+            return leftHandSideExpression->leftHandSideExpressionUnion.memberExpression->toCode(leftHandSideExpression->leftHandSideExpressionUnion.memberExpression);
+    }
+}
+
 LeftHandSideExpression_node* createLeftHandSideExpression(LeftHandSideExpressionType_enum type, void* expression) {
     LeftHandSideExpression_node* leftHandSideExpression = (LeftHandSideExpression_node*) calloc(1, sizeof(LeftHandSideExpression_node));
     leftHandSideExpression->type = type;
     leftHandSideExpression->leftHandSideExpressionUnion.any = expression;
     leftHandSideExpression->toString = LeftHandSideExpression_toString;
+    leftHandSideExpression->toCode = LeftHandSideExpression_toCode;
     return leftHandSideExpression;
 }
 
@@ -628,12 +640,27 @@ char* AssignmentExpression_toString(AssignmentExpression_node* assignmentExpress
     return string;
 }
 
+char* AssignmentExpression_toCode(AssignmentExpression_node* assignmentExpression) {
+    char* code = assignmentExpression->leftHandSideExpression->toCode(assignmentExpression->leftHandSideExpression);
+    code = concat(code, "->value");
+    switch (assignmentExpression->assignmentOperator) {
+        case EQUALS_ASSIGNMENT_OPERATOR:
+            code = concat(code, " = ");
+            break;
+    }
+    char* tmp = assignmentExpression->expression->toCode(assignmentExpression->expression);
+    code = concat(code, tmp);
+    free(tmp);
+    return code;
+}
+
 AssignmentExpression_node* createAssignmentExpression(LeftHandSideExpression_node* leftHandSideExpression, AssignmentOperator_enum assignmentOperator, Expression_node* expression) {
     AssignmentExpression_node* assignmentExpression = (AssignmentExpression_node*) calloc(1, sizeof(AssignmentExpression_node));
     assignmentExpression->leftHandSideExpression = leftHandSideExpression;
     assignmentExpression->assignmentOperator = assignmentOperator;
     assignmentExpression->expression = expression;
     assignmentExpression->toString = AssignmentExpression_toString;
+    assignmentExpression->toCode = AssignmentExpression_toCode;
     return assignmentExpression;
 }
 
