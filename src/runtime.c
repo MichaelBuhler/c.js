@@ -1,8 +1,9 @@
 #include "runtime.h"
 
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include "string.h"
+#include <string.h>
 
 static variable* new_variable();
 static variable* getMember();
@@ -26,6 +27,14 @@ variable* new_boolean(bool value) {
 
 }
 
+variable* new_number(double value) {
+    variable* var = new_variable();
+    var->type = NUMBER_VARIABLE_TYPE;
+    double* tmp = var->value = (double*) calloc(1, sizeof(double));
+    *tmp = value;
+    return var;
+}
+
 variable* new_string(char* string) {
     variable* var = new_variable();
     var->type = STRING_VARIABLE_TYPE;
@@ -46,6 +55,12 @@ char* native_toString(variable* var) {
             } else {
                 return "false";
             }
+        case NUMBER_VARIABLE_TYPE: {
+            char* tmp = (char*) calloc(30, sizeof(char));
+            sprintf(tmp, "%.18e", *(double*)var->value);
+            tmp = (char*) realloc(tmp, strlen(tmp)+1);
+            return tmp;
+        }
         case STRING_VARIABLE_TYPE:
             return (char*) var->value;
     }

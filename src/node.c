@@ -752,10 +752,10 @@ char* Literal_toCode(Literal_node* literal) {
             return literal->literalUnion.nullLiteral->toCode(literal->literalUnion.nullLiteral);
         case BOOLEAN_LITERAL_TYPE:
             return literal->literalUnion.booleanLiteral->toCode(literal->literalUnion.booleanLiteral);
+        case NUMBER_LITERAL_TYPE:
+            return literal->literalUnion.numberLiteral->toCode(literal->literalUnion.numberLiteral);
         case STRING_LITERAL_TYPE:
             return literal->literalUnion.stringLiteral->toCode(literal->literalUnion.stringLiteral);
-        default:
-            return new_string("/* Unsupported Literal */");
     }
 }
 
@@ -809,18 +809,28 @@ BooleanLiteral_node* createBooleanLiteral(char boolean) {
 
 char* NumberLiteral_toString(NumberLiteral_node* numberLiteral) {
     char* string = new_string("NumberLiteral ");
-    char* tmp = (char*) calloc(100, sizeof(char));
+    char* tmp = (char*) calloc(30, sizeof(char));
     sprintf(tmp, "%.18e", numberLiteral->number);
-    tmp = (char*) realloc(tmp, strlen(tmp)+1);
     string = concat(string, tmp);
     free(tmp);
     return string;
+}
+
+char* NumberLiteral_toCode(NumberLiteral_node* numberLiteral) {
+    char* code = new_string("new_number(");
+    char* tmp = (char*) calloc(30, sizeof(char));
+    sprintf(tmp, "%.18e", numberLiteral->number);
+    code = concat(code, tmp);
+    free(tmp);
+    code = concat(code, ")");
+    return code;
 }
 
 NumberLiteral_node* createNumberLiteral(double number) {
     NumberLiteral_node* numberLiteral = (NumberLiteral_node*) calloc(1, sizeof(NumberLiteral_node));
     numberLiteral->number = number;
     numberLiteral->toString = NumberLiteral_toString;
+    numberLiteral->toCode = NumberLiteral_toCode;
     return numberLiteral;
 }
 

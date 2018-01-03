@@ -326,6 +326,7 @@ struct BooleanLiteral_node {
 struct NumberLiteral_node {
     double number;
     char* (*toString)(NumberLiteral_node*);
+    char* (*toCode)(NumberLiteral_node*);
 };
 
 struct StringLiteral_node {
