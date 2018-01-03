@@ -733,19 +733,15 @@ char* ReturnStatement_toString(ReturnStatement_node* returnStatement) {
 
 char* ReturnStatement_toCode(ReturnStatement_node* returnStatement) {
     char* code = new_string("{\n");
-    char* tmp1 = new_string("return_t ret;\n");
+    char* tmp1 = new_string("return_t ret;\nret.value = ");
     if ( returnStatement->expression == NULL ) {
-        tmp1 = concat(tmp1, "ret.value = new_undefined();");
+        tmp1 = concat(tmp1, "new_undefined()");
     } else {
-        char* tmp2 = new_string("evaluate this expression:\n");
-        char* tmp3 = returnStatement->expression->toString(returnStatement->expression);
-        tmp2 = concat(tmp2, tmp3);
-        free(tmp3);
-        tmp1 = concat_comment(tmp1, tmp2);
+        char* tmp2 = returnStatement->expression->toCode(returnStatement->expression);
+        tmp1 = concat(tmp1, tmp2);
         free(tmp2);
-        tmp1 = concat(tmp1, "\nret.value = new_undefined(); // not really\nret.value = NULL; // result of expression");
     }
-    tmp1 = concat(tmp1, "\nreturn ret;");
+    tmp1 = concat(tmp1, ";\nreturn ret;");
     code = concat_indent(code, tmp1);
     free(tmp1);
     code = concat(code, "\n}");
