@@ -124,23 +124,32 @@ char* Block_toString(Block_node* block) {
 char* Block_toCode(Block_node* block, FormalParameterList_node* formalParameterList) {
     char* code = new_string("{\n");
     char* tmp1 = new_string("");
-    if ( block->statementList->count == 0 ) {
-        tmp1 = concat_comment(tmp1, "empty block");
-    } else {
-        if ( formalParameterList->count == 0 ) {
-            tmp1 = concat(tmp1, "Scope* scope = new_Scope(parentScope);\n");
+    if ( formalParameterList == NULL ) {
+        if ( block->statementList->count == 0 ) {
+            tmp1 = concat_comment(tmp1, "empty block");
         } else {
-            tmp1 = concat(tmp1, "Scope* scope = new_Scope(callingScope);\n");
-            for ( int i = 0 ; i < formalParameterList->count ; i++ ) {
-                Identifier_node* parameter = formalParameterList->parameters[i];
-                tmp1 = concat(tmp1, "scope->setMember(\"");
-                tmp1 = concat(tmp1, parameter->name);
-                tmp1 = concat(tmp1, "\", arguments->getMember(\"");
-                tmp1 = concat(tmp1, parameter->name);
-                tmp1 = concat(tmp1, "\"));\n");
-            }
+            tmp1 = concat(tmp1, "Scope* scope = new_Scope(parentScope);\n");
         }
-        char* tmp2 = block->statementList->toCode(block->statementList);
+    } else {
+        tmp1 = concat(tmp1, "Scope* scope = new_Scope(callingScope);\n");
+        for ( int i = 0 ; i < formalParameterList->count ; i++ ) {
+            Identifier_node* parameter = formalParameterList->parameters[i];
+            tmp1 = concat(tmp1, "scope->setMember(\"");
+            tmp1 = concat(tmp1, parameter->name);
+            tmp1 = concat(tmp1, "\", arguments->getMember(\"");
+            tmp1 = concat(tmp1, parameter->name);
+            tmp1 = concat(tmp1, "\"));\n");
+        }
+    }
+    char* tmp2 = block->statementList->toCode(block->statementList);
+    tmp1 = concat(tmp1, tmp2);
+    free(tmp2);
+    if ( formalParameterList != NULL) {
+        tmp1 = concat(tmp1, "\n");
+        // TODO only do this if there is code path without a return statement
+        ReturnStatement_node* returnStatement = createReturnStatement(NULL);
+        tmp2 = returnStatement->toCode(returnStatement);
+        free(returnStatement);
         tmp1 = concat(tmp1, tmp2);
         free(tmp2);
     }
