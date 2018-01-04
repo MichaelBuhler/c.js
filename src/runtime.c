@@ -6,28 +6,33 @@
 #include <stdlib.h>
 #include <string.h>
 
-static variable* new_variable();
+static Variable* new_variable();
 static void createMember(char*);
-static variable* getMember(char*);
-static variable* setMember(char*, variable*);
-static return_t call(variable*, int, ...);
+static Variable* getMember(char*);
+static Variable* setMember(char*, Variable*);
+static Return call(Scope*, int, ...);
 
-variable* new_scope(variable* parentScope) {
-    return new_undefined(); // TODO
+Scope* new_Scope(Scope* parentScope) {
+    Scope* scope = (Scope*) calloc(1, sizeof(Scope));
+    scope->parent = parentScope;
+    scope->createMember = createMember;
+    scope->getMember = getMember;
+    scope->setMember = setMember;
+    return scope;
 }
 
-variable* new_undefined() {
+Variable* new_undefined() {
     return new_variable();
 }
 
-variable* new_null() {
-    variable* var = new_variable();
+Variable* new_null() {
+    Variable* var = new_variable();
     var->type = NULL_VARIABLE_TYPE;
     return var;
 }
 
-variable* new_boolean(bool value) {
-    variable* var = new_variable();
+Variable* new_boolean(bool value) {
+    Variable* var = new_variable();
     var->type = BOOLEAN_VARIABLE_TYPE;
     bool* tmp = var->value = (bool*) calloc(1, sizeof(bool));
     *tmp = value;
@@ -35,23 +40,23 @@ variable* new_boolean(bool value) {
 
 }
 
-variable* new_number(double value) {
-    variable* var = new_variable();
+Variable* new_number(double value) {
+    Variable* var = new_variable();
     var->type = NUMBER_VARIABLE_TYPE;
     double* tmp = var->value = (double*) calloc(1, sizeof(double));
     *tmp = value;
     return var;
 }
 
-variable* new_string(char* string) {
-    variable* var = new_variable();
+Variable* new_string(char* string) {
+    Variable* var = new_variable();
     var->type = STRING_VARIABLE_TYPE;
     char* tmp = var->value = (char*) calloc(1, strlen(string)+1);
     strcpy(tmp, string);
     return var;
 }
 
-char* native_toString(variable* var) {
+char* native_toString(Variable* var) {
     switch (var->type) {
         case UNDEFINED_VARIABLE_TYPE:
             return "undefined";
@@ -74,23 +79,22 @@ char* native_toString(variable* var) {
     }
 };
 
-static return_t call(variable* scope, int argc, ...) {
+static Return call(Scope* scope, int argc, ...) {
     va_list varargs;
     va_start(varargs, argc);
     for ( int i = 0 ; i < argc ; i++ ) {
         // TODO
     }
     va_end(varargs);
-    return_t ret;
+    Return ret;
     ret.value = new_undefined();
     return ret;
 }
 
-static variable* new_variable() {
-    variable* var = (variable*) calloc(1, sizeof(variable));
+static Variable* new_variable() {
+    Variable* var = (Variable*) calloc(1, sizeof(Variable));
     var->type = UNDEFINED_VARIABLE_TYPE;
     var->value = NULL;
-    var->createMember = createMember;
     var->getMember = getMember;
     var->setMember = setMember;
     var->call = call;
@@ -101,12 +105,12 @@ static void createMember(char* name) {
     // TODO
 }
 
-static variable* getMember(char* name) {
+static Variable* getMember(char* name) {
     // TODO
     return new_undefined();
 }
 
-static variable* setMember(char* name, variable* value) {
+static Variable* setMember(char* name, Variable* value) {
     // TODO
     return value;
 }

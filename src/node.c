@@ -36,7 +36,7 @@ char* Statement_toCode(Statement_node* statement) {
     switch (statement->type) {
         case BLOCK_STATEMENT_TYPE: {
             char* code = new_string("{\n");
-            char* tmp1 = new_string("variable* parentScope = scope;\n");
+            char* tmp1 = new_string("Scope* parentScope = scope;\n");
             char* tmp2 = statement->statementUnion.block->toCode(statement->statementUnion.block, NULL);
             tmp1 = concat(tmp1, tmp2);
             free(tmp2);
@@ -128,9 +128,9 @@ char* Block_toCode(Block_node* block, FormalParameterList_node* formalParameterL
         tmp1 = concat_comment(tmp1, "empty block");
     } else {
         if ( formalParameterList->count == 0 ) {
-            tmp1 = concat(tmp1, "variable* scope = new_scope(parentScope);\n");
+            tmp1 = concat(tmp1, "Scope* scope = new_Scope(parentScope);\n");
         } else {
-            tmp1 = concat(tmp1, "variable* scope = new_scope(callingScope);\n");
+            tmp1 = concat(tmp1, "Scope* scope = new_Scope(callingScope);\n");
             for ( int i = 0 ; i < formalParameterList->count ; i++ ) {
                 Identifier_node* parameter = formalParameterList->parameters[i];
                 tmp1 = concat(tmp1, "scope->setMember(\"");
@@ -209,9 +209,9 @@ char* FunctionDeclaration_toString(FunctionDeclaration_node* functionDeclaration
 }
 
 char* FunctionDeclaration_toCode(FunctionDeclaration_node* functionDeclaration) {
-    char* code = new_string("static return_t ");
+    char* code = new_string("static Return ");
     code = concat(code, functionDeclaration->identifier->name);
-    code = concat(code, "(variable* callingScope, variable* arguments) ");
+    code = concat(code, "(Scope* callingScope, Variable* arguments) ");
     char* tmp = functionDeclaration->block->toCode(functionDeclaration->block, functionDeclaration->formalParameterList);
     code = concat(code, tmp);
     free(tmp);
@@ -302,7 +302,7 @@ char* Program_toCode(Program_node* program) {
     code = concat(code, "////////////////////////////////////////////////////////////////////////////////\n");
     code = concat(code, "// main program\n\n");
     code = concat(code, "int main(int argc, char** argv) {\n");
-    char* tmp1 = new_string("variable* scope = new_undefined();");
+    char* tmp1 = new_string("Scope* scope = new_Scope(NULL);");
     for ( int i = 0 ; i < program->sourceElements->count ; i++ ) {
         if ( program->sourceElements->elements[i]->type == STATEMENT_SOURCE_ELEMENT_TYPE ) {
             tmp1 = concat(tmp1, "\n");
@@ -773,7 +773,7 @@ char* ReturnStatement_toString(ReturnStatement_node* returnStatement) {
 
 char* ReturnStatement_toCode(ReturnStatement_node* returnStatement) {
     char* code = new_string("{\n");
-    char* tmp1 = new_string("return_t ret;\nret.value = ");
+    char* tmp1 = new_string("Return ret;\nret.value = ");
     if ( returnStatement->expression == NULL ) {
         tmp1 = concat(tmp1, "new_undefined()");
     } else {

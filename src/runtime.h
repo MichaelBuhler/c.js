@@ -3,22 +3,22 @@
 
 #include <stdbool.h>
 
-typedef enum variable_type variable_type;
+typedef enum VariableType VariableType;
 
-typedef struct variable variable;
-typedef struct return_t return_t;
+typedef struct Scope Scope;
+typedef struct Variable Variable;
+typedef struct Return Return;
 
-extern variable global_scope;
+Scope* new_Scope(Scope* parentScope);
+Variable* new_undefined();
+Variable* new_null();
+Variable* new_boolean(bool);
+Variable* new_number(double);
+Variable* new_string(char*);
 
-variable* new_scope(variable* parentScope);
-variable* new_undefined();
-variable* new_null();
-variable* new_boolean(bool);
-variable* new_number(double);
-variable* new_string(char*);
-char* native_toString(variable*);
+char* native_toString(Variable*);
 
-enum variable_type {
+enum VariableType {
     UNDEFINED_VARIABLE_TYPE,
     NULL_VARIABLE_TYPE,
     BOOLEAN_VARIABLE_TYPE,
@@ -26,18 +26,24 @@ enum variable_type {
     STRING_VARIABLE_TYPE
 };
 
-struct variable {
-    variable_type type;
-    void* value;
+struct Scope {
+    Scope* parent;
     void (*createMember)(char*);
-    variable* (*getMember)(char*);
-    variable* (*setMember)(char*, variable*);
-    return_t (*call)(variable*, int, ...);
+    Variable* (*getMember)(char*);
+    Variable* (*setMember)(char*, Variable*);
 };
 
-struct return_t {
+struct Variable {
+    enum VariableType type;
+    void* value;
+    Variable* (*getMember)(char*);
+    Variable* (*setMember)(char*, Variable*);
+    Return (*call)(Scope*, int, ...);
+};
+
+struct Return {
     char* error;
-    variable* value;
+    Variable* value;
 };
 
 #endif
