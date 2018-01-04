@@ -45,15 +45,15 @@ typedef struct NumberLiteral_node             NumberLiteral_node;
 typedef struct StringLiteral_node             StringLiteral_node;
 
 Identifier_node*              createIdentifier(char*);
-StatementList_node*           createStatementList(Statement_node*);
-Block_node*                   createBlock();
+StatementList_node*           createStatementList();
+Block_node*                   createBlock(StatementList_node*);
 Statement_node*               createStatement(StatementType_enum, void*);
-FormalParameterList_node*     createFormalParameterList(Identifier_node*);
+FormalParameterList_node*     createFormalParameterList();
 FunctionDeclaration_node*     createFunctionDeclaration(Identifier_node*, FormalParameterList_node*, Block_node*);
 SourceElement_node*           createSourceElement(SourceElementType_enum, void*);
-SourceElements_node*          createSourceElements(SourceElement_node*);
+SourceElements_node*          createSourceElements();
 VariableStatement_node*       createVariableStatement();
-VariableDeclaration_node*     createVariableDeclaration(Identifier_node*, Initializer_node*);
+VariableDeclaration_node*     createVariableDeclaration(Identifier_node*);
 VariableDeclarationList_node* createVariableDeclarationList(VariableDeclaration_node*);
 Initializer_node*             createInitializer(Expression_node*);
 Program_node*                 createProgram(SourceElements_node*);
@@ -64,7 +64,7 @@ MemberExpression_node*        createMemberExpression(Expression_node*, MemberExp
 LeftHandSideExpression_node*  createLeftHandSideExpression(LeftHandSideExpressionType_enum, void*);
 AssignmentExpression_node*    createAssignmentExpression(LeftHandSideExpression_node*, AssignmentOperator_enum assignmentOperator, Expression_node*);
 CallExpression_node*          createCallExpression(Expression_node*, ArgumentList_node*);
-ArgumentList_node*            createArgumentList(Expression_node*);
+ArgumentList_node*            createArgumentList();
 ReturnStatement_node*         createReturnStatement(Expression_node*);
 Literal_node*                 createLiteral(LiteralType_enum, void*);
 NullLiteral_node*             createNullLiteral();
@@ -162,7 +162,6 @@ union Literal_union {
 struct Identifier_node {
     char* name;
     char* (*toString)(Identifier_node*);
-    char* (*toCode)(Identifier_node*);
 };
 
 struct StatementList_node {
@@ -176,7 +175,7 @@ struct StatementList_node {
 struct Block_node {
     StatementList_node* statementList;
     char* (*toString)(Block_node*);
-    char* (*toCode)(Block_node*, char);
+    char* (*toCode)(Block_node*, FormalParameterList_node*);
 };
 
 struct Statement_node {
@@ -277,7 +276,6 @@ struct LeftHandSideExpression_node {
     LeftHandSideExpressionType_enum type;
     LeftHandSideExpression_union leftHandSideExpressionUnion;
     char* (*toString)(LeftHandSideExpression_node*);
-    char* (*toCode)(LeftHandSideExpression_node*);
 };
 
 struct AssignmentExpression_node {
@@ -292,6 +290,7 @@ struct CallExpression_node {
     Expression_node* function;
     ArgumentList_node* argumentList;
     char* (*toString)(CallExpression_node*);
+    char* (*toCode)(CallExpression_node*);
 };
 
 struct ArgumentList_node {
@@ -299,6 +298,7 @@ struct ArgumentList_node {
     Expression_node** arguments;
     void (*append)(ArgumentList_node*, Expression_node*);
     char* (*toString)(ArgumentList_node*);
+    char* (*toCode)(ArgumentList_node*);
 };
 
 struct ReturnStatement_node {

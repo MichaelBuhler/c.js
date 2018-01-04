@@ -9,7 +9,7 @@ extern char VERBOSE_PARSER;
 
 int yylex();
 
-Program_node* root = NULL;
+Program_node* root;
 
 static void debug(char* string) {
     if (VERBOSE_PARSER) {
@@ -121,12 +121,12 @@ static void yyerror(char *s) {
 // 14 Program
 
 Program:
-    /* empty program */ { debug("parsed empty Program"); root = createProgram(NULL); }
+    /* empty program */ { debug("parsed empty Program"); root = createProgram(createSourceElements()); }
     | SourceElements { debug("parsed Program"); root = createProgram($1); }
     ;
 
 SourceElements:
-    SourceElement { debug("parsed SourceElements"); $$ = createSourceElements($1); }
+    SourceElement { debug("parsed SourceElements"); $$ = createSourceElements(); $$->append($$, $1); }
     | SourceElements SourceElement { debug("parsed SourceElements"); $1->append($1, $2); $$ = $1; }
     ;
 
@@ -139,12 +139,12 @@ SourceElement:
 // 13 Function Definition
 
 FunctionDeclaration:
-    FUNCTION Identifier LEFT_PAREN RIGHT_PAREN Block { debug("parsed FunctionDeclaration"); $$ = createFunctionDeclaration($2, NULL, $5); }
+    FUNCTION Identifier LEFT_PAREN RIGHT_PAREN Block { debug("parsed FunctionDeclaration"); $$ = createFunctionDeclaration($2, createFormalParameterList(), $5); }
     | FUNCTION Identifier LEFT_PAREN FormalParameterList RIGHT_PAREN Block { debug("parsed FunctionDeclaration"); $$ = createFunctionDeclaration($2, $4, $6); }
     ;
 
 FormalParameterList:
-    Identifier { debug("parsed FormalParameterList"); $$ = createFormalParameterList($1); }
+    Identifier { debug("parsed FormalParameterList"); $$ = createFormalParameterList(); $$->append($$, $1) }
     | FormalParameterList COMMA Identifier { debug("parsed FormalParameterList"); $1->append($1, $3); $$ = $1; }
     ;
 
@@ -165,12 +165,12 @@ Statement:
     ;
 
 Block:
-    LEFT_BRACE RIGHT_BRACE { debug("parsed Block"); $$ = createBlock(); }
-    | LEFT_BRACE StatementList RIGHT_BRACE { debug("parsed Block"); $$ = createBlock(); $$->statementList = $2; }
+    LEFT_BRACE RIGHT_BRACE { debug("parsed Block"); $$ = createBlock(createStatementList()); }
+    | LEFT_BRACE StatementList RIGHT_BRACE { debug("parsed Block"); $$ = createBlock($2); }
     ;
 
 StatementList:
-    Statement { debug("parsed StatementList"); $$ = createStatementList($1); }
+    Statement { debug("parsed StatementList"); $$ = createStatementList(); $$->append($$, $1); }
     | StatementList Statement { debug("parsed StatementList"); $1->append($1, $2); $$ = $1; }
     ;
 
@@ -184,8 +184,8 @@ VariableDeclarationList:
     ;
 
 VariableDeclaration:
-    Identifier { debug("parsed VariableDeclaration"); $$ = createVariableDeclaration($1, NULL); }
-    | Identifier Initializer { debug("parsed VariableDeclaration"); $$ = createVariableDeclaration($1, $2); }
+    Identifier { debug("parsed VariableDeclaration"); $$ = createVariableDeclaration($1); }
+    | Identifier Initializer { debug("parsed VariableDeclaration"); $$ = createVariableDeclaration($1); $$->initializer = $2; }
     ;
 
 Initializer:
@@ -259,12 +259,12 @@ MemberExpression:
     ;
 
 CallExpression:
-    Expression LEFT_PAREN RIGHT_PAREN { debug("parsed CallExpression"); $$ = createCallExpression($1, NULL); }
+    Expression LEFT_PAREN RIGHT_PAREN { debug("parsed CallExpression"); $$ = createCallExpression($1, createArgumentList()); }
     | Expression LEFT_PAREN ArgumentList RIGHT_PAREN { debug("parsed CallExpression"); $$ = createCallExpression($1, $3); }
     ;
 
 ArgumentList:
-    Expression { debug("parsed ArgumentList"); $$ = createArgumentList($1); }
+    Expression { debug("parsed ArgumentList"); $$ = createArgumentList(); $$->append($$, $1); }
     | ArgumentList COMMA Expression { debug("parsed ArgumentList"); $1->append($1, $3); $$ = $1; }
     ;
 

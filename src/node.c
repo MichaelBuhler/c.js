@@ -10,15 +10,10 @@ char* Identifier_toString(Identifier_node* identifier) {
     return string;
 }
 
-char* Identifier_toCode(Identifier_node* identifier) {
-    return new_string(identifier->name);
-}
-
 Identifier_node* createIdentifier(char* name) {
     Identifier_node* identifier = (Identifier_node*) calloc(1, sizeof(Identifier_node));
     identifier->name = new_string(name);
     identifier->toString = Identifier_toString;
-    identifier->toCode = Identifier_toCode;
     return identifier;
 }
 
@@ -39,8 +34,17 @@ char* Statement_toString(Statement_node* statement) {
 
 char* Statement_toCode(Statement_node* statement) {
     switch (statement->type) {
-        case BLOCK_STATEMENT_TYPE:
-            return statement->statementUnion.block->toCode(statement->statementUnion.block, 0);
+        case BLOCK_STATEMENT_TYPE: {
+            char* code = new_string("{\n");
+            char* tmp1 = new_string("variable* parentScope = scope;\n");
+            char* tmp2 = statement->statementUnion.block->toCode(statement->statementUnion.block, NULL);
+            tmp1 = concat(tmp1, tmp2);
+            free(tmp2);
+            code = concat_indent(code, tmp1);
+            free(tmp1);
+            code = concat(code, "\n}");
+            return code;
+        }
         case VARIABLE_STATEMENT_TYPE:
             return statement->statementUnion.variableStatement->toCode(statement->statementUnion.variableStatement);
         case EMPTY_STATEMENT_TYPE:
@@ -94,20 +98,19 @@ char* StatementList_toCode(StatementList_node* statementList) {
     return code;
 }
 
-StatementList_node* createStatementList(Statement_node* statement) {
+StatementList_node* createStatementList() {
     StatementList_node* statementList = (StatementList_node*) calloc(1, sizeof(StatementList_node));
     statementList->count = 0;
     statementList->statements = NULL;
     statementList->append = StatementList_append;
     statementList->toString = StatementList_toString;
     statementList->toCode = StatementList_toCode;
-    statementList->append(statementList, statement);
     return statementList;
 }
 
 char* Block_toString(Block_node* block) {
     char* string = new_string("Block");
-    if ( block->statementList == NULL ) {
+    if ( block->statementList->count == 0 ) {
         string = concat(string, " (empty)");
     } else {
         string = concat(string, "\n");
@@ -118,30 +121,38 @@ char* Block_toString(Block_node* block) {
     return string;
 }
 
-char* Block_toCode(Block_node* block, char isFunction) {
+char* Block_toCode(Block_node* block, FormalParameterList_node* formalParameterList) {
     char* code = new_string("{\n");
-    if ( block->statementList == NULL ) {
-        code = concat_indent(code, "// empty block");
+    char* tmp1 = new_string("");
+    if ( block->statementList->count == 0 ) {
+        tmp1 = concat_comment(tmp1, "empty block");
     } else {
-        char* tmp = block->statementList->toCode(block->statementList);
-        code = concat_indent(code, tmp);
-        free(tmp);
+        if ( formalParameterList->count == 0 ) {
+            tmp1 = concat(tmp1, "variable* scope = new_scope(parentScope);\n");
+        } else {
+            tmp1 = concat(tmp1, "variable* scope = new_scope(callingScope);\n");
+            for ( int i = 0 ; i < formalParameterList->count ; i++ ) {
+                Identifier_node* parameter = formalParameterList->parameters[i];
+                tmp1 = concat(tmp1, "scope->setMember(\"");
+                tmp1 = concat(tmp1, parameter->name);
+                tmp1 = concat(tmp1, "\", arguments->getMember(\"");
+                tmp1 = concat(tmp1, parameter->name);
+                tmp1 = concat(tmp1, "\"));\n");
+            }
+        }
+        char* tmp2 = block->statementList->toCode(block->statementList);
+        tmp1 = concat(tmp1, tmp2);
+        free(tmp2);
     }
-    if (isFunction) {
-        code = concat(code, "\n");
-        ReturnStatement_node* returnStatement = createReturnStatement(NULL);
-        char* tmp = returnStatement->toCode(returnStatement);
-        free(returnStatement);
-        code = concat_indent(code, tmp);
-        free(tmp);
-    }
+    code = concat_indent(code, tmp1);
+    free(tmp1);
     code = concat(code, "\n}");
     return code;
 }
 
-Block_node* createBlock() {
+Block_node* createBlock(StatementList_node* statementList) {
     Block_node* block = (Block_node*) calloc(1, sizeof(Block_node));
-    block->statementList = NULL;
+    block->statementList = statementList;
     block->toString = Block_toString;
     block->toCode = Block_toCode;
     return block;
@@ -168,13 +179,12 @@ char* FormalParameterList_toString(FormalParameterList_node* formalParameterList
     return string;
 }
 
-FormalParameterList_node* createFormalParameterList(Identifier_node* parameter) {
+FormalParameterList_node* createFormalParameterList() {
     FormalParameterList_node* formalParameterList = (FormalParameterList_node*) calloc(1, sizeof(FormalParameterList_node));
     formalParameterList->count = 0;
     formalParameterList->parameters = NULL;
     formalParameterList->append = FormalParameterList_append;
     formalParameterList->toString = FormalParameterList_toString;
-    formalParameterList->append(formalParameterList, parameter);
     return formalParameterList;
 }
 
@@ -182,7 +192,7 @@ char* FunctionDeclaration_toString(FunctionDeclaration_node* functionDeclaration
     char* string = new_string("FunctionDeclaration\n");
     char* tmp1 = functionDeclaration->identifier->toString(functionDeclaration->identifier);
     tmp1 = concat(tmp1, "\n");
-    if ( functionDeclaration->formalParameterList == NULL ) {
+    if ( functionDeclaration->formalParameterList->count == 0 ) {
         tmp1 = concat(tmp1, "FormalParameterList (empty)");
     } else {
         char* tmp2 = functionDeclaration->formalParameterList->toString(functionDeclaration->formalParameterList);
@@ -200,20 +210,9 @@ char* FunctionDeclaration_toString(FunctionDeclaration_node* functionDeclaration
 
 char* FunctionDeclaration_toCode(FunctionDeclaration_node* functionDeclaration) {
     char* code = new_string("static return_t ");
-    code = concat(code, functionDeclaration->identifier->toCode(functionDeclaration->identifier));
-    code = concat(code, "(");
-    if ( functionDeclaration->formalParameterList != NULL ) {
-        // TODO move this to formalParameterList->toCode()
-        Identifier_node** parameters = functionDeclaration->formalParameterList->parameters;
-        code = concat(code, "variable ");
-        code = concat(code, parameters[0]->name);
-        for ( int j = 1; j < functionDeclaration->formalParameterList->count; j++ ) {
-            code = concat(code, ", variable ");
-            code = concat(code, parameters[j]->name);
-        }
-    }
-    code = concat(code, ") ");
-    char* tmp = functionDeclaration->block->toCode(functionDeclaration->block, 1);
+    code = concat(code, functionDeclaration->identifier->name);
+    code = concat(code, "(variable* callingScope, variable* arguments) ");
+    char* tmp = functionDeclaration->block->toCode(functionDeclaration->block, functionDeclaration->formalParameterList);
     code = concat(code, tmp);
     free(tmp);
     code = concat(code, "\n\n");
@@ -264,13 +263,12 @@ char* SourceElements_toString(SourceElements_node* sourceElements) {
     return string;
 }
 
-SourceElements_node* createSourceElements(SourceElement_node* sourceElement) {
+SourceElements_node* createSourceElements() {
     SourceElements_node* sourceElements = (SourceElements_node*) calloc(1, sizeof(SourceElements_node));
     sourceElements->count = 0;
     sourceElements->elements = NULL;
     sourceElements->append = SourceElements_append;
     sourceElements->toString = SourceElements_toString;
-    sourceElements->append(sourceElements, sourceElement);
     return sourceElements;
 }
 
@@ -286,16 +284,13 @@ char* Program_toString(Program_node* program) {
 }
 
 char* Program_toCode(Program_node* program) {
-    if ( program->sourceElements == NULL || program->sourceElements->count == 0 ) {
-        return new_string("// empty program");
-    }
     char* code = new_string("");
-    code = concat(code, "#include <stdlib.h>                                                             \n");
-    code = concat(code, "#include \"runtime.h\"                                                          \n");
-    code = concat(code, "                                                                                \n");
+    if ( program->sourceElements->count == 0 ) {
+        return concat_comment(code, "empty program");
+    }
+    code = concat(code, "#include <stdlib.h>\n#include \"runtime.h\"\n\n");
     code = concat(code, "////////////////////////////////////////////////////////////////////////////////\n");
-    code = concat(code, "// function definitions                                                         \n");
-    code = concat(code, "                                                                                \n");
+    code = concat(code, "// function declarations\n\n");
     for ( int i = 0 ; i < program->sourceElements->count ; i++ ) {
         if ( program->sourceElements->elements[i]->type == FUNCTION_DECLARATION_SOURCE_ELEMENT_TYPE ) {
             FunctionDeclaration_node* functionDeclaration = program->sourceElements->elements[i]->sourceElementUnion.functionDeclaration;
@@ -305,10 +300,9 @@ char* Program_toCode(Program_node* program) {
         }
     }
     code = concat(code, "////////////////////////////////////////////////////////////////////////////////\n");
-    code = concat(code, "// main program                                                                 \n");
-    code = concat(code, "                                                                                \n");
-    code = concat(code, "int main(int argc, char** argv) {");
-    char* tmp1 = new_string("");
+    code = concat(code, "// main program\n\n");
+    code = concat(code, "int main(int argc, char** argv) {\n");
+    char* tmp1 = new_string("variable* scope = new_undefined();");
     for ( int i = 0 ; i < program->sourceElements->count ; i++ ) {
         if ( program->sourceElements->elements[i]->type == STATEMENT_SOURCE_ELEMENT_TYPE ) {
             tmp1 = concat(tmp1, "\n");
@@ -368,25 +362,25 @@ char* VariableDeclaration_toString(VariableDeclaration_node* variableDeclaration
 }
 
 char* VariableDeclaration_toCode(VariableDeclaration_node* variableDeclaration) {
-    char* code = new_string("variable* ");
-    code = concat(code, variableDeclaration->identifier->toCode(variableDeclaration->identifier));
-    code = concat(code, " = new_undefined();");
+    char* code = new_string("scope->createMember(\"");
+    code = concat(code, variableDeclaration->identifier->name);
+    code = concat(code, "\");");
     if ( variableDeclaration->initializer != NULL ) {
-        code = concat(code, "\n");
-        code = concat(code, variableDeclaration->identifier->toCode(variableDeclaration->identifier));
-        code = concat(code, "->value = ");
+        code = concat(code, "\nscope->setMember(\"");
+        code = concat(code, variableDeclaration->identifier->name);
+        code = concat(code, "\", ");
         char* tmp = variableDeclaration->initializer->toCode(variableDeclaration->initializer);
         code = concat(code, tmp);
         free(tmp);
-        code = concat(code, ";");
+        code = concat(code, ");");
     }
     return code;
 }
 
-VariableDeclaration_node* createVariableDeclaration(Identifier_node* identifier, Initializer_node* initializer) {
+VariableDeclaration_node* createVariableDeclaration(Identifier_node* identifier) {
     VariableDeclaration_node* variableDeclaration = (VariableDeclaration_node*) calloc(1, sizeof(VariableDeclaration_node));
     variableDeclaration->identifier = identifier;
-    variableDeclaration->initializer = initializer;
+    variableDeclaration->initializer = NULL;
     variableDeclaration->toString = VariableDeclaration_toString;
     variableDeclaration->toCode = VariableDeclaration_toCode;
     return variableDeclaration;
@@ -507,12 +501,18 @@ char* Expression_toString(Expression_node* expression) {
 
 char* Expression_toCode(Expression_node* expression) {
     switch (expression->type) {
-        case IDENTIFIER_EXPRESSION_TYPE:
-            return expression->expressionUnion.identifier->toCode(expression->expressionUnion.identifier);
+        case IDENTIFIER_EXPRESSION_TYPE: {
+            char* code = new_string("scope->getMember(\"");
+            code = concat(code, expression->expressionUnion.identifier->name);
+            code = concat(code, "\")");
+            return code;
+        }
         case ASSIGNMENT_EXPRESSION_TYPE:
             return expression->expressionUnion.assignmentExpression->toCode(expression->expressionUnion.assignmentExpression);
         case LITERAL_EXPRESSION_TYPE:
             return expression->expressionUnion.literal->toCode(expression->expressionUnion.literal);
+        case CALL_EXPRESSION_TYPE:
+            return expression->expressionUnion.callExpression->toCode(expression->expressionUnion.callExpression);
         case MEMBER_EXPRESSION_TYPE:
             return expression->expressionUnion.memberExpression->toCode(expression->expressionUnion.memberExpression);
         default:
@@ -559,9 +559,7 @@ char* MemberExpression_toCode(MemberExpression_node* memberExpression) {
     switch (memberExpression->type) {
         case DOT_MEMBER_EXPRESSION_TYPE:
             tmp1 = new_string("\"");
-            tmp2 = memberExpression->child.identifier->toCode(memberExpression->child.identifier);
-            tmp1 = concat(tmp1, tmp2);
-            free(tmp2);
+            tmp1 = concat(tmp1, memberExpression->child.identifier->name);
             tmp1 = concat(tmp1, "\"");
             break;
         case BRACKET_MEMBER_EXPRESSION_TYPE:
@@ -604,21 +602,11 @@ char* LeftHandSideExpression_toString(LeftHandSideExpression_node* leftHandSideE
     return string;
 }
 
-char* LeftHandSideExpression_toCode(LeftHandSideExpression_node* leftHandSideExpression) {
-    switch (leftHandSideExpression->type) {
-        case IDENTIFIER_LEFT_HAND_SIDE_EXPRESSION_TYPE:
-            return leftHandSideExpression->leftHandSideExpressionUnion.identifier->toCode(leftHandSideExpression->leftHandSideExpressionUnion.identifier);
-        case MEMBER_EXPRESSION_LEFT_HAND_SIDE_EXPRESSION_TYPE:
-            return leftHandSideExpression->leftHandSideExpressionUnion.memberExpression->toCode(leftHandSideExpression->leftHandSideExpressionUnion.memberExpression);
-    }
-}
-
 LeftHandSideExpression_node* createLeftHandSideExpression(LeftHandSideExpressionType_enum type, void* expression) {
     LeftHandSideExpression_node* leftHandSideExpression = (LeftHandSideExpression_node*) calloc(1, sizeof(LeftHandSideExpression_node));
     leftHandSideExpression->type = type;
     leftHandSideExpression->leftHandSideExpressionUnion.any = expression;
     leftHandSideExpression->toString = LeftHandSideExpression_toString;
-    leftHandSideExpression->toCode = LeftHandSideExpression_toCode;
     return leftHandSideExpression;
 }
 
@@ -641,16 +629,48 @@ char* AssignmentExpression_toString(AssignmentExpression_node* assignmentExpress
 }
 
 char* AssignmentExpression_toCode(AssignmentExpression_node* assignmentExpression) {
-    char* code = assignmentExpression->leftHandSideExpression->toCode(assignmentExpression->leftHandSideExpression);
-    code = concat(code, "->value");
-    switch (assignmentExpression->assignmentOperator) {
-        case EQUALS_ASSIGNMENT_OPERATOR:
-            code = concat(code, " = ");
+    char* code;
+    switch (assignmentExpression->leftHandSideExpression->type) {
+        case IDENTIFIER_LEFT_HAND_SIDE_EXPRESSION_TYPE:
+            code = new_string("scope");
             break;
+        case MEMBER_EXPRESSION_LEFT_HAND_SIDE_EXPRESSION_TYPE: {
+            MemberExpression_node* memberExpression = assignmentExpression->leftHandSideExpression->leftHandSideExpressionUnion.memberExpression;
+            code = memberExpression->parent->toCode(memberExpression->parent);
+        }
     }
+    code = concat(code, "->setMember(");
+    switch (assignmentExpression->leftHandSideExpression->type) {
+        case IDENTIFIER_LEFT_HAND_SIDE_EXPRESSION_TYPE:
+            code = concat(code, "\"");
+            code = concat(code, assignmentExpression->leftHandSideExpression->leftHandSideExpressionUnion.identifier->name);
+            code = concat(code, "\"");
+            break;
+        case MEMBER_EXPRESSION_LEFT_HAND_SIDE_EXPRESSION_TYPE: {
+            MemberExpression_node* memberExpression = assignmentExpression->leftHandSideExpression->leftHandSideExpressionUnion.memberExpression;
+            switch (memberExpression->type) {
+                case DOT_MEMBER_EXPRESSION_TYPE:
+                    code = concat(code, "\"");
+                    code = concat(code, memberExpression->child.identifier->name);
+                    code = concat(code, "\"");
+                    break;
+                case BRACKET_MEMBER_EXPRESSION_TYPE: {
+                    code = concat(code, "native_toString(");
+                    char* tmp = memberExpression->child.expression->toCode(memberExpression->child.expression);
+                    code = concat(code, tmp);
+                    free(tmp);
+                    code = concat(code, ")");
+                    break;
+                }
+            }
+            break;
+        }
+    }
+    code = concat(code, ", ");
     char* tmp = assignmentExpression->expression->toCode(assignmentExpression->expression);
     code = concat(code, tmp);
     free(tmp);
+    code = concat(code, ")");
     return code;
 }
 
@@ -673,14 +693,20 @@ char* CallExpression_toString(CallExpression_node* callExpression) {
     string = concat_indent(string, tmp1);
     free(tmp1);
     string = concat(string, "\n");
-    if ( callExpression->argumentList == NULL ) {
-        string = concat_indent(string, "ArgumentList (empty)");
-    } else {
-        char* tmp = callExpression->argumentList->toString(callExpression->argumentList);
-        string = concat_indent(string, tmp);
-        free(tmp);
-    }
+    tmp1 = callExpression->argumentList->toString(callExpression->argumentList);
+    string = concat_indent(string, tmp1);
+    free(tmp1);
     return string;
+}
+
+char* CallExpression_toCode(CallExpression_node* callExpression) {
+    char* code = callExpression->function->toCode(callExpression->function);
+    code = concat(code, "->call(scope, ");
+    char* tmp = callExpression->argumentList->toCode(callExpression->argumentList);
+    code = concat(code, tmp);
+    free(tmp);
+    code = concat(code, ").value");
+    return code;
 }
 
 CallExpression_node* createCallExpression(Expression_node* function, ArgumentList_node* argumentList) {
@@ -688,6 +714,7 @@ CallExpression_node* createCallExpression(Expression_node* function, ArgumentLis
     callExpression->function = function;
     callExpression->argumentList = argumentList;
     callExpression->toString = CallExpression_toString;
+    callExpression->toCode = CallExpression_toCode;
     return callExpression;
 }
 
@@ -708,13 +735,26 @@ char* ArgumentList_toString(ArgumentList_node* argumentList) {
     return string;
 }
 
-ArgumentList_node* createArgumentList(Expression_node* argument) {
+char* ArgumentList_toCode(ArgumentList_node* argumentList) {
+    char* code = (char*) calloc(12, sizeof(char));
+    sprintf(code, "%i", argumentList->count);
+    code = (char*) realloc(code, strlen(code)+1);
+    for ( int i = 0 ; i < argumentList->count ; i++ ) {
+        code = concat(code, ", ");
+        char* tmp = argumentList->arguments[i]->toCode(argumentList->arguments[i]);
+        code = concat(code, tmp);
+        free(tmp);
+    }
+    return code;
+}
+
+ArgumentList_node* createArgumentList() {
     ArgumentList_node* argumentList = (ArgumentList_node*) calloc(1, sizeof(ArgumentList_node));
     argumentList->count = 0;
     argumentList->arguments = NULL;
     argumentList->append = ArgumentList_append;
     argumentList->toString = ArgumentList_toString;
-    argumentList->append(argumentList, argument);
+    argumentList->toCode = ArgumentList_toCode;
     return argumentList;
 }
 

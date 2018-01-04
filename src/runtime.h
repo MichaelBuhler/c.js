@@ -8,6 +8,9 @@ typedef enum variable_type variable_type;
 typedef struct variable variable;
 typedef struct return_t return_t;
 
+extern variable global_scope;
+
+variable* new_scope(variable* parentScope);
 variable* new_undefined();
 variable* new_null();
 variable* new_boolean(bool);
@@ -26,7 +29,10 @@ enum variable_type {
 struct variable {
     variable_type type;
     void* value;
+    void (*createMember)(char*);
     variable* (*getMember)(char*);
+    variable* (*setMember)(char*, variable*);
+    return_t (*call)(variable*, int, ...);
 };
 
 struct return_t {

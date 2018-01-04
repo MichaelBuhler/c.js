@@ -19,6 +19,7 @@ clean:
 	rm -frv out/*
 
 sample: out/sample
+	out/sample
 
 out/sample: out/sample.c src/runtime.h src/runtime.c
 	gcc -o out/sample -I src out/sample.c src/runtime.c

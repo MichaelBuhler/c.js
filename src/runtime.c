@@ -1,12 +1,20 @@
 #include "runtime.h"
 
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 static variable* new_variable();
-static variable* getMember();
+static void createMember(char*);
+static variable* getMember(char*);
+static variable* setMember(char*, variable*);
+static return_t call(variable*, int, ...);
+
+variable* new_scope(variable* parentScope) {
+    return new_undefined(); // TODO
+}
 
 variable* new_undefined() {
     return new_variable();
@@ -66,14 +74,39 @@ char* native_toString(variable* var) {
     }
 };
 
-static variable* getMember(char* name) {
-    return new_undefined();
+static return_t call(variable* scope, int argc, ...) {
+    va_list varargs;
+    va_start(varargs, argc);
+    for ( int i = 0 ; i < argc ; i++ ) {
+        // TODO
+    }
+    va_end(varargs);
+    return_t ret;
+    ret.value = new_undefined();
+    return ret;
 }
 
 static variable* new_variable() {
     variable* var = (variable*) calloc(1, sizeof(variable));
     var->type = UNDEFINED_VARIABLE_TYPE;
     var->value = NULL;
+    var->createMember = createMember;
     var->getMember = getMember;
+    var->setMember = setMember;
+    var->call = call;
     return var;
+}
+
+static void createMember(char* name) {
+    // TODO
+}
+
+static variable* getMember(char* name) {
+    // TODO
+    return new_undefined();
+}
+
+static variable* setMember(char* name, variable* value) {
+    // TODO
+    return value;
 }
