@@ -2,6 +2,7 @@
 #define RUNTIME_H
 
 #include <stdbool.h>
+#include "hashtable.h"
 
 typedef enum VariableType VariableType;
 
@@ -28,16 +29,17 @@ enum VariableType {
 
 struct Scope {
     Scope* parent;
-    void (*createMember)(char*);
-    Variable* (*getMember)(char*);
-    Variable* (*setMember)(char*, Variable*);
+    hashtable_t* hashtable;
+    void (*defineVariable)(Scope*, char*);
+    Variable* (*getVariable)(Scope*, char*);
+    void (*setVariable)(Scope*, char*, Variable*);
 };
 
 struct Variable {
     enum VariableType type;
     void* value;
     Variable* (*getMember)(char*);
-    Variable* (*setMember)(char*, Variable*);
+    void (*setMember)(char*, Variable*);
     Return (*call)(Scope*, int, ...);
 };
 

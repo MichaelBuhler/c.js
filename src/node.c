@@ -134,7 +134,7 @@ char* Block_toCode(Block_node* block, FormalParameterList_node* formalParameterL
         tmp1 = concat(tmp1, "Scope* scope = new_Scope(callingScope);\n");
         for ( int i = 0 ; i < formalParameterList->count ; i++ ) {
             Identifier_node* parameter = formalParameterList->parameters[i];
-            tmp1 = concat(tmp1, "scope->setMember(\"");
+            tmp1 = concat(tmp1, "scope->setVariable(scope, \"");
             tmp1 = concat(tmp1, parameter->name);
             tmp1 = concat(tmp1, "\", arguments->getMember(\"");
             tmp1 = concat(tmp1, parameter->name);
@@ -371,11 +371,11 @@ char* VariableDeclaration_toString(VariableDeclaration_node* variableDeclaration
 }
 
 char* VariableDeclaration_toCode(VariableDeclaration_node* variableDeclaration) {
-    char* code = new_string("scope->createMember(\"");
+    char* code = new_string("scope->defineVariable(scope, \"");
     code = concat(code, variableDeclaration->identifier->name);
     code = concat(code, "\");");
     if ( variableDeclaration->initializer != NULL ) {
-        code = concat(code, "\nscope->setMember(\"");
+        code = concat(code, "\nscope->setVariable(scope, \"");
         code = concat(code, variableDeclaration->identifier->name);
         code = concat(code, "\", ");
         char* tmp = variableDeclaration->initializer->toCode(variableDeclaration->initializer);
@@ -511,7 +511,7 @@ char* Expression_toString(Expression_node* expression) {
 char* Expression_toCode(Expression_node* expression) {
     switch (expression->type) {
         case IDENTIFIER_EXPRESSION_TYPE: {
-            char* code = new_string("scope->getMember(\"");
+            char* code = new_string("scope->getVariable(scope, \"");
             code = concat(code, expression->expressionUnion.identifier->name);
             code = concat(code, "\")");
             return code;
