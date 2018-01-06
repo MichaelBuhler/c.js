@@ -7,70 +7,11 @@
 #include <string.h>
 #include "hashtable.h"
 
-static Variable* Variable_getMember(char* name) {
-    // TODO
-    return new_undefined();
-}
-
-static void Variable_setMember(char* name, Variable* member) {
-    // TODO
-}
-
-static Return Variable_call(Scope* scope, int argc, ...) {
-    va_list varargs;
-    va_start(varargs, argc);
-    for ( int i = 0 ; i < argc ; i++ ) {
-        // TODO
-    }
-    va_end(varargs);
-    Return ret;
-    ret.value = new_undefined();
-    return ret;
-}
-
-static Variable* new_variable() {
-    Variable* var = (Variable*) calloc(1, sizeof(Variable));
-    var->type = UNDEFINED_VARIABLE_TYPE;
-    var->value = NULL;
-    var->getMember = Variable_getMember;
-    var->setMember = Variable_setMember;
-    var->call = Variable_call;
-    return var;
-}
-
-Variable* new_undefined() {
-    return new_variable();
-}
-
-Variable* new_null() {
-    Variable* var = new_variable();
-    var->type = NULL_VARIABLE_TYPE;
-    return var;
-}
-
-Variable* new_boolean(bool value) {
-    Variable* var = new_variable();
-    var->type = BOOLEAN_VARIABLE_TYPE;
-    bool* tmp = var->value = (bool*) calloc(1, sizeof(bool));
-    *tmp = value;
-    return var;
-
-}
-
-Variable* new_number(double value) {
-    Variable* var = new_variable();
-    var->type = NUMBER_VARIABLE_TYPE;
-    double* tmp = var->value = (double*) calloc(1, sizeof(double));
-    *tmp = value;
-    return var;
-}
-
-Variable* new_string(char* string) {
-    Variable* var = new_variable();
-    var->type = STRING_VARIABLE_TYPE;
-    char* tmp = var->value = (char*) calloc(1, strlen(string)+1);
-    strcpy(tmp, string);
-    return var;
+static Variable* new_Variable() {
+    Variable* variable = (Variable*) calloc(1, sizeof(Variable));
+    variable->type = UNDEFINED_VARIABLE_TYPE;
+    variable->value = NULL;
+    return variable;
 }
 
 static void Scope_defineVariable(Scope* scope, char* name) {
@@ -78,8 +19,8 @@ static void Scope_defineVariable(Scope* scope, char* name) {
 }
 
 static Variable* Scope_getVariable(Scope* scope, char* name) {
-    Variable* var = ht_get(scope->hashtable, name);
-    if ( var == NULL ) {
+    Variable* variable = ht_get(scope->hashtable, name);
+    if ( variable == NULL ) {
         Scope* parentScope = scope->parent;
         if ( parentScope == NULL ) {
             return new_undefined();
@@ -87,12 +28,13 @@ static Variable* Scope_getVariable(Scope* scope, char* name) {
             return parentScope->getVariable(parentScope, name);
         }
     } else {
-        return var;
+        return variable;
     }
 }
 
-static void Scope_setVariable(Scope* scope, char* name, Variable* var) {
-    ht_set(scope->hashtable, name, var);
+static void Scope_setVariable(Scope* scope, char* name, Variable* variable) {
+    // TODO throw exception if variable is not defined
+    ht_set(scope->hashtable, name, variable);
 }
 
 Scope* new_Scope(Scope* parentScope) {
@@ -105,25 +47,151 @@ Scope* new_Scope(Scope* parentScope) {
     return scope;
 }
 
-char* native_toString(Variable* var) {
-    switch (var->type) {
+static Variable* Object_getProperty(Object* object, char* name) {
+    Variable* variable = ht_get(object->properties, name);
+    if ( variable == NULL ) {
+        variable = ht_get(object->properties, "prototype");
+        if ( variable == NULL ) {
+            return new_undefined();
+        } else {
+            Object* prototype = (Object*) variable->value;
+            return prototype->getProperty(prototype, name);
+        }
+    } else {
+        return variable;
+    }
+}
+
+static void Object_setProperty(Object* object, char* name, Variable* property) {
+    ht_set(object->properties, name, property);
+}
+
+static Return Object_call(Object* object, Scope* scope, int argc, ...) {
+    Return (*function)(Scope*, Object*) = (Return (*)(Scope*, Object*)) ht_get(object->internalProperties, "call");
+    if ( function == NULL ) {
+        // TODO this object is not a function, throw runtime exception
+        Return ret;
+        ret.error = "object is not a function";
+        return ret;
+    } else {
+        va_list varargs;
+        va_start(varargs, argc);
+        Object* arguments = new_Object();
+        for ( int i = 0 ; i < argc ; i++ ) {
+            char* tmp = (char*) calloc(20, sizeof(char));
+            sprintf(tmp, "%i", i);
+            tmp = (char*) realloc(tmp, strlen(tmp)+1);
+            arguments->setProperty(arguments, tmp, (Variable*) va_arg(varargs, Variable*));
+            free(tmp);
+        }
+        va_end(varargs);
+        return function(scope, arguments);
+    }
+}
+
+Object* new_Object() {
+    Object* object = (Object*) calloc(1, sizeof(Object));
+    object->properties = ht_create(1);
+    object->internalProperties = ht_create(1);
+    object->getProperty = Object_getProperty;
+    object->setProperty = Object_setProperty;
+    object->call = Object_call;
+    return object;
+}
+
+Variable* new_undefined() {
+    return new_Variable();
+}
+
+Variable* new_null() {
+    Variable* variable = new_Variable();
+    variable->type = NULL_VARIABLE_TYPE;
+    return variable;
+}
+
+Variable* new_boolean(bool value) {
+    Variable* variable = new_Variable();
+    variable->type = BOOLEAN_VARIABLE_TYPE;
+    bool* tmp = variable->value = (bool*) calloc(1, sizeof(bool));
+    *tmp = value;
+    return variable;
+
+}
+
+Variable* new_number(double value) {
+    Variable* variable = new_Variable();
+    variable->type = NUMBER_VARIABLE_TYPE;
+    double* tmp = variable->value = (double*) calloc(1, sizeof(double));
+    *tmp = value;
+    return variable;
+}
+
+Variable* new_string(char* string) {
+    Variable* variable = new_Variable();
+    variable->type = STRING_VARIABLE_TYPE;
+    char* tmp = variable->value = (char*) calloc(1, strlen(string)+1);
+    strcpy(tmp, string);
+    return variable;
+}
+
+Variable* new_function(Return (*function)(Scope*, Object*)) {
+    Object* object = new_Object();
+    ht_set(object->internalProperties, "call", function);
+    Variable* variable = new_Variable();
+    variable->type = OBJECT_VARIABLE_TYPE;
+    variable->value = object;
+    return variable;
+}
+
+char* native_toString(Variable* variable) {
+    switch (variable->type) {
         case UNDEFINED_VARIABLE_TYPE:
             return "undefined";
         case NULL_VARIABLE_TYPE:
             return "null";
         case BOOLEAN_VARIABLE_TYPE:
-            if (*(bool*)var->value) {
+            if (*(bool*)variable->value) {
                 return "true";
             } else {
                 return "false";
             }
         case NUMBER_VARIABLE_TYPE: {
             char* tmp = (char*) calloc(30, sizeof(char));
-            sprintf(tmp, "%.18e", *(double*)var->value);
+            sprintf(tmp, "%.18e", *(double*)variable->value);
             tmp = (char*) realloc(tmp, strlen(tmp)+1);
             return tmp;
         }
         case STRING_VARIABLE_TYPE:
-            return (char*) var->value;
+            return (char*) variable->value;
+        case OBJECT_VARIABLE_TYPE:
+            // TODO
+            fprintf(stderr, "Unsupported Operation: called native_toString() on an Object\n");
+            return "Unsupported Operation";
     }
 };
+
+Object* native_toObject(Variable* variable) {
+    switch (variable->type) {
+        case UNDEFINED_VARIABLE_TYPE:
+            fprintf(stderr, "Unsupported Operation: called native_toObject on undefined\n");
+            return new_Object();
+        case NULL_VARIABLE_TYPE:
+            fprintf(stderr, "Unsupported Operation: called native_toObject on null\n");
+            return new_Object();
+        case BOOLEAN_VARIABLE_TYPE:
+            fprintf(stderr, "Unsupported Operation: called native_toObject on a boolean\n");
+            return new_Object();
+        case NUMBER_VARIABLE_TYPE:
+            fprintf(stderr, "Unsupported Operation: called native_toObject on a number\n");
+            return new_Object();
+        case STRING_VARIABLE_TYPE:
+            fprintf(stderr, "Unsupported Operation: called native_toObject on a string\n");
+            return new_Object();
+        case OBJECT_VARIABLE_TYPE:
+            return (Object*) variable->value;
+    }
+}
+
+void initialize_runtime(Scope* global) {
+
+}
