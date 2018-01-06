@@ -70,6 +70,7 @@ static Return Object_call(Object* object, Scope* scope, int argc, ...) {
     Return (*function)(Scope*, Object*) = (Return (*)(Scope*, Object*)) ht_get(object->internalProperties, "call");
     if ( function == NULL ) {
         // TODO this object is not a function, throw runtime exception
+        fprintf(stderr, "Unsupported Operation: object is not a function\n");
         Return ret;
         ret.error = "object is not a function";
         return ret;
@@ -77,6 +78,7 @@ static Return Object_call(Object* object, Scope* scope, int argc, ...) {
         va_list varargs;
         va_start(varargs, argc);
         Object* arguments = new_Object();
+        arguments->setProperty(arguments, "length", new_number(argc));
         for ( int i = 0 ; i < argc ; i++ ) {
             char* tmp = (char*) calloc(20, sizeof(char));
             sprintf(tmp, "%i", i);
@@ -192,6 +194,36 @@ Object* native_toObject(Variable* variable) {
     }
 }
 
-void initialize_runtime(Scope* global) {
-
+static Return Console_log(Scope* scope, Object* arguments) {
+    double* count = (double*) arguments->getProperty(arguments, "length")->value;
+    for ( int i = 0 ; i < *count ; i++ ) {
+        if ( i > 0 ) {
+            fprintf(stdout, "%s", " ");
+        }
+        char* tmp = (char*) calloc(20, sizeof(char));
+        sprintf(tmp, "%i", i);
+        Variable* argument = arguments->getProperty(arguments, tmp);
+        free(tmp);
+        fprintf(stdout, "%s", native_toString(argument)); // TODO memory leak
+    }
+    fprintf(stdout, "%s", "\n");
+    Return ret;
+    ret.value = new_undefined();
+    return ret;
 }
+
+static void define_console(Scope* global) {
+    global->defineVariable(global, "console");
+    Variable* console_var = new_Variable();
+    global->setVariable(global, "console", console_var);
+    console_var->type = OBJECT_VARIABLE_TYPE;
+    Object* console_object = new_Object();
+    console_var->value = console_object;
+    console_object->setProperty(console_object, "log", new_function(Console_log));
+}
+
+void initialize_runtime(Scope* global) {
+    define_console(global);
+}
+
+
