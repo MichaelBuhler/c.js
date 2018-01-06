@@ -297,9 +297,6 @@ char* Program_toString(Program_node* program) {
 
 char* Program_toCode(Program_node* program) {
     char* code = new_string("");
-    if ( program->sourceElements->count == 0 ) {
-        return concat_comment(code, "empty program");
-    }
     code = concat(code, "#include <stdlib.h>\n#include \"runtime.h\"\n\n");
     code = concat(code, "////////////////////////////////////////////////////////////////////////////////\n");
     code = concat(code, "// function declarations\n\n");
@@ -314,27 +311,32 @@ char* Program_toCode(Program_node* program) {
     code = concat(code, "////////////////////////////////////////////////////////////////////////////////\n");
     code = concat(code, "// main program\n\n");
     code = concat(code, "int main(int argc, char** argv) {\n");
-    char* tmp1 = new_string("Scope* scope = new_Scope(NULL);\ninitialize_runtime(scope);");
-    for ( int i = 0 ; i < program->sourceElements->count ; i++ ) {
-        SourceElement_node* sourceElement = program->sourceElements->elements[i];
-        tmp1 = concat(tmp1, "\n");
-        switch (sourceElement->type) {
-            case FUNCTION_DECLARATION_SOURCE_ELEMENT_TYPE: {
-                FunctionDeclaration_node* functionDeclaration = sourceElement->sourceElementUnion.functionDeclaration;
-                tmp1 = concat(tmp1, "scope->defineVariable(scope, \"");
-                tmp1 = concat(tmp1, functionDeclaration->identifier->name);
-                tmp1 = concat(tmp1, "\");\nscope->setVariable(scope, \"");
-                tmp1 = concat(tmp1, functionDeclaration->identifier->name);
-                tmp1 = concat(tmp1, "\", new_function(");
-                tmp1 = concat(tmp1, functionDeclaration->identifier->name);
-                tmp1 = concat(tmp1, "));");
-            } break;
-            case STATEMENT_SOURCE_ELEMENT_TYPE: {
-                Statement_node* statement = sourceElement->sourceElementUnion.statement;
-                char* tmp2 = statement->toCode(statement);
-                tmp1 = concat(tmp1, tmp2);
-                free(tmp2);
-            } break;
+    char* tmp1 = new_string("");
+    if ( program->sourceElements->count == 0 ) {
+        tmp1 = concat_comment(tmp1, "empty program");
+    } else {
+        tmp1 = concat(tmp1, "Scope* scope = new_Scope(NULL);\ninitialize_runtime(scope);");
+        for ( int i = 0 ; i < program->sourceElements->count ; i++ ) {
+            SourceElement_node* sourceElement = program->sourceElements->elements[i];
+            tmp1 = concat(tmp1, "\n");
+            switch (sourceElement->type) {
+                case FUNCTION_DECLARATION_SOURCE_ELEMENT_TYPE: {
+                    FunctionDeclaration_node* functionDeclaration = sourceElement->sourceElementUnion.functionDeclaration;
+                    tmp1 = concat(tmp1, "scope->defineVariable(scope, \"");
+                    tmp1 = concat(tmp1, functionDeclaration->identifier->name);
+                    tmp1 = concat(tmp1, "\");\nscope->setVariable(scope, \"");
+                    tmp1 = concat(tmp1, functionDeclaration->identifier->name);
+                    tmp1 = concat(tmp1, "\", new_function(");
+                    tmp1 = concat(tmp1, functionDeclaration->identifier->name);
+                    tmp1 = concat(tmp1, "));");
+                } break;
+                case STATEMENT_SOURCE_ELEMENT_TYPE: {
+                    Statement_node* statement = sourceElement->sourceElementUnion.statement;
+                    char* tmp2 = statement->toCode(statement);
+                    tmp1 = concat(tmp1, tmp2);
+                    free(tmp2);
+                } break;
+            }
         }
     }
     tmp1 = concat(tmp1, "\nreturn 0;");
