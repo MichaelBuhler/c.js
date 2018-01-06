@@ -212,6 +212,24 @@ static Return Console_log(Scope* scope, Object* arguments) {
     return ret;
 }
 
+static Return Console_error(Scope* scope, Object* arguments) {
+    double* count = (double*) arguments->getProperty(arguments, "length")->value;
+    for ( int i = 0 ; i < *count ; i++ ) {
+        if ( i > 0 ) {
+            fprintf(stderr, "%s", " ");
+        }
+        char* tmp = (char*) calloc(20, sizeof(char));
+        sprintf(tmp, "%i", i);
+        Variable* argument = arguments->getProperty(arguments, tmp);
+        free(tmp);
+        fprintf(stderr, "%s", native_toString(argument)); // TODO memory leak
+    }
+    fprintf(stderr, "%s", "\n");
+    Return ret;
+    ret.value = new_undefined();
+    return ret;
+}
+
 static void define_console(Scope* global) {
     global->defineVariable(global, "console");
     Variable* console_var = new_Variable();
@@ -220,6 +238,7 @@ static void define_console(Scope* global) {
     Object* console_object = new_Object();
     console_var->value = console_object;
     console_object->setProperty(console_object, "log", new_function(Console_log));
+    console_object->setProperty(console_object, "error", new_function(Console_error));
 }
 
 void initialize_runtime(Scope* global) {
