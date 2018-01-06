@@ -8,3 +8,6 @@ test.cb('Empty Block', executor(function () {
     {}
 }, ''));
 
+test.cb('Hello World', executor(function () {
+    console.log('Hello, World!');
+}, 'Hello, World!\n'));
