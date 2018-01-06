@@ -577,10 +577,12 @@ char* MemberExpression_toString(MemberExpression_node* memberExpression) {
 }
 
 char* MemberExpression_toCode(MemberExpression_node* memberExpression) {
-    char* code = new_string("native_toObject(");
-    char* tmp1 = memberExpression->parent->toCode(memberExpression->parent);
+    char* code = new_string("");
+    char* tmp1 = new_string("native_toObject(");
+    tmp1 = concat(tmp1, memberExpression->parent->toCode(memberExpression->parent));
+    tmp1 = concat(tmp1, ")");
     code = concat(code, tmp1);
-    code = concat(code, ")->getProperty(");
+    code = concat(code, "->getProperty(");
     code = concat(code, tmp1);
     free(tmp1);
     code = concat(code, ", ");
